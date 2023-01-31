@@ -18,8 +18,8 @@ new p5((p: p5) => {
         p.strokeWeight(3)
         p.noFill()
 
-        // rectWidRatio = p.constrain(p.cos(p.frameCount * 0.6) + 0.6, 0, 0.7)
-        // sides = p.map(p.sin(p.frameCount * 0.2), -1, 1, 3, 6)
+        rectWidRatio = p.constrain(p.cos(p.frameCount * 0.6) + 0.6, 0, 0.7)
+        sides = p.map(p.sin(p.frameCount * 0.2), -1, 1, 3, 6)
 
         let rectLen = p.width * rectLenP
         let rectWid = rectLen * rectWidRatio
@@ -40,13 +40,6 @@ new p5((p: p5) => {
                 p.push()
                 p.translate(xPos, yPos)
                 p.rotate(checkered(xi, yi) ? 0 : 180)
-
-                // p.stroke(
-                //     p.noise(xi, yi) * 255,
-                //     0,
-                //     p.map(p.noise(yi, xi), 0, 1, 50, 200),
-                //     100
-                // )
 
                 squareStar(rectWid, rectLen, sides)
                 p.pop()
