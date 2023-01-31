@@ -2,9 +2,9 @@ import p5 from 'p5'
 import '../style.css'
 
 new p5((p: p5) => {
-    let rectLenP = 0.25
-    let rectWidRatio = 0.15
-    let sides = 6
+    let rectLenP = 0.15
+    let rectWidRatio = 0.25
+    let sides = 3
 
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
@@ -18,8 +18,8 @@ new p5((p: p5) => {
         p.strokeWeight(3)
         p.noFill()
 
-        rectWidRatio = p.constrain(p.cos(p.frameCount * 0.6) + 0.6, 0, 0.7)
-        sides = p.map(p.sin(p.frameCount * 0.2), -1, 1, 3, 6)
+        // rectWidRatio = p.constrain(p.cos(p.frameCount * 0.6) + 0.6, 0, 0.7)
+        // sides = p.map(p.sin(p.frameCount * 0.2), -1, 1, 3, 6)
 
         let rectLen = p.width * rectLenP
         let rectWid = rectLen * rectWidRatio
