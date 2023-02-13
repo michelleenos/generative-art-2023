@@ -19,17 +19,27 @@ const paletteFromUrl = (url) =>
 const palettes = paletteUrls.map((url) => paletteFromUrl(url))
 
 new p5((p: p5) => {
-    let palette = p.random(palettes)
-    let colors: ReturnType<typeof colorUtils> = colorUtils(p, palette)
+    let palette, btn
+    // let palette = p.random(palettes)
+    let colors: ReturnType<typeof colorUtils>
     let shapes: ReturnType<typeof shapeUtils> = shapeUtils(p)
+    // let btn
 
     p.setup = function () {
-        p.createCanvas(window.innerWidth, window.innerHeight)
+        let canvas = p.createCanvas(window.innerWidth, window.innerHeight)
+        btn = p
+            .createButton('save')
+            .parent('btns')
+            .mouseClicked(() => p.saveCanvas(canvas, 'hexagons', 'jpg'))
         p.noLoop()
-        p.background(palette.shift())
     }
 
     p.draw = function () {
+        palette = p.random(palettes).map((c) => c)
+        colors = colorUtils(p, palette)
+
+        p.background(palette.shift())
+
         let m = p.min(p.width, p.height)
         let yStep = m * 0.06
         let xStep = yStep * 0.8
@@ -58,6 +68,10 @@ new p5((p: p5) => {
                 p.pop()
             }
         }
+    }
+
+    p.mouseClicked = function (e: Event) {
+        if (e.target !== btn.elt) p.redraw()
     }
 
     function design(points, cx, cy, style = -1) {

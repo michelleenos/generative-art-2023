@@ -48,20 +48,40 @@ canvas {
 }
 
 button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
+    border-radius: 0.5rem;
+    border: 2px solid rgba(191, 29, 142, 0.5);
+    margin: 1rem;
+    padding: 0 0.7rem;
+    line-height: 1.8rem;
+    font-size: 1rem;
+    font-weight: 600;
     font-family: inherit;
-    background-color: #1a1a1a;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #171717;
     cursor: pointer;
     transition: border-color 0.25s;
 }
-button:hover {
+
+button.btn-absolute {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+button:hover,
+button:focus {
     border-color: #646cff;
+    background-color: rgba(255, 255, 255, 1);
 }
 button:focus,
 button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
+}
+
+.absolute-container {
+    position: absolute;
+    padding: 1rem;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
 }
