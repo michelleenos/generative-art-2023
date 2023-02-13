@@ -30,27 +30,35 @@ export const colorUtils = (p: p5, palette) => ({
     },
 })
 
-type PtsIndexToMove = false | [number, number] | number
+export type PtsIndexToMove = false | [number, number] | number
 
-type MoveOpts = {
+export type MoveOpts = {
     mult?: [number, number]
     subset?: PtsIndexToMove
 }
 
-interface MoveCenterOpts extends MoveOpts {
+export interface MoveCenterOpts extends MoveOpts {
     pts: p5.Vector[]
 }
 
-type ShapeOpts = {
+export type ShapeOpts = {
     scale?: [number, number]
     rotate?: boolean
     moveOpts?: MoveOpts
 }
 
-type TrisOpts = {
+export type TrisOpts = {
     scale?: [number, number] | number
     scaleChance?: number
-    chance?: number
+    num?: number
+    translate?: false | number
+    chooseColor?: () => void
+}
+
+export type CirclesOpts = {
+    radius?: number | (() => number)
+    num?: number
+    chooseColor?: () => void
     translate?: false | number
 }
 
@@ -68,9 +76,9 @@ export const shapeUtils = (p: p5) => ({
 
     moveCenter: ({ pts, subset = false, mult = [0.2, 0.8] }: MoveCenterOpts) => {
         let chooseFrom = pts
-        if (subset && typeof subset === 'number') {
+        if (typeof subset === 'number') {
             chooseFrom = [pts[subset]]
-        } else if (subset && typeof subset === 'object') {
+        } else if (typeof subset === 'object') {
             chooseFrom = pts.slice(subset[0], subset[1])
         }
         let move = p.random(chooseFrom).copy().mult(p.random(mult[0], mult[1]))
@@ -86,38 +94,59 @@ export const shapeUtils = (p: p5) => ({
         p.endShape()
     },
 
-    shapeMoved: function (pts: p5.Vector[], { moveOpts = {}, rotate = false, scale = [0.4, 0.6] }: ShapeOpts = {}) {
+    shapeMoved: function (
+        pts: p5.Vector[],
+        { moveOpts = {}, rotate = false, scale = [0.4, 0.6] }: ShapeOpts = {}
+    ) {
+        let rotateVals = [p.PI * 0.5, p.PI * 0.25, p.PI * -0.25]
         let scaleVal = p.random(scale[0], scale[1])
+
         p.push()
         this.moveCenter({ pts, ...moveOpts })
+        // rotate && p.rotate(p.random(rotateVals))
         rotate && p.rotate(p.PI / 2)
         this.shape(pts.map((pt) => pt.copy().mult(scaleVal)))
         p.pop()
     },
 
     baseShape: function (pts: p5.Vector[]) {
-        this.shapeMoved(pts, { scale: [0.8, 1.1] })
+        this.shapeMoved(pts, {
+            scale: [0.8, 1.1],
+            moveOpts: { mult: [0, 0.2] },
+            // rotate: p.random() < 0.5,
+        })
     },
 
     trisRound: function (
         pts: p5.Vector[],
         center: p5.Vector,
-        { translate = 0.3, chance = 1, scale = [0.6, 0.8], scaleChance = 0.5 }: TrisOpts = {}
+        {
+            translate = 0.3,
+            num = 3,
+            scale = [0.5, 0.8],
+            scaleChance = 1,
+            chooseColor = undefined,
+        }: TrisOpts = {}
     ) {
-        let len = pts.length
-        if (typeof scale === 'number') scale = [scale, 1]
+        let indexes = pts.map((_, i) => i)
+        p.shuffle(indexes, true)
+        if (!num) num = p.floor(p.random(indexes.length))
 
-        for (let i = 0; i < len; i++) {
-            if (p.random() > chance) continue
+        if (typeof scale === 'number') scale = [scale, scale]
 
-            let pt1 = pts[i]
-            let pt2 = pts[(i + 1) % len]
+        let len = indexes.length
+
+        for (let i = 0; i < Math.min(num, len); i++) {
+            let ind: number = indexes.pop()!
+            let pt1 = pts[ind]
+            let pt2 = pts[(ind + 1) % len]
 
             p.push()
             if (translate) {
                 let trans = this.midpoint(pt1, pt2).mult(translate)
                 p.translate(trans.x, trans.y)
             }
+
             if (p.random() < scaleChance) {
                 center = center.copy().mult(scale[0])
                 pt1 = pt1.copy().mult(scale[0])
@@ -127,7 +156,54 @@ export const shapeUtils = (p: p5) => ({
                 pt1 = pt1.copy().mult(scale[1])
                 pt2 = pt2.copy().mult(scale[1])
             }
+            if (chooseColor) chooseColor()
             this.shape([center, pt1, pt2])
+            p.pop()
+        }
+    },
+
+    trisMoved: function (
+        pts: p5.Vector[],
+        center: p5.Vector,
+        trisOpts: TrisOpts = { num: 3, scaleChance: 1 },
+        moveOpts: MoveOpts = { mult: [0.4, 0.8] }
+    ) {
+        p.push()
+        this.moveCenter({ pts, ...moveOpts })
+        this.trisRound(pts, center, trisOpts)
+        p.pop()
+    },
+
+    lines: function (pts: p5.Vector[], center: p5.Vector, num = 0) {
+        let ptsCopy = pts.map((pt) => pt)
+        p.shuffle(ptsCopy, true)
+        if (!num) num = p.floor(p.random(ptsCopy.length))
+
+        for (let i = 0; i < Math.min(num, ptsCopy.length - 1); i++) {
+            p.line(ptsCopy[i].x, ptsCopy[i].y, center.x, center.y)
+        }
+    },
+
+    circles: function (
+        pts: p5.Vector[],
+        { radius = 7, num = 0, translate = 0.5, chooseColor = undefined }: CirclesOpts = {}
+    ) {
+        let ptsCopy = pts.map((pt) => pt)
+        p.shuffle(ptsCopy, true)
+        if (!num) num = p.floor(p.random(ptsCopy.length))
+
+        for (let i = 0; i < Math.min(num, ptsCopy.length - 1); i++) {
+            let pt = ptsCopy[i]
+            p.push()
+            if (translate) {
+                // let trans = this.midpoint(pt, center).mult(translate)
+                let trans = pt.copy().mult(translate)
+                p.translate(trans.x, trans.y)
+            }
+            let r = typeof radius === 'function' ? radius() : radius
+            if (chooseColor) chooseColor()
+
+            p.circle(0, 0, r)
             p.pop()
         }
     },
