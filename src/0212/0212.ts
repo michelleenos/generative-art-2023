@@ -1,6 +1,9 @@
 import p5 from 'p5'
 import '../style.css'
 
+// imagemagick crop saved images:
+// magick circles-s6-4.jpg -gravity Center -crop 1200x1200+0+0 circles-s6-4-crop.jpg
+
 new p5((p: p5) => {
     let btn
     let btns = document.querySelector('#btns')
