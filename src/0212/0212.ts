@@ -21,7 +21,8 @@ new p5((p: p5) => {
         p.noFill()
         p.translate(p.width / 2, p.height / 2)
 
-        drawings(p.random([1, 2, 3, 4, 5]))
+        // drawings(p.random([1, 2, 3, 4, 5]))
+        drawings(6)
     }
 
     p.mouseClicked = function (e: Event) {
@@ -102,8 +103,8 @@ new p5((p: p5) => {
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
                 p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_yi: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
-                break
 
+                break
             case 4:
                 p.strokeWeight(0.5)
                 r_radius = p.random(0.1, 0.5)
@@ -145,6 +146,28 @@ new p5((p: p5) => {
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
                 p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_xi: ${r_xi}`, p.width / 2 - 10, p.height / 2 - 25)
+                break
+            case 6:
+                p.strokeWeight(0.5)
+
+                r_radius = p.random(0.1, 0.5)
+                r_yi = p.random(0.05, 0.2)
+                r_xi = p.random(80, 220)
+
+                for (let x = -200; x <= 200; x += 20) {
+                    let ybase = 0.00001 * (x - r_xi) * (x + r_xi) * x
+                    for (let yi = 0; yi < 20; yi++) {
+                        let y = ybase * p.cos(yi * r_yi) * 3
+                        p.circle(x, y, p.cos(yi * r_radius) * 5 + 5)
+                    }
+                }
+                p.noStroke()
+                p.fill(0)
+                p.textAlign(p.RIGHT)
+                p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
+                p.text(`r_yi: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
+                p.text(`r_xi: ${r_xi}`, p.width / 2 - 10, p.height / 2 - 10)
                 break
             default:
                 break
