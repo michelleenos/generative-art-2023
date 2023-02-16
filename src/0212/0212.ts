@@ -21,8 +21,7 @@ new p5((p: p5) => {
         p.noFill()
         p.translate(p.width / 2, p.height / 2)
 
-        // drawings(p.random([1, 2, 3, 4, 5]))
-        drawings(6)
+        drawings(p.random([1, 2, 3, 4, 5, 6]))
     }
 
     p.mouseClicked = function (e: Event) {
