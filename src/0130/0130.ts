@@ -22,7 +22,9 @@ let btns = document.getElementById('btns')
 
 new p5((p: p5) => {
     let div = p.createDiv()
+    let label = p.createElement('label', 'style: ').parent(div)
     let sel = p.createSelect().parent(div)
+
     div.parent('btns')
     // @ts-ignore
     sel.option('noisy')
