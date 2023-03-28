@@ -2,11 +2,28 @@ import '../style.css'
 import p5 from 'p5'
 import { Pane, InputBindingApi } from 'tweakpane'
 
+class RefreshContainer {
+    private readonly pane: Pane
+    private refreshing_ = false
+
+    constructor(pane: Pane) {
+        this.pane = pane
+    }
+
+    get refreshing(): boolean {
+        return this.refreshing_
+    }
+
+    public refresh(): void {
+        this.refreshing_ = true
+        this.pane.refresh()
+        this.refreshing_ = false
+    }
+}
+
 new p5((p: p5) => {
     class Trochoid {
-        r: number
-        c: number
-        d: number
+        radius: number
         y: number
         stepSize: number
         mult: number
@@ -16,9 +33,7 @@ new p5((p: p5) => {
         current: number = 0
 
         constructor(r, y, stepSize = 0.1, lineLen = r) {
-            this.r = r
-            this.c = 2 * p.PI * r
-            this.d = r * 2
+            this.radius = r
             this.y = y
             this.stepSize = stepSize
             this.mult = 1
@@ -27,14 +42,19 @@ new p5((p: p5) => {
             this.makeSteps()
         }
 
+        get circumference() {
+            return 2 * p.PI * this.radius
+        }
+
         makeSteps() {
             let steps: any[] = []
+            let points: any[] = []
             let x = -p.width / 2
-            let rotation = 0
+            let rotation = p.PI * 0.5
             let stepAmount = this.stepSize / (p.PI * 2)
-            let xChange = this.c * stepAmount
+            let xChange = this.circumference * stepAmount
 
-            while (x <= p.width / 2) {
+            while (x <= p.width / 2 + this.radius) {
                 rotation += this.stepSize
                 x += xChange
                 let pointx = p.cos(rotation) * this.lineLen + x
@@ -44,29 +64,30 @@ new p5((p: p5) => {
                     x: x,
                     y: this.y,
                 })
-                this.points.push({
+                points.push({
                     x: pointx,
                     y: pointy,
                 })
             }
 
             this.steps = steps
+            this.points = points
         }
 
         draw = () => {
-            let step = this.steps[this.current]
-            let point = this.points[this.current]
-            p.circle(step.x, step.y, this.d)
+            let total = this.steps.length * 2 - 2
+            let current = p.frameCount % total
+            if (current > this.steps.length - 1) current = total - current
+            let step = this.steps[current]
+            let point = this.points[current]
+            p.circle(step.x, step.y, this.radius * 2)
             p.line(step.x, step.y, point.x, point.y)
             p.fill(255)
             p.circle(point.x, point.y, 5)
             p.noFill()
 
-            this.current++
-            if (this.current >= this.steps.length) this.current = 0
-
             p.beginShape()
-            for (let i = 0; i <= this.current; i++) {
+            for (let i = 0; i <= current; i++) {
                 let pt = this.points[i]
                 p.vertex(pt.x, pt.y)
             }
@@ -78,26 +99,55 @@ new p5((p: p5) => {
 
     const PARAMS = {
         radius: 50,
-        lineLen: 40,
-        distToAdd: 0.1,
+        type: 'cycloid',
     }
 
-    type PaneEls = {
-        pane: Pane
-        inputRadius: InputBindingApi<unknown, number>
-        inputLineLen: InputBindingApi<unknown, number>
-    }
     let pane = new Pane()
-    const els: PaneEls = {
-        pane,
-        inputRadius: pane.addInput(PARAMS, 'radius', { min: 1, max: 100, step: 1 }),
-        inputLineLen: pane.addInput(PARAMS, 'lineLen', { min: 1, max: 100, step: 1 }),
+    let rc = new RefreshContainer(pane)
+    let inputRadius, inputLineLen
+
+    function makeInput(value, opts?) {
+        if (!opts) opts = { min: 1, max: 100, step: 1 }
+        let input = pane.addInput(circ, value, opts)
+        input.on('change', function (e) {
+            circ.makeSteps()
+            if (circ.radius > circ.lineLen) {
+                PARAMS.type = 'curtate'
+            } else if (circ.radius < circ.lineLen) {
+                PARAMS.type = 'prolate'
+            } else {
+                PARAMS.type = 'cycloid'
+            }
+
+            rc.refresh()
+        })
+        return input
     }
 
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
         p.angleMode(p.RADIANS)
         circ = new Trochoid(PARAMS.radius, -PARAMS.radius)
+        inputRadius = makeInput('radius')
+        inputLineLen = makeInput('lineLen')
+
+        pane.addInput(PARAMS, 'type', {
+            options: {
+                cycloid: 'cycloid',
+                'prolate trochoid': 'prolate',
+                'curtate trochoid': 'curtate',
+            },
+        }).on('change', (e) => {
+            if (rc.refreshing) return
+            if (PARAMS.type === 'curtate') {
+                circ.lineLen = Math.floor(circ.radius * 0.65)
+            } else if (PARAMS.type === 'prolate') {
+                circ.lineLen = Math.floor(circ.radius * 1.4)
+            } else if (PARAMS.type === 'cycloid') {
+                circ.lineLen = circ.radius
+            }
+            rc.refresh()
+        })
     }
 
     p.draw = function () {
