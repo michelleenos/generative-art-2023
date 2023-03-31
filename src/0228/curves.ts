@@ -57,6 +57,7 @@ function curves(
             }
             let r = 2 / p.sqrt(val)
             let v = p5.Vector.fromAngle(angle).mult(r).mult(scale)
+
             p.vertex(v.x, v.y)
         }
 
@@ -85,6 +86,7 @@ function curves(
     p.rotate(rotate)
 
     let n = nStart
+
     while (n < nEnd) {
         let progress = p.map(n, nStart, nEnd, 0, 1)
         let progressEase = easeFunc(progress)

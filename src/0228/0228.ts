@@ -1,7 +1,6 @@
 import p5 from 'p5'
 import '../style.css'
 import { curves, CurvesOptions } from './curves'
-import easings from '../helpers/easings'
 
 // https://mathworld.wolfram.com/MalteseCrossCurve.html
 
@@ -29,8 +28,8 @@ new p5((p: p5) => {
             } else {
                 return {
                     alphaStart: 1,
-                    alphaEnd: 0,
-                    ease: p.random(['outCubic', 'outQuad', 'outQuart']),
+                    alphaEnd: p.random(0, 0.5),
+                    ease: p.random(['outQuad', 'outSine', 'inOutCirc', 'inQuad']),
                 }
             }
         }
@@ -40,7 +39,7 @@ new p5((p: p5) => {
         let options: CurvesOptions = {
             colorful: false,
             // nStart: p.random(-2, 0),
-            nStart: -2,
+            nStart: -1,
             nEnd: p.random(0.5, 1.5),
             // angleMult: p.random([p.random(0.5, 2), p.random([3, 4, 5, 6, 7])]),
             angleMult: p.random([3, 4, 5, 6, 7, 8]),

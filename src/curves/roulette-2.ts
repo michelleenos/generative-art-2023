@@ -45,16 +45,21 @@ function ellipse(cx, cy, rx, ry) {
 // y = (r0 + r1) * sin(t) - d * sin(((r0 + r1) * t) / r1)
 
 ctx.strokeStyle = '#fff'
-ctx.translate(width / 2, height / 2)
+// ctx.translate(width / 2, height / 2)
+ctx.translate(0, height / 2)
 ctx.scale(1, -1)
 ctx.stroke()
 
-function trochoid(a, b) {
+trochoid(50, 50)
+
+function trochoid(radius, lineLen) {
     let res = 0.05
     ctx.beginPath()
+    // t is the angle of rotation of the circle
+    // but also somehow the distance it's traveled along the line?
     for (let t = 0; t < width; t += res) {
-        let x = a * t - b * Math.sin(t)
-        let y = a - b * Math.cos(t)
+        let x = radius * t - lineLen * Math.sin(t)
+        let y = radius - lineLen * Math.cos(t)
         ctx.lineTo(x, y)
     }
     ctx.stroke()
@@ -94,5 +99,3 @@ function epitrochoid(r0, r1, d) {
     }
     ctx.stroke()
 }
-
-epitrochoid(120, 50, 35)
