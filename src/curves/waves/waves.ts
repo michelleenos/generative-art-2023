@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 
 // https://www.bit-101.com/blog/2022/11/coding-curves-02-trig-curves/
 
@@ -41,6 +41,6 @@ function sineWave(x0, y0, x1, y1, wavelen, amp) {
 }
 
 ctx.strokeStyle = '#fff'
-sineWave(10, 400, width - 10, 400, 50, 50)
+sineWave(10, 400, width - 10, 200, 50, 70)
 
 export {}

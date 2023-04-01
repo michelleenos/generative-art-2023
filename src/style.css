@@ -28,6 +28,7 @@ body {
     margin: 0;
     position: relative;
     overflow: auto;
+    min-height: 100%;
 }
 
 html {

@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 
 // https://www.bit-101.com/blog/2022/12/coding-curves-08-bezier-curves/
 

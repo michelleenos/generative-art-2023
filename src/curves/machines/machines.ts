@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 
 function createCanvas(width, height) {
     const canvas = document.createElement('canvas')

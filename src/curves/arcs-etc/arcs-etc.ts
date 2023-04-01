@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 
 // https://www.bit-101.com/blog/2022/11/coding-curves-03-arcs-circles-ellipses/
 
