@@ -1,19 +1,12 @@
-import '../style.css'
+import '../../style.css'
 import p5 from 'p5'
-import { Pane, InputBindingApi, TpChangeEvent } from 'tweakpane'
+import { Pane } from 'tweakpane'
 import RefreshContainer from './parts/refresh-container'
 import initTrochoid from './parts/trochoid'
 
 new p5((p: p5) => {
-    let Trochoid = initTrochoid(p).Epitrochoid
-
+    let Trochoid = initTrochoid(p).TrochoidOnLine
     let circ
-
-    const PARAMS = {
-        radius: 50,
-        type: 'cycloid',
-    }
-
     let pane = new Pane()
     let rc = new RefreshContainer(pane)
 
@@ -24,14 +17,9 @@ new p5((p: p5) => {
         return input
     }
 
-    function setupControlsCircle() {
-        const onChange = () => {
-            circ.makeSteps()
-        }
-
-        makeInput('lineLen', onChange)
-        makeInput('radius', onChange)
-        makeInput('ratio', onChange)
+    const PARAMS = {
+        radius: 50,
+        type: 'cycloid',
     }
 
     function setupControlsLine() {
@@ -71,9 +59,9 @@ new p5((p: p5) => {
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
         p.angleMode(p.RADIANS)
-        circ = new Trochoid({ ratio: 3 })
+        circ = new Trochoid({ radius: PARAMS.radius })
 
-        setupControlsCircle()
+        setupControlsLine()
     }
 
     p.draw = function () {

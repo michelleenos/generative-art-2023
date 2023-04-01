@@ -1,22 +1,41 @@
 import p5 from 'p5'
 
+function gcf(x, y) {
+    let result = Math.min(x, y)
+    while (result > 0) {
+        if (x % result === 0 && y % result === 0) {
+            break
+        }
+        result--
+    }
+    return result
+}
+
+function simplify(num, denom) {
+    let factor = gcf(num, denom)
+    return { num: num / factor, denom: denom / factor }
+}
+
 type TrochoidPoints = { x: number; y: number }[]
 type TrochoidSteps = { x: number; y: number; rotation: number }[]
 
 export default function f(p: p5) {
+    interface TrochoidProps {
+        y?: number
+        lineLen?: number
+        radius: number
+    }
     class Trochoid {
         radius: number
         y: number
-        stepSize: number
         lineLen: number
         points: TrochoidPoints = []
         steps: TrochoidSteps = []
 
-        constructor(radius, y, stepSize = 0.1, lineLen = radius) {
-            this.radius = radius
-            this.y = y
-            this.stepSize = stepSize
-            this.lineLen = lineLen
+        constructor(opts: TrochoidProps) {
+            this.radius = opts.radius
+            this.y = opts.y ?? 0
+            this.lineLen = opts.lineLen ?? this.radius
         }
 
         get circumference() {
@@ -59,10 +78,14 @@ export default function f(p: p5) {
     }
 
     let TrochoidOnLine = class extends Trochoid {
-        constructor(radius, y, stepSize = 0.1, lineLen = radius) {
-            super(radius, y, stepSize, lineLen)
+        constructor({ radius, y = 0, lineLen = radius }: TrochoidProps) {
+            super({ radius, y, lineLen })
 
             this.makeSteps()
+        }
+
+        get stepSize() {
+            return this.radius * 0.005
         }
 
         makeSteps() {
@@ -99,10 +122,9 @@ export default function f(p: p5) {
     }
 
     interface EpitrochoidProps {
+        cx?: number
         y?: number
         lineLen?: number
-        stepSize?: number
-        cx?: number
     }
 
     interface EpitrochoidPropsRadius extends EpitrochoidProps {
@@ -140,10 +162,9 @@ export default function f(p: p5) {
 
             let y = opts.y ?? 0
             let cx = opts.cx ?? 0
-            let stepSize = opts.stepSize ?? radius * 0.1
             let lineLen = opts.lineLen ?? radius
 
-            super(radius, y, stepSize, lineLen)
+            super({ radius, y, lineLen })
 
             if (ratio) this.ratio = ratio
             this._baseRadius = baseRadius
@@ -175,10 +196,18 @@ export default function f(p: p5) {
             let traveledOnBase = 0
             let circumferenceBase = this.circumferenceBase
             let rotation = 0
-            let rotationStep = (this.stepSize / this.circumference) * p.PI * 2
 
-            while (traveledOnBase <= circumferenceBase) {
-                traveledOnBase += this.stepSize
+            let { denom } = simplify(this.radius, this.baseRadius)
+            let max = Math.ceil(Math.PI * 2 * denom)
+
+            let stepSize = p.min(
+                p.map(denom, 1, 60, this.radius * 0.1, this.radius * 0.3),
+                this.radius * 0.3
+            )
+            let rotationStep = (stepSize / this.circumference) * p.PI * 2
+
+            while (rotation <= max) {
+                traveledOnBase += stepSize
                 let baseAngle = (traveledOnBase / circumferenceBase) * p.PI * 2
                 rotation += rotationStep
 
@@ -195,27 +224,6 @@ export default function f(p: p5) {
                     y: outerCy,
                 })
             }
-
-            console.log(this.steps, this.circumferenceBase)
-        }
-
-        draw = () => {
-            this.drawBase()
-
-            let step = this.steps[this.current]
-            let point = this.points[this.current]
-
-            if (!step) return
-
-            p.circle(step.x, step.y, this.radius * 2)
-            p.line(step.x, step.y, point.x, point.y)
-
-            p.beginShape()
-            for (let i = 0; i < this.current; i++) {
-                let pt = this.points[i]
-                p.vertex(pt.x, pt.y)
-            }
-            p.endShape()
         }
 
         drawBase = () => {
@@ -227,5 +235,79 @@ export default function f(p: p5) {
         }
     }
 
-    return { TrochoidOnLine, Epitrochoid }
+    interface HypotrochoidProps extends TrochoidProps {
+        cx?: number
+        baseRadius?: number
+    }
+
+    let Hypotrochoid = class extends Trochoid {
+        baseRadius: number
+        cx: number
+
+        constructor(opts: HypotrochoidProps) {
+            let radius = opts.radius
+            let baseRadius = opts.baseRadius ?? radius
+            let y = opts.y ?? 0
+            let cx = opts.cx ?? 0
+            let lineLen = opts.lineLen ?? radius
+
+            super({ radius, y, lineLen })
+
+            this.baseRadius = baseRadius
+            this.cx = cx
+
+            this.makeSteps()
+        }
+
+        get circumferenceBase() {
+            return 2 * p.PI * this.baseRadius
+        }
+
+        makeSteps() {
+            this.steps = []
+            this.points = []
+
+            let traveledOnBase = 0
+            let cBase = this.circumferenceBase
+            let rotation = 0
+
+            let { denom } = simplify(this.radius, this.baseRadius)
+            let max = Math.ceil(Math.PI * 2 * denom)
+
+            let stepSize = p.min(
+                p.map(denom, 1, 60, this.radius * 0.1, this.radius * 0.3),
+                this.radius * 0.3
+            )
+            let rotationStep = (stepSize / this.circumference) * p.PI * 2
+
+            while (rotation >= max * -1) {
+                traveledOnBase += stepSize
+                let baseAngle = (traveledOnBase / cBase) * p.PI * 2
+                rotation -= rotationStep
+
+                let movingCx = p.cos(baseAngle) * (this.baseRadius - this.radius)
+                let movingCy = p.sin(baseAngle) * (this.baseRadius - this.radius)
+
+                let x = movingCx + p.cos(baseAngle + rotation) * this.lineLen
+                let y = movingCy + p.sin(baseAngle + rotation) * this.lineLen
+
+                this.points.push({ x, y })
+                this.steps.push({
+                    rotation,
+                    x: movingCx,
+                    y: movingCy,
+                })
+            }
+        }
+
+        drawBase = () => {
+            p.push()
+            p.strokeWeight(0.5)
+            p.noFill()
+            p.circle(this.cx, this.y, this.baseRadius * 2)
+            p.pop()
+        }
+    }
+
+    return { TrochoidOnLine, Epitrochoid, Hypotrochoid }
 }
