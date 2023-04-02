@@ -1,20 +1,6 @@
 import '../../style.css'
 import { Pane } from 'tweakpane'
-
-function createCanvas(width, height) {
-    const canvas = document.createElement('canvas')
-    let resolution = window.devicePixelRatio
-    canvas.width = width * resolution
-    canvas.height = height * resolution
-    canvas.style.position = 'absolute'
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
-    document.body.appendChild(canvas)
-
-    let ctx = canvas.getContext('2d')!
-    ctx.scale(resolution, resolution)
-    return { canvas, ctx }
-}
+import createCanvas from '~/helpers/canvas/createCanvas/createCanvas'
 
 let width = window.innerWidth
 let height = window.innerHeight

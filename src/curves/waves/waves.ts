@@ -1,22 +1,8 @@
 import '../../style.css'
 import { Pane } from 'tweakpane'
+import createCanvas from '~/helpers/canvas/createCanvas/createCanvas'
 
 // https://www.bit-101.com/blog/2022/11/coding-curves-02-trig-curves/
-
-function createCanvas(width, height) {
-    const canvas = document.createElement('canvas')
-    let resolution = window.devicePixelRatio
-    canvas.width = width * resolution
-    canvas.height = height * resolution
-    canvas.style.position = 'absolute'
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
-    document.body.appendChild(canvas)
-
-    let ctx = canvas.getContext('2d')!
-    ctx.scale(resolution, resolution)
-    return { canvas, ctx }
-}
 
 let width = window.innerWidth
 let height = window.innerHeight

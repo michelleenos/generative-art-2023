@@ -1,34 +1,50 @@
 import '../../style.css'
-
-function createCanvas(width, height) {
-    const canvas = document.createElement('canvas')
-    let resolution = window.devicePixelRatio
-    canvas.width = width * resolution
-    canvas.height = height * resolution
-    canvas.style.position = 'absolute'
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
-    document.body.appendChild(canvas)
-
-    let ctx = canvas.getContext('2d')!
-    ctx.scale(resolution, resolution)
-    return { canvas, ctx }
-}
+import { Pane } from 'tweakpane'
+import createCanvas from '~/helpers/canvas/createCanvas/createCanvas'
 
 let width = window.innerWidth
 let height = window.innerHeight
+let { canvas, ctx } = createCanvas(window.innerWidth, window.innerHeight)
 
-let { canvas, ctx } = createCanvas(width, height)
-
-function ellipse(cx, cy, rx, ry) {
-    let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
-    ctx.beginPath()
-
-    for (let angle = 0; angle < Math.PI * 2; angle += res) {
-        ctx.lineTo(cx + Math.cos(angle) * rx, cy + Math.sin(angle) * ry)
-    }
-    ctx.closePath()
+const PARAMS = {
+    A: height * 0.4,
+    B: height * 0.4,
+    a: 5.1,
+    b: 5,
+    p1: 5,
+    p2: 8.5,
+    d1: 0.01,
+    d2: 0.01,
+    iter: 5000,
 }
+
+let pane = new Pane()
+pane.addInput(PARAMS, 'A', { min: 0, max: height * 0.5, label: 'Amplitude A', step: 1 })
+pane.addInput(PARAMS, 'B', { min: 0, max: height * 0.5, label: 'Amplitude B', step: 1 })
+pane.addInput(PARAMS, 'a', { min: 0, max: 10, label: 'Frequency A', step: 0.1 })
+pane.addInput(PARAMS, 'b', { min: 0, max: 10, label: 'Frequency B', step: 0.1 })
+pane.addInput(PARAMS, 'p1', { min: 0, max: 10, label: 'phasing A', step: 0.1 })
+pane.addInput(PARAMS, 'p2', { min: 0, max: 10, label: 'phasing B', step: 0.1 })
+pane.addInput(PARAMS, 'd1', { min: 0, max: 0.1, step: 0.001, label: 'damping A' })
+pane.addInput(PARAMS, 'd2', { min: 0, max: 0.1, step: 0.001, label: 'damping B' })
+pane.addInput(PARAMS, 'iter', { min: 0, max: 40000, step: 1, label: 'iterations' })
+
+pane.on('change', () => {
+    ctx.clearRect(-width / 2, -height / 2, width, height)
+    harmonograph(
+        0,
+        0,
+        PARAMS.A,
+        PARAMS.B,
+        PARAMS.a,
+        PARAMS.b,
+        PARAMS.p1,
+        PARAMS.p2,
+        PARAMS.d1,
+        PARAMS.d2,
+        PARAMS.iter
+    )
+})
 
 // lissajous curve
 // A & B = amplitude of the wave on each axis
@@ -50,8 +66,12 @@ function liss(cx, cy, A, B, a, b, d) {
 
 // p1 & p2 = "phases" (same thing as d above, except now we use them on both axes)
 // d1 & d2 = damping (simulating a pendulum slowing down over time)
+// for best results...
+// keep a & b close to whole number, but let them vary by a small amount like 0.1
+// and/or make a & B have a simple ratio like 1:2 or 1:3 (and try adding a tiny bit to one of them)
 function harmonograph(cx, cy, A, B, a, b, p1, p2, d1, d2, iter) {
     let res = 0.01
+    ctx.beginPath()
     for (let t = 0; t < iter; t += res) {
         let x = cx + Math.sin(a * t + p1) * A * damping(d1, t)
         let y = cy + Math.sin(b * t + p2) * B * damping(d2, t)
@@ -65,48 +85,19 @@ function damping(d, t) {
     return Math.pow(Math.E, -d * t)
 }
 
-function loop(cb) {
-    let t = 0
-    const animation = () => {
-        cb(t)
-        t++
-        requestAnimationFrame(animation)
-    }
-
-    requestAnimationFrame(animation)
-}
-
-function circleOnLiss(t) {
-    let w = 400
-    let h = 400
-    let a = 13
-    let b = 2.5
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.strokeStyle = '#fff'
-    let x = w / 2 + Math.sin(a * t * 0.01) * 100
-    let y = h / 2 + Math.sin(b * t * 0.01) * 100
-    ellipse(x, y, 20, 20)
-    ctx.stroke()
-}
-
 ctx.strokeStyle = '#fff'
+ctx.lineWidth = 0.5
 ctx.translate(width / 2, height / 2)
-let A = height * 0.4
-let B = height * 0.4
-// liss(0, 0, width * 0.4, height * 0.4, 1, 3, 2)
-
-function harmExample() {
-    let a = 1
-    let b = 6
-    let p1 = 1
-    let p2 = 5
-    let d1 = 0.01
-    let d2 = 0.005
-    let iter = 1000
-    ctx.lineWidth = 0.5
-    ctx.strokeStyle = '#fff'
-    harmonograph(0, 0, A, B, a, b, p1, p2, d1, d2, iter)
-}
-
-harmExample()
+harmonograph(
+    0,
+    0,
+    PARAMS.A,
+    PARAMS.B,
+    PARAMS.a,
+    PARAMS.b,
+    PARAMS.p1,
+    PARAMS.p2,
+    PARAMS.d1,
+    PARAMS.d2,
+    PARAMS.iter
+)

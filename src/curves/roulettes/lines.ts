@@ -1,7 +1,7 @@
 import '../../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
-import RefreshContainer from './parts/refresh-container'
+import RefreshContainer from '../../helpers/refresh-container'
 import initTrochoid from './parts/trochoid'
 
 new p5((p: p5) => {

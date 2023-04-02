@@ -33,8 +33,6 @@ body {
 
 html {
     box-sizing: border-box;
-    width: 100vw;
-    height: 100vh;
     position: relative;
 }
 
@@ -79,6 +77,16 @@ button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
+#canvas-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.info {
+    padding: 2% 5%;
+}
+
 .absolute-container {
     position: absolute;
     padding: 1rem;
@@ -87,4 +95,12 @@ button:focus-visible {
     z-index: 1;
     color: #000;
     font-weight: 500;
+}
+
+.index-main {
+    padding: 5% 10%;
+}
+
+.tp-lblv .tp-lblv_l {
+    padding-right: 11px;
 }

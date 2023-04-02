@@ -1,24 +1,7 @@
 import '../../style.css'
+import createCanvas from '~/helpers/canvas/createCanvas/createCanvas'
 
 // https://www.bit-101.com/blog/2022/12/coding-curves-08-bezier-curves/
-
-function createCanvas(
-    width: number,
-    height: number
-): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
-    const canvas = document.createElement('canvas')
-    let resolution = window.devicePixelRatio
-    canvas.width = width * resolution
-    canvas.height = height * resolution
-    canvas.style.position = 'absolute'
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
-    document.body.appendChild(canvas)
-
-    let ctx = canvas.getContext('2d')!
-    ctx.scale(resolution, resolution)
-    return { canvas, ctx }
-}
 
 let width = window.innerWidth
 let height = window.innerHeight
