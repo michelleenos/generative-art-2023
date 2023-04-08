@@ -1,5 +1,5 @@
 import '~/style.css'
-import createCanvas from '~/helpers/canvas/createCanvas/createCanvas'
+import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
 
 let width = window.innerWidth

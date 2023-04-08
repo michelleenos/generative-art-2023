@@ -2,7 +2,7 @@
 // https://github.com/Michaelangel007/easing#tldr-shut-up-and-show-me-the-code
 // easings.net
 
-const ease = {
+const easings = {
     inSine: (x) => Math.sin(x * (Math.PI / 2)),
     outSine: (x) => Math.sin(x * (Math.PI / 2)),
     inOutSine: (x) => -0.5 * (Math.cos(Math.PI * x) - 1),
@@ -22,4 +22,4 @@ const ease = {
             : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2,
 }
 
-export default ease
+export default easings

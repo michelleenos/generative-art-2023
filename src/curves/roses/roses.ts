@@ -1,6 +1,6 @@
 import '../../style.css'
 import { Pane } from 'tweakpane'
-import createCanvas from '~/helpers/canvas/createCanvas/createCanvas'
+import createCanvas from '~/helpers/canvas/createCanvas'
 import RefreshContainer from '~/helpers/refresh-container'
 
 let width = window.innerWidth

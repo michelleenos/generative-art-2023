@@ -14,7 +14,7 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "skipLibCheck": true,
-        "types": ["node", "p5/global"],
+        "types": ["node"],
         "baseUrl": "./",
         "noImplicitAny": false,
         "paths": {
