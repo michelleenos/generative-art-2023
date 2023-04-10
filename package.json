@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/node": "^18.11.18",
+    "jszip": "^3.10.1",
     "p5": "^1.5.0",
     "simplex-noise": "^4.0.1",
     "tweakpane": "^3.1.7"

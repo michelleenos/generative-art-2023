@@ -1,11 +1,10 @@
 import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
-import map from '~/helpers/map'
-import random from '~/helpers/random'
 import loop from '~/helpers/loop'
 import canvasToVideo from '~/helpers/canvas-to-video'
 import shuffle from '~/helpers/shuffle'
+import { Petal, createPetal } from './petal'
 
 let width = window.innerWidth
 let height = window.innerHeight
@@ -13,17 +12,17 @@ let { ctx, canvas } = createCanvas(width, height)
 
 const PARAMS = {
     numPetals: 10,
-    rotationDiff: Math.PI,
-    numLines: 80,
-    drawAtOnce: 3,
+    numLines: 450,
+    drawAtOnce: 5,
     cpVarX: 0.1,
     cpVarY: 0.02,
+    speed: 0.0005,
 }
 
 let pane = new Pane()
 let flower = pane.addFolder({ title: 'flower' })
 flower.addInput(PARAMS, 'numPetals', { min: 1, max: 40, step: 2 })
-flower.addInput(PARAMS, 'numLines', { min: 10, max: 400, step: 1 })
+flower.addInput(PARAMS, 'numLines', { min: 10, max: 1000, step: 1 })
 flower.addInput(PARAMS, 'drawAtOnce', { min: 1, max: 10, step: 1 })
 flower.addInput(PARAMS, 'cpVarX', {
     label: 'cp x var (thickness)',
@@ -32,90 +31,9 @@ flower.addInput(PARAMS, 'cpVarX', {
     step: 0.01,
 })
 flower.addInput(PARAMS, 'cpVarY', { min: 0, max: 0.5, step: 0.01, label: 'cp y var (wiggliness)' })
+flower.addInput(PARAMS, 'speed', { min: 0.0001, max: 0.01, step: 0.0001 })
 flower.addButton({ title: 'restart & record' }).on('click', () => petalStart(true))
 flower.addButton({ title: 'restart' }).on('click', () => petalStart())
-
-function circle(x, y, radius = 5) {
-    ctx.beginPath()
-    ctx.arc(x, y, radius, 0, Math.PI * 2)
-    ctx.fill()
-}
-
-type PetalOpts = {
-    x: number
-    y: number
-    endRangeY?: [number, number]
-    endRangeX?: [number, number]
-    controlRangeX?: [number, number]
-    controlVarX?: number
-    controlVarY?: number
-    rotation?: number
-}
-
-class Petal {
-    x: number
-    y: number
-    start: { x: number; y: number } = { x: 0, y: 0 }
-    end: { x: number; y: number }
-    cp1: { x: number; y: number }
-    cp2: { x: number; y: number }
-    controlVarX: number
-    controlVarY: number
-    rotation: number
-
-    constructor({
-        x,
-        y,
-        endRangeX = [-100, 100],
-        endRangeY = [300, 500],
-        controlRangeX = [50, 100],
-        controlVarX = 50,
-        controlVarY = 100,
-        rotation = 0,
-    }: PetalOpts) {
-        this.x = x
-        this.y = y
-        this.controlVarX = controlVarX
-        this.controlVarY = controlVarY
-        this.rotation = rotation
-        this.end = {
-            x: random(endRangeX[0], endRangeX[1]),
-            y: random(-endRangeY[0], -endRangeY[1]),
-        }
-        this.cp1 = {
-            x: random(-controlRangeX[0], -controlRangeX[1]),
-            y: random(this.end.y * 0.1, this.end.y * 0.4),
-        }
-        this.cp2 = {
-            x: random(controlRangeX[0], controlRangeX[1]),
-            y: random(this.end.y * 0.6, this.end.y * 0.9),
-        }
-    }
-
-    draw = (t) => {
-        t *= 0.01
-        // ctx.clearRect(0, 0, width, height)
-        let cp1 = {
-            x: this.cp1.x + this.controlVarX * Math.sin(t * 1.5 + Math.PI),
-            y: this.cp1.y + Math.sin(t * 0.8) * this.controlVarY,
-        }
-        let cp2 = {
-            x: this.cp2.x + this.controlVarX * Math.sin(t * 2.5),
-            y: this.cp2.y + Math.sin(t) * this.controlVarY,
-        }
-
-        ctx.save()
-        ctx.translate(this.x, this.y)
-        ctx.rotate(this.rotation)
-
-        ctx.beginPath()
-        ctx.moveTo(this.start.x, this.start.y)
-        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, this.end.x, this.end.y)
-        // ctx.closePath()
-        ctx.stroke()
-        ctx.restore()
-    }
-}
 
 class PetalDrawer {
     numLines: number
@@ -132,7 +50,7 @@ class PetalDrawer {
         this.positions = positions
         this.startAt = startAt
         this.color = color
-        this.petal = createPetal(width, height, this.positions[this.currentPetal])
+        this.petal = makePetal(width, height, this.positions[this.currentPetal])
     }
 
     draw = (t: DOMHighResTimeStamp, elapsed: number) => {
@@ -141,7 +59,7 @@ class PetalDrawer {
         if (this.currentLine < this.numLines) {
             this.currentLine++
             ctx.strokeStyle = this.color
-            this.petal?.draw(t)
+            this.petal?.draw(t * PARAMS.speed)
         } else {
             if (this.currentPetal >= this.positions.length - 1) {
                 this.done = true
@@ -149,7 +67,7 @@ class PetalDrawer {
             }
             this.currentLine = 0
             this.currentPetal++
-            this.petal = createPetal(width, height, this.positions[this.currentPetal])
+            this.petal = makePetal(width, height, this.positions[this.currentPetal])
         }
     }
 }
@@ -177,9 +95,9 @@ function draw(t: DOMHighResTimeStamp) {
     drawers.forEach((drawer) => drawer.draw(t, count))
 }
 
-function createPetal(width, height, rotation) {
+function makePetal(width, height, rotation) {
     let min = Math.min(width, height)
-    return new Petal({
+    return createPetal(ctx, {
         x: width * 0.5,
         y: height * 0.5,
         controlRangeX: [min * 0.05, min * 0.15],
