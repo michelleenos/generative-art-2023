@@ -20,10 +20,8 @@ const palettes = paletteUrls.map((url) => paletteFromUrl(url))
 
 new p5((p: p5) => {
     let palette, btn
-    // let palette = p.random(palettes)
     let colors: ReturnType<typeof colorUtils>
     let shapes: ReturnType<typeof shapeUtils> = shapeUtils(p)
-    // let btn
 
     p.setup = function () {
         let canvas = p.createCanvas(window.innerWidth, window.innerHeight)

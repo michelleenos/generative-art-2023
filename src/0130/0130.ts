@@ -26,6 +26,7 @@ new p5((p: p5) => {
     let sel = p.createSelect().parent(div)
 
     div.parent('btns')
+
     // @ts-ignore
     sel.option('noisy')
     // @ts-ignore
