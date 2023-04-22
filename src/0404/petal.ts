@@ -1,4 +1,4 @@
-import random from '~/helpers/random'
+import { random } from '~/helpers/utils'
 
 type PetalOpts = {
     x: number
@@ -82,7 +82,9 @@ export function createPetal(ctx: CanvasRenderingContext2D, opts: PetalOpts) {
 
         draw = (t) => {
             let cp1 = {
-                x: this.cp1.x + this.controlVarX * Math.sin(t * this.cp1Mult.x + Math.PI),
+                x:
+                    this.cp1.x +
+                    this.controlVarX * Math.sin(t * this.cp1Mult.x + Math.PI),
                 y: this.cp1.y + Math.sin(t * this.cp1Mult.y) * this.controlVarY,
             }
             let cp2 = {
@@ -96,7 +98,14 @@ export function createPetal(ctx: CanvasRenderingContext2D, opts: PetalOpts) {
 
             ctx.beginPath()
             ctx.moveTo(this.start.x, this.start.y)
-            ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, this.end.x, this.end.y)
+            ctx.bezierCurveTo(
+                cp1.x,
+                cp1.y,
+                cp2.x,
+                cp2.y,
+                this.end.x,
+                this.end.y
+            )
             ctx.stroke()
             ctx.restore()
         }

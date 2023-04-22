@@ -2,12 +2,9 @@ import '../../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
 
-// import { createParticle, Particle } from '../../particles/particle'
-import { init, type Particle } from '../../particles/particle'
+import { Particle } from '../../helpers/particles/particle'
 
 new p5((p: p5) => {
-    const Particle = init(p)
-
     let particles: Particle[] = []
     let particle: Particle
     let attractor: Attractor
@@ -99,7 +96,7 @@ new p5((p: p5) => {
             particle.applyForce(force)
 
             particle.update()
-            particle.draw()
+            particle.draw(p)
         })
     }
 })

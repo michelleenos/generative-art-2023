@@ -2,8 +2,9 @@ import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { createPetal, type Petal } from '~/0404/petal'
 import loop from '~/helpers/loop'
-import map from '~/helpers/map'
-import random from '~/helpers/random'
+// import map from '~/helpers/map'
+// import random from '~/helpers/random'
+import { map, random } from '~/helpers/utils'
 import makeImages from '~/helpers/canvas-images'
 
 let btn = document.createElement('button')
@@ -60,7 +61,10 @@ class MorphPetal {
             y: min / 2,
             endRangeX: [min * PARAMS.endRangeX[0], min * PARAMS.endRangeX[1]],
             endRangeY: [petalLen, petalLen],
-            controlRangeX: [min * PARAMS.controlRangeX[0], min * PARAMS.controlRangeX[1]],
+            controlRangeX: [
+                min * PARAMS.controlRangeX[0],
+                min * PARAMS.controlRangeX[1],
+            ],
             controlVarX: min * PARAMS.controlVarX,
             controlVarY: min * PARAMS.controlVarY,
             rotation: 0,
@@ -72,7 +76,10 @@ class MorphPetal {
         this.ctx.lineWidth = 0.5
         this.scaleXVar = [random(0.8, 1), random(1.4, 2)]
         if (random() < 0.5)
-            [this.scaleXVar[0], this.scaleXVar[1]] = [this.scaleXVar[1], this.scaleXVar[0]]
+            [this.scaleXVar[0], this.scaleXVar[1]] = [
+                this.scaleXVar[1],
+                this.scaleXVar[0],
+            ]
         this.skewYVar = [-0.3, 0.3]
 
         console.log({
@@ -152,7 +159,8 @@ function draw(time) {
     })
 }
 
-const mouseAngle = (mouse) => Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
+const mouseAngle = (mouse) =>
+    Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
 
 let petals: MorphPetal[] = []
 for (let i = 0; i < 1; i++) {
@@ -185,7 +193,12 @@ btn.addEventListener('click', () => {
     drawLoop.stop()
 
     petals.forEach((petal) => {
-        petal.ctx.clearRect(0, 0, petal.ctx.canvas.width, petal.ctx.canvas.height)
+        petal.ctx.clearRect(
+            0,
+            0,
+            petal.ctx.canvas.width,
+            petal.ctx.canvas.height
+        )
         petal.rotateCurrent = petal.rotateStart
     })
 

@@ -1,10 +1,9 @@
 import '../../style.css'
 import p5 from 'p5'
 
-import { init, type Particle } from '../../particles/particle'
+import { Particle } from '~/helpers/particles/particle'
 
 new p5((p: p5) => {
-    const Particle = init(p)
     let particles: Particle[] = []
     let liquid: Liquid
 
@@ -46,17 +45,17 @@ new p5((p: p5) => {
         }
     }
 
-    const getFriction = (velocity: p5.Vector) => {
-        const µ = 0.01 // mu = coefficient of friction (depends on material)
-        const N = 1 // N = normal force (force perpendicular to surface... based on gravitational force)
+    // const getFriction = (velocity: p5.Vector) => {
+    //     const µ = 0.01 // mu = coefficient of friction (depends on material)
+    //     const N = 1 // N = normal force (force perpendicular to surface... based on gravitational force)
 
-        // friction = -1 * µ * N * v
-        return velocity
-            .copy()
-            .mult(-1)
-            .normalize()
-            .mult(µ * N)
-    }
+    //     // friction = -1 * µ * N * v
+    //     return velocity
+    //         .copy()
+    //         .mult(-1)
+    //         .normalize()
+    //         .mult(µ * N)
+    // }
 
     const getDrag = (velocity: p5.Vector, Cd = 0.1) => {
         // drag = -0.5 * ϱ * v^2 * A * Cd * v
@@ -113,7 +112,7 @@ new p5((p: p5) => {
 
             particle.applyForce(wind)
             particle.update()
-            particle.draw()
+            particle.draw(p)
         })
     }
 })

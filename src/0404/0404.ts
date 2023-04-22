@@ -3,7 +3,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
 import loop from '~/helpers/loop'
 import canvasToVideo from '~/helpers/canvas-to-video'
-import shuffle from '~/helpers/shuffle'
+import { shuffle } from '~/helpers/utils'
 import { Petal, createPetal } from './petal'
 
 let width = window.innerWidth
@@ -30,9 +30,16 @@ flower.addInput(PARAMS, 'cpVarX', {
     max: 1,
     step: 0.01,
 })
-flower.addInput(PARAMS, 'cpVarY', { min: 0, max: 0.5, step: 0.01, label: 'cp y var (wiggliness)' })
+flower.addInput(PARAMS, 'cpVarY', {
+    min: 0,
+    max: 0.5,
+    step: 0.01,
+    label: 'cp y var (wiggliness)',
+})
 flower.addInput(PARAMS, 'speed', { min: 0.0001, max: 0.01, step: 0.0001 })
-flower.addButton({ title: 'restart & record' }).on('click', () => petalStart(true))
+flower
+    .addButton({ title: 'restart & record' })
+    .on('click', () => petalStart(true))
 flower.addButton({ title: 'restart' }).on('click', () => petalStart())
 
 class PetalDrawer {
@@ -45,7 +52,12 @@ class PetalDrawer {
     startAt: number
     color: string
 
-    constructor({ numLines = 50, positions, startAt = 0, color = 'rgba(255,255,255,0.1)' }) {
+    constructor({
+        numLines = 50,
+        positions,
+        startAt = 0,
+        color = 'rgba(255,255,255,0.1)',
+    }) {
         this.numLines = numLines
         this.positions = positions
         this.startAt = startAt
@@ -67,7 +79,11 @@ class PetalDrawer {
             }
             this.currentLine = 0
             this.currentPetal++
-            this.petal = makePetal(width, height, this.positions[this.currentPetal])
+            this.petal = makePetal(
+                width,
+                height,
+                this.positions[this.currentPetal]
+            )
         }
     }
 }
@@ -128,7 +144,8 @@ function petalStart(record = false) {
     for (let i = 0; i < PARAMS.drawAtOnce; i++) {
         let pos = positions.slice(i * each, (i + 1) * each)
         // if each isn't an integer, the last drawer(s) will have more petals
-        let startAt = (PARAMS.numLines / PARAMS.drawAtOnce) * (PARAMS.drawAtOnce - i - 1)
+        let startAt =
+            (PARAMS.numLines / PARAMS.drawAtOnce) * (PARAMS.drawAtOnce - i - 1)
 
         drawers.push(
             new PetalDrawer({

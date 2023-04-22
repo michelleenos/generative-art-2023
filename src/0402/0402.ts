@@ -2,12 +2,21 @@ import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import { Pane } from 'tweakpane'
-import { Point, getRandomPoints, reflectPoints, drawPoints, drawPoint } from './parts/points'
+import {
+    Point,
+    getRandomPoints,
+    reflectPoints,
+    drawPoints,
+    drawPoint,
+} from './parts/points'
 import quadLoop from '~/helpers/canvas/quadLoop'
 import loop from '~/helpers/loop'
-import map from '~/helpers/map'
+import { map } from '~/helpers/utils'
 
-const easeOpts = Object.keys(easings).reduce((acc, key) => ({ ...acc, [key]: key }), {})
+const easeOpts = Object.keys(easings).reduce(
+    (acc, key) => ({ ...acc, [key]: key }),
+    {}
+)
 
 const PARAMS = {
     showPoints: false,
@@ -28,7 +37,11 @@ function setPane() {
     pane.addInput(PARAMS, 'scaleMin', { min: 0, max: 1, step: 0.01 })
 
     let folderPoints = pane.addFolder({ title: 'points' })
-    let pointsInput = folderPoints.addInput(PARAMS, 'pointsN', { min: 3, max: 25, step: 1 })
+    let pointsInput = folderPoints.addInput(PARAMS, 'pointsN', {
+        min: 3,
+        max: 25,
+        step: 1,
+    })
     const btn = folderPoints.addButton({
         title: `generate new shape with ${PARAMS.pointsN} points`,
     })
@@ -87,7 +100,9 @@ function drawing(t) {
 
 function setup() {
     points1 = getRandomPoints(PARAMS.pointsN, width, height)
-    points1 = points1.sort((a, b) => Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x))
+    points1 = points1.sort(
+        (a, b) => Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x)
+    )
     // the line above is to sort the points in a clockwise order
 
     points2 = PARAMS.pointsReflection
@@ -102,10 +117,22 @@ function setup() {
 
         timing.push({
             x: (t) => {
-                return map(Math.cos((t * speedMult) / x), -1, 1, points1[i].x, points2[i].x)
+                return map(
+                    Math.cos((t * speedMult) / x),
+                    -1,
+                    1,
+                    points1[i].x,
+                    points2[i].x
+                )
             },
             y: (t) => {
-                return map(Math.sin((t * speedMult) / y), -1, 1, points1[i].y, points2[i].y)
+                return map(
+                    Math.sin((t * speedMult) / y),
+                    -1,
+                    1,
+                    points1[i].y,
+                    points2[i].y
+                )
             },
         })
     }
