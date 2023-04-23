@@ -20,6 +20,11 @@ import { constrain } from '../utils'
 //     constraint: { min: number; max: number }
 // }
 
+export type ParticleOpts = {
+    radius?: number
+    mass?: number
+    velInit?: p5.Vector
+}
 export class Particle extends p5.Vector {
     radius: number
     acceleration: p5.Vector = new p5.Vector()
@@ -28,17 +33,11 @@ export class Particle extends p5.Vector {
     min: number = 5
     max: number = 25
 
-    constructor(
-        x,
-        y,
-        radius = 5,
-        mass = 1,
-        velInit: p5.Vector = new p5.Vector(0, 0)
-    ) {
+    constructor(x, y, opts: ParticleOpts = {}) {
         super(x, y)
-        this.radius = radius
-        this.mass = mass
-        this.velocity = velInit
+        this.radius = opts.radius ?? 5
+        this.mass = opts.mass ?? 1
+        this.velocity = opts.velInit ?? new p5.Vector(0, 0)
     }
 
     applyForce(force: p5.Vector) {
@@ -84,7 +83,7 @@ export class Particle extends p5.Vector {
         p.circle(this.x, this.y, this.radius * 2)
     }
 
-    attract(particle: Particle) {
+    attract(particle: Particle, G = 1) {
         // F = (G * m1 * m2) / r^2 * rn
         // G = gravitational constant
         // m1 and m2 = mass of objects
@@ -95,7 +94,6 @@ export class Particle extends p5.Vector {
         let distance = force.mag()
         distance = constrain(distance, this.min, this.max)
         force.normalize()
-        let G = 1
         let strength = (G * this.mass * particle.mass) / (distance * distance)
         force.mult(strength)
         return force

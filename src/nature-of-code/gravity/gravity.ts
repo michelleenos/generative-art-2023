@@ -6,12 +6,11 @@ import { Particle } from '../../helpers/particles/particle'
 
 new p5((p: p5) => {
     let particles: Particle[] = []
-    let particle: Particle
     let attractor: Attractor
 
     class Attractor extends Particle {
         constructor(x, y, r, mass = 1) {
-            super(x, y, r, mass)
+            super(x, y, { radius: r, mass })
         }
 
         attract(particle: Particle) {
@@ -69,16 +68,12 @@ new p5((p: p5) => {
 
     p.setup = () => {
         p.createCanvas(400, 400)
-
-        particle = new Particle(p.random(p.width), p.random(p.height), 8, 2)
         for (let i = 0; i < 10; i++) {
             particles.push(
-                new Particle(
-                    p.random(p.width),
-                    p.random(p.height),
-                    8,
-                    p.random(0.5, 1.5)
-                )
+                new Particle(p.random(p.width), p.random(p.height), {
+                    radius: 8,
+                    mass: p.random(0.5, 1.5),
+                })
             )
         }
         attractor = new Attractor(p.width / 2, p.height / 2, 40, 20)

@@ -80,8 +80,10 @@ new p5((p: p5) => {
             let particle = new Particle(
                 p.random(p.width * 0.1, p.width * 0.9),
                 p.random(0),
-                radius,
-                mass
+                {
+                    radius,
+                    mass,
+                }
             )
             particles.push(particle)
         }
