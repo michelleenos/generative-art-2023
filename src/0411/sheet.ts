@@ -26,7 +26,10 @@ type Sheet = {
     innerh: number
 }
 
-const createSheet = (p: p5, { x, y, w, h, nx = 5, ny = 5, border = 0.03 }: sheetOpts): Sheet => {
+const createSheet = (
+    p: p5,
+    { x, y, w, h, nx = 5, ny = 5, border = 0.03 }: sheetOpts
+): Sheet => {
     let diagonal = Math.sqrt(w * w + h * h)
     let edge = p.min(w, h) * border
     let innerw = w - edge * 2
@@ -69,7 +72,11 @@ function drawEdge(sheet, p: p5) {
     p.endShape()
 }
 
-function drawRects(sheet, p: p5, { size = 0.9, size2 = 0.9, offset = false } = {}) {
+function drawRects(
+    sheet,
+    p: p5,
+    { size = 0.9, size2 = 0.9, offset = false } = {}
+) {
     let { gridx, gridy, nx, ny, edge } = sheet
     p.beginShape()
     drawOuter(sheet.w, sheet.h, p)
@@ -79,7 +86,9 @@ function drawRects(sheet, p: p5, { size = 0.9, size2 = 0.9, offset = false } = {
     for (let xi = 0; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
             // let dx = edge + (xi + 0.5) * gridx
-            let dx = (offset && yi % 2 === 0 ? xi * gridx : (xi + 0.5) * gridx) + edge
+            let dx =
+                (offset && yi % 2 === 0 ? xi * gridx : (xi + 0.5) * gridx) +
+                edge
             let dy = edge + (yi + 0.5) * gridy
 
             p.beginContour()
@@ -112,7 +121,14 @@ function drawArcs2(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.9 } = {}) {
             let dx = xi * gridx + edge
             let dy = yi * gridy + edge
 
-            p.arc(dx + gridx / 2, dy + gridy / 2, diag, diag, Math.PI * -0.25, Math.PI * 0.75)
+            p.arc(
+                dx + gridx / 2,
+                dy + gridy / 2,
+                diag,
+                diag,
+                Math.PI * -0.25,
+                Math.PI * 0.75
+            )
         }
     }
 
@@ -121,7 +137,11 @@ function drawArcs2(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.9 } = {}) {
     drawEdge(sheet, p)
 }
 
-function drawArcs(sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {}) {
+function drawArcs(
+    sheet,
+    p: p5,
+    { offset = true, size = 0.9, size2 = 0.7 } = {}
+) {
     const { gridx, gridy, nx, ny, edge } = sheet
     let w = gridx * size
     let h = gridy * size2
@@ -131,7 +151,9 @@ function drawArcs(sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {})
 
     for (let xi = -1; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
-            let dx = (offset && yi % 2 === 0 ? (xi + 0.5) * gridx : xi * gridx) + edge
+            let dx =
+                (offset && yi % 2 === 0 ? (xi + 0.5) * gridx : xi * gridx) +
+                edge
 
             dx += (gridx - w) / 2
             let dy = yi * gridy + edge
@@ -139,7 +161,14 @@ function drawArcs(sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {})
 
             p.beginContour()
             p.vertex(dx + w, dy + h)
-            p.bezierVertex(dx + w, dy + h * 0.5, dx + w * 0.75, dy, dx + w / 2, dy)
+            p.bezierVertex(
+                dx + w,
+                dy + h * 0.5,
+                dx + w * 0.75,
+                dy,
+                dx + w / 2,
+                dy
+            )
             p.bezierVertex(dx + w * 0.25, dy, dx, dy + h * 0.5, dx, dy + h)
             p.endContour()
         }
@@ -151,7 +180,11 @@ function drawArcs(sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {})
     cleanEdges(sheet, p)
 }
 
-function drawArcsTilted(sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {}) {
+function drawArcsTilted(
+    sheet,
+    p: p5,
+    { offset = true, size = 0.9, size2 = 0.7 } = {}
+) {
     p.push()
     p.rotate(-Math.PI / 4)
     p.translate(-sheet.diagonal / 2, 0)
@@ -182,7 +215,9 @@ function drawCircles(sheet, p: p5, { size = 0.9, offset = false } = {}) {
     for (let xi = 0; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
             // let dx = edge + (xi + 0.5) * gridx
-            let dx = (offset && yi % 2 === 0 ? xi * gridx : (xi + 0.5) * gridx) + edge
+            let dx =
+                (offset && yi % 2 === 0 ? xi * gridx : (xi + 0.5) * gridx) +
+                edge
             let dy = edge + (yi + 0.5) * gridy
             p.ellipse(dx, dy, circumference, circumference)
         }
@@ -193,7 +228,11 @@ function drawCircles(sheet, p: p5, { size = 0.9, offset = false } = {}) {
     drawEdge(sheet, p)
 }
 
-function drawPluses(sheet, p: p5, { size = 0.9, size2 = 0.35, offset = false } = {}) {
+function drawPluses(
+    sheet,
+    p: p5,
+    { size = 0.9, size2 = 0.35, offset = false } = {}
+) {
     // size2 = thickness
     const { gridx, gridy, nx, ny, edge } = sheet
 
@@ -212,7 +251,9 @@ function drawPluses(sheet, p: p5, { size = 0.9, size2 = 0.35, offset = false } =
     p.strokeCap(p.SQUARE)
     for (let xi = 0; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
-            let dx = (offset && yi % 2 === 0 ? (xi - 0.5) * gridx : xi * gridx) + edge
+            let dx =
+                (offset && yi % 2 === 0 ? (xi - 0.5) * gridx : xi * gridx) +
+                edge
             let dy = edge + gridy * yi
 
             p.line(dx + x1, dy + gridy / 2, dx + x2, dy + gridy / 2)
@@ -224,7 +265,11 @@ function drawPluses(sheet, p: p5, { size = 0.9, size2 = 0.35, offset = false } =
     drawEdge(sheet, p)
 }
 
-function drawRounded(sheet, p: p5, { size = 0.9, size2 = 0.7, offset = false } = {}) {
+function drawRounded(
+    sheet,
+    p: p5,
+    { size = 0.9, size2 = 0.7, offset = false } = {}
+) {
     const { gridx, gridy, nx, ny, edge } = sheet
     let w = gridx * size
     let h = gridy * size2
@@ -238,7 +283,10 @@ function drawRounded(sheet, p: p5, { size = 0.9, size2 = 0.7, offset = false } =
     p.erase()
     for (let xi = 0; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
-            let dx = (offset && yi % 2 === 0 ? (xi - 0.5) * gridx : xi * gridx) + edge + offx
+            let dx =
+                (offset && yi % 2 === 0 ? (xi - 0.5) * gridx : xi * gridx) +
+                edge +
+                offx
             let dy = yi * gridy + edge + offy
             p.rect(dx, dy, w, h, br)
         }
@@ -248,7 +296,7 @@ function drawRounded(sheet, p: p5, { size = 0.9, size2 = 0.7, offset = false } =
     drawEdge(sheet, p)
 }
 
-function drawZigZag(sheet, p: p5, { size = 0.9, size2 = 0.7, offset = false } = {}) {
+function drawZigZag(sheet, p: p5, { size = 0.9 } = {}) {
     const { gridx, gridy, nx, ny, edge } = sheet
     let thickness = gridx * size * 0.5
 

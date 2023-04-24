@@ -12,10 +12,12 @@ type ShapePolarSettings = {
     angleRange?: number
 }
 
+const POLAR = true
+
 new p5((p: p5) => {
     let btns = document.querySelector('#btns')
     let settings: ShapePolarSettings
-    3333333
+
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
         p.createElement('pre').parent('btns')
@@ -52,7 +54,6 @@ new p5((p: p5) => {
             angleRange: p.random(0.1, 0.5),
             a: p.random(-4, 4),
         }
-        console.log(settings)
 
         p.push()
         p.background(230)
@@ -61,8 +62,7 @@ new p5((p: p5) => {
         p.noFill()
         p.translate(p.width / 2, p.height / 2)
         // p.rotate(p.PI / 2)
-
-        shapePolar(settings)
+        POLAR ? shapePolar(settings) : shapeParametric()
 
         p.pop()
     }
@@ -149,7 +149,7 @@ new p5((p: p5) => {
         atAngle(angleVals[1])
     }
 
-    function shapeParametric(a = 1, points = true) {
+    function shapeParametric(a = 1, points = false) {
         let step = points ? 0.01 : 0.1
         let tvals = [p.PI * 0.499, p.PI * 1.5]
         let t = tvals[0]

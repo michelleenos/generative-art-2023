@@ -4,7 +4,7 @@ import { Pane } from 'tweakpane'
 
 let width = window.innerWidth
 let height = window.innerHeight
-let { canvas, ctx } = createCanvas(window.innerWidth, window.innerHeight)
+let { ctx } = createCanvas(window.innerWidth, window.innerHeight)
 
 let min = Math.min(width, height)
 ctx.translate(width / 2, height / 2)

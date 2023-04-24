@@ -3,7 +3,7 @@ import p5, { Oscillator } from 'p5'
 import 'p5/lib/addons/p5.sound.js'
 import { midiNumbers } from '~/helpers/midiNumbers'
 
-let btns = document.querySelector('#btns')
+// let btns = document.querySelector('#btns')
 
 //prettier-ignore
 const chords = {
@@ -94,6 +94,7 @@ new p5((p: p5) => {
 
         stop(time) {
             if (this.playing) {
+                this.lastTriggered = time
                 this.env.triggerRelease(this.osc, 0)
                 this.playing = false
             }
@@ -137,7 +138,7 @@ new p5((p: p5) => {
     })
 
     p.setup = function () {
-        let canvas = p.createCanvas(400, 400)
+        p.createCanvas(400, 400)
         distmax = (p.width + p.height) * 0.15
         p.colorMode(p.HSL)
 
@@ -147,7 +148,7 @@ new p5((p: p5) => {
         lowest = p.min(freqVals)
         highest = p.max(freqVals)
 
-        sloop = new p5.SoundLoop((time) => {
+        sloop = new p5.SoundLoop(() => {
             // console.log(time)
             // let index = (sloop.iterations - 1) % chordsArr.length
             // let chord = chordsArr[index]

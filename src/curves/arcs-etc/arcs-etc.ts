@@ -6,7 +6,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 let width = 800
 let height = 800
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 function sector(cx, cy, r, start, end, counterclockwise = false) {
     arc(cx, cy, r, start, end, counterclockwise)
@@ -36,7 +36,10 @@ function polygon(cx, cy, r, sides, rotation = 0) {
     let step = (Math.PI * 2) / sides
     ctx.beginPath()
     for (let i = 0; i < sides; i++) {
-        ctx.lineTo(cx + Math.cos(i * step + rotation) * r, cy + Math.sin(i * step + rotation) * r)
+        ctx.lineTo(
+            cx + Math.cos(i * step + rotation) * r,
+            cy + Math.sin(i * step + rotation) * r
+        )
     }
     ctx.closePath()
 }

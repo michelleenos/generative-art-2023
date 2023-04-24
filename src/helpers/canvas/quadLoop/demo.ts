@@ -5,7 +5,7 @@ import quadLoop from '.'
 
 let width = window.innerWidth
 let height = window.innerHeight
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 let points = getRandomPoints(10, width, height)
 

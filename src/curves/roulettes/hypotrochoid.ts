@@ -17,25 +17,13 @@ new p5((p: p5) => {
         special: 'none',
     }
 
-    const makeInput = (value, opts?) => {
-        if (!opts) opts = { min: 1, max: 300, step: 1 }
-        let input = pane.addInput(PARAMS, value, opts)
-
-        const onChange = () => {
-            if (rc.refreshing) return
-            circ[value] = PARAMS[value]
-            circ.makeSteps()
-            rc.refresh()
-        }
-
-        if (onChange) input.on('change', onChange)
-        return input
-    }
-
     function setupControlsCircle() {
         let opts = { min: 1, max: 300, step: 1 }
         pane.addInput(PARAMS, 'lineLen', opts).on('change', () => {
-            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
+            if (
+                PARAMS.special === 'hypocycloid' ||
+                PARAMS.special.startsWith('cycratio')
+            ) {
                 PARAMS.radius = PARAMS.lineLen
 
                 if (PARAMS.special.includes('ratio2')) {
@@ -61,7 +49,10 @@ new p5((p: p5) => {
             } else if (PARAMS.special.includes('ratio4')) {
                 PARAMS.baseRadius = PARAMS.radius * 4
             }
-            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
+            if (
+                PARAMS.special === 'hypocycloid' ||
+                PARAMS.special.startsWith('cycratio')
+            ) {
                 PARAMS.lineLen = PARAMS.radius
                 circ.lineLen = PARAMS.lineLen
             }
@@ -83,7 +74,10 @@ new p5((p: p5) => {
                 PARAMS.baseRadius = PARAMS.radius * 4
             }
 
-            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
+            if (
+                PARAMS.special === 'hypocycloid' ||
+                PARAMS.special.startsWith('cycratio')
+            ) {
                 PARAMS.lineLen = PARAMS.radius
             }
 
@@ -119,7 +113,10 @@ new p5((p: p5) => {
                 if (PARAMS.radius > 75) PARAMS.radius = 75
                 PARAMS.baseRadius = PARAMS.radius * 4
             }
-            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
+            if (
+                PARAMS.special === 'hypocycloid' ||
+                PARAMS.special.startsWith('cycratio')
+            ) {
                 PARAMS.lineLen = PARAMS.radius
                 circ.lineLen = PARAMS.lineLen
             }
@@ -135,7 +132,10 @@ new p5((p: p5) => {
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
         p.angleMode(p.RADIANS)
-        circ = new Trochoid({ radius: PARAMS.radius, baseRadius: PARAMS.baseRadius })
+        circ = new Trochoid({
+            radius: PARAMS.radius,
+            baseRadius: PARAMS.baseRadius,
+        })
 
         setupControlsCircle()
     }

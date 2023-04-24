@@ -24,4 +24,7 @@ const shuffle = (array: any[]) => {
 
 const constrain = (num, min, max) => Math.min(Math.max(num, min), max)
 
-export { lerp, map, random, shuffle, constrain }
+const mouseAngle = (mouse, width, height) =>
+    Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
+
+export { lerp, map, random, shuffle, constrain, mouseAngle }

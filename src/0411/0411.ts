@@ -33,7 +33,7 @@ let opts = {
 }
 
 type Pattern = {
-    drawing: typeof opts[keyof typeof opts]
+    drawing: (typeof opts)[keyof typeof opts]
     color: p5.Color
     nx: number
     ny: number
@@ -44,12 +44,14 @@ type Pattern = {
 }
 
 new p5((pmain: p5) => {
-    let btns = document.querySelector('#btns')
+    // let btns = document.querySelector('#btns')
     let size
-    let colors: string[] = pmain.shuffle(palette).map((c) => pmain.color(c).toString())
+    let colors: string[] = pmain
+        .shuffle(palette)
+        .map((c) => pmain.color(c).toString())
 
     pmain.setup = function () {
-        let canvas = pmain.createCanvas(window.innerWidth, window.innerHeight)
+        pmain.createCanvas(window.innerWidth, window.innerHeight)
         pmain.noLoop()
         pmain.colorMode(pmain.HSL)
         size = pmain.min(pmain.width, pmain.height) * 0.6
@@ -197,7 +199,9 @@ new p5((pmain: p5) => {
     }
 
     function genPatterns() {
-        let colors = pmain.shuffle(palette).map((c) => pmain.color(c).toString())
+        let colors = pmain
+            .shuffle(palette)
+            .map((c) => pmain.color(c).toString())
 
         setParam(TWO, colors[0])
         setParam(ONE, colors[1])
@@ -211,7 +215,11 @@ new p5((pmain: p5) => {
         let p = pmain.createGraphics(sheetOpts.w, sheetOpts.h)
         p.colorMode(p.HSL)
 
-        let sheet = createSheet(p, { ...sheetOpts, nx: pattern.nx, ny: pattern.ny })
+        let sheet = createSheet(p, {
+            ...sheetOpts,
+            nx: pattern.nx,
+            ny: pattern.ny,
+        })
 
         let opts = {
             size: pattern.size1,

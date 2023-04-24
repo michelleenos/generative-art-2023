@@ -5,8 +5,9 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
+// @ts-ignore
 function ellipse(cx, cy, rx, ry) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
     ctx.beginPath()
@@ -30,8 +31,18 @@ const params = {
 
 pane.addInput(params, 'cx', { min: -width / 2, max: width / 2, step: 1 })
 pane.addInput(params, 'cy', { min: -height / 2, max: height / 2, step: 1 })
-pane.addInput(params, 'A', { min: 0, max: width * 0.4, label: 'Amplitude A', step: 1 })
-pane.addInput(params, 'B', { min: 0, max: height * 0.4, label: 'Amplitude B', step: 1 })
+pane.addInput(params, 'A', {
+    min: 0,
+    max: width * 0.4,
+    label: 'Amplitude A',
+    step: 1,
+})
+pane.addInput(params, 'B', {
+    min: 0,
+    max: height * 0.4,
+    label: 'Amplitude B',
+    step: 1,
+})
 pane.addInput(params, 'a', { min: 0, max: 20, label: 'Frequency A', step: 1 })
 pane.addInput(params, 'b', { min: 0, max: 20, label: 'Frequency B', step: 1 })
 pane.addInput(params, 'd', { min: 0, max: 20, label: 'Delta', step: 1 })

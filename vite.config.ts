@@ -4,7 +4,6 @@ import inject from '@rollup/plugin-inject'
 import getEntries from './get-entries'
 
 let entries = await getEntries('src')
-console.log(entries)
 
 export default defineConfig({
     root: 'src',

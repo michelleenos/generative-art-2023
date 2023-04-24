@@ -6,7 +6,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 function ellipse(cx, cy, rx, ry) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
@@ -31,7 +31,8 @@ function drawAxes() {
 }
 
 // y = a * x * x
-function parabolaSimple(a = 0.003) {
+// @ts-ignore
+function parabolaSimple(a = 0.003, lines = false) {
     ctx.beginPath()
     for (let x = -width / 2; x <= width / 2; x++) {
         let y = a * x * x
@@ -101,10 +102,11 @@ function parabolaSimple(a = 0.003) {
     }
 
     tangentLines()
-    // equalLines()
+    if (lines) equalLines()
 }
 
 // y = a * x * x + b * x + c --> standard quadratic form (ax^2 + bx + c)
+// @ts-ignore
 function parabolaQuadratic(a = 0.003, b, c) {
     ctx.beginPath()
     for (let x = -width / 2; x <= width / 2; x++) {

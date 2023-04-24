@@ -20,7 +20,7 @@ function createCanvas(width, height) {
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(window.innerWidth, window.innerHeight)
+let { ctx } = createCanvas(window.innerWidth, window.innerHeight)
 
 const PHI = (1 + Math.sqrt(5)) / 2
 
@@ -61,10 +61,26 @@ let inpType = pane
     })
 let inpA = pane.addInput(PARAMS.spiral, 'a', { min: 0, max: 1000, step: 0.1 })
 let inpK = pane.addInput(PARAMS.spiral, 'k', { min: 0, max: 5, step: 0.01 })
-let inpCycles = pane.addInput(PARAMS.spiral, 'cycles', { min: 0, max: 100, step: 1 })
-let inpCount = pane.addInput(PARAMS.sunflower, 'count', { min: 0, max: 1000, step: 1 })
-let inpMaxRadius = pane.addInput(PARAMS.sunflower, 'maxRadius', { min: 0, max: 1000, step: 1 })
-let inpMaxSize = pane.addInput(PARAMS.sunflower, 'maxSize', { min: 0, max: 100, step: 1 })
+let inpCycles = pane.addInput(PARAMS.spiral, 'cycles', {
+    min: 0,
+    max: 100,
+    step: 1,
+})
+let inpCount = pane.addInput(PARAMS.sunflower, 'count', {
+    min: 0,
+    max: 1000,
+    step: 1,
+})
+let inpMaxRadius = pane.addInput(PARAMS.sunflower, 'maxRadius', {
+    min: 0,
+    max: 1000,
+    step: 1,
+})
+let inpMaxSize = pane.addInput(PARAMS.sunflower, 'maxSize', {
+    min: 0,
+    max: 100,
+    step: 1,
+})
 
 function setMode() {
     if (rc.refreshing) return
@@ -87,7 +103,9 @@ function setMode() {
     }
 }
 
-pane.addInput(PARAMS, 'mode', { options: { spiral: 'spiral', sunflower: 'sunflower' } })
+pane.addInput(PARAMS, 'mode', {
+    options: { spiral: 'spiral', sunflower: 'sunflower' },
+})
 
 pane.on('change', () => {
     setMode()

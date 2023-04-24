@@ -7,7 +7,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 const PARAMS = {
     x0: 10,
@@ -29,7 +29,14 @@ pane.addInput(PARAMS, 'amplitude', { min: 0, max: height + 200 })
 pane.on('change', () => {
     ctx.clearRect(0, 0, width, height)
     ctx.strokeStyle = '#fff'
-    sineWave(PARAMS.x0, PARAMS.y0, PARAMS.x1, PARAMS.y1, PARAMS.wavelength, PARAMS.amplitude)
+    sineWave(
+        PARAMS.x0,
+        PARAMS.y0,
+        PARAMS.x1,
+        PARAMS.y1,
+        PARAMS.wavelength,
+        PARAMS.amplitude
+    )
 })
 
 function sineWave(x0, y0, x1, y1, wavelen, amp) {

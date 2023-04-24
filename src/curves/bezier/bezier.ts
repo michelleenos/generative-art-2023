@@ -6,7 +6,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 function ellipse(cx, cy, rx, ry) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
@@ -27,6 +27,7 @@ function quadBezierPoint(x0, y0, x1, y1, x2, y2, t) {
     return { x: quadBezierOne(x0, x1, x2, t), y: quadBezierOne(y0, y1, y2, t) }
 }
 
+// @ts-ignore
 function quadCurve(x0, y0, x1, y1, x2, y2, res) {
     ctx.beginPath()
     ctx.moveTo(x0, y0)
@@ -39,7 +40,12 @@ function quadCurve(x0, y0, x1, y1, x2, y2, res) {
 
 function cubicBezierOne(a0, a1, a2, a3, t) {
     let m = 1 - t
-    return m * m * m * a0 + 3 * m * m * t * a1 + 3 * m * t * t * a2 + t * t * t * a3
+    return (
+        m * m * m * a0 +
+        3 * m * m * t * a1 +
+        3 * m * t * t * a2 +
+        t * t * t * a3
+    )
 }
 
 function cubicBezierPoint(x0, y0, x1, y1, x2, y2, x3, y3, t) {
@@ -48,6 +54,7 @@ function cubicBezierPoint(x0, y0, x1, y1, x2, y2, x3, y3, t) {
     return { x, y }
 }
 
+// @ts-ignore
 function cubicCurve(x0, y0, x1, y1, x2, y2, x3, y3, res) {
     ctx.beginPath()
     ctx.moveTo(x0, y0)
@@ -71,6 +78,7 @@ let y0 = 50
 let y1 = 150
 let y2 = 200
 
+// @ts-ignore
 function drawCurve() {
     ctx.clearRect(0, 0, width, height)
     ctx.beginPath()
@@ -112,6 +120,7 @@ function loop(cb) {
     requestAnimationFrame(animate)
 }
 
+// @ts-ignore
 function multiCurve(points) {
     ctx.moveTo(points[0].x, points[0].y)
     let midX = (points[0].x + points[1].x) / 2
@@ -165,7 +174,10 @@ let points: Point[] = []
 // ]
 
 for (let i = 0; i < 5; i++) {
-    points.push({ x: Math.floor(Math.random() * 800), y: Math.floor(Math.random() * 800) })
+    points.push({
+        x: Math.floor(Math.random() * 800),
+        y: Math.floor(Math.random() * 800),
+    })
 }
 
 points.forEach((pt) => {

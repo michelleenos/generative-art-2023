@@ -142,13 +142,13 @@ class MorphPetal {
     }
 }
 
-function angleDistFromRotation(angle, rotation) {
-    let dist = Math.abs(angle - rotation)
-    return dist > Math.PI ? Math.PI * 2 - dist : dist
-}
+// function angleDistFromRotation(angle, rotation) {
+//     let dist = Math.abs(angle - rotation)
+//     return dist > Math.PI ? Math.PI * 2 - dist : dist
+// }
 
 let t = 0
-function draw(time) {
+function draw() {
     t++
     ctx.clearRect(0, 0, width, height)
     ctx.fillStyle = '#171717'
@@ -159,8 +159,8 @@ function draw(time) {
     })
 }
 
-const mouseAngle = (mouse) =>
-    Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
+// const mouseAngle = (mouse) =>
+//     Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
 
 let petals: MorphPetal[] = []
 for (let i = 0; i < 1; i++) {
@@ -171,7 +171,8 @@ function framesLoop() {
     let t = 0
 
     const animate = (t) => {
-        draw(t * 10)
+        // draw(t * 10)
+        draw()
         getImage().then(() => {
             t++
             console.log(t)

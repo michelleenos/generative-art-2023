@@ -7,7 +7,7 @@ let width = window.innerWidth
 let height = window.innerHeight
 let min = Math.min(width, height)
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 const PARAMS = {
     size: min * 0.4,
@@ -22,40 +22,40 @@ const PARAMS = {
 
 const pane = new Pane()
 const rc = new RefreshContainer(pane)
-let inpSize = pane.addInput(PARAMS, 'size', { min: 10, max: min * 0.8, step: 1 })
-let inpNum = pane.addInput(PARAMS, 'numerator', { min: 1, max: 100, step: 1 })
-let inpDen = pane.addInput(PARAMS, 'denominator', { min: 1, max: 100, step: 1 })
+pane.addInput(PARAMS, 'size', { min: 10, max: min * 0.8, step: 1 })
+pane.addInput(PARAMS, 'numerator', { min: 1, max: 100, step: 1 })
+pane.addInput(PARAMS, 'denominator', { min: 1, max: 100, step: 1 })
 let inpRes = pane.addInput(PARAMS, 'res', { min: 0.001, max: 0.1, step: 0.001 })
 let inpStep = pane.addInput(PARAMS, 'step', { min: 1, max: 360, step: 1 })
-let inpIterations = pane.addInput(PARAMS, 'iterations', { min: 100, max: 1000, step: 1 })
-let inpSpecial = pane
-    .addInput(PARAMS, 'special', {
-        options: {
-            'limaçon trisectrix (1:3)': 'trisectrix',
-            'dürer folium (1:2)': 'durer',
-            'quadrifolium (2:1)': 'quadrifolium',
-            'trifolium (3:1)': 'trifolium',
-            none: 'none',
-        },
-    })
-    .on('change', () => {
-        if (rc.refreshing) return
-        setSpecial()
-        rc.refresh()
-    })
+let inpIterations = pane.addInput(PARAMS, 'iterations', {
+    min: 100,
+    max: 1000,
+    step: 1,
+})
+pane.addInput(PARAMS, 'special', {
+    options: {
+        'limaçon trisectrix (1:3)': 'trisectrix',
+        'dürer folium (1:2)': 'durer',
+        'quadrifolium (2:1)': 'quadrifolium',
+        'trifolium (3:1)': 'trifolium',
+        none: 'none',
+    },
+}).on('change', () => {
+    if (rc.refreshing) return
+    setSpecial()
+    rc.refresh()
+})
 
-let inpMode = pane
-    .addInput(PARAMS, 'mode', {
-        options: {
-            normal: 'normal',
-            maurer: 'maurer',
-        },
-    })
-    .on('change', () => {
-        if (rc.refreshing) return
-        setMode()
-        rc.refresh()
-    })
+pane.addInput(PARAMS, 'mode', {
+    options: {
+        normal: 'normal',
+        maurer: 'maurer',
+    },
+}).on('change', () => {
+    if (rc.refreshing) return
+    setMode()
+    rc.refresh()
+})
 
 function setMode() {
     if (PARAMS.mode === 'maurer') {
@@ -87,10 +87,13 @@ function setSpecial() {
 
 function checkSpecial() {
     let special = 'none'
-    if (PARAMS.numerator === 1 && PARAMS.denominator === 3) special = 'trisectrix'
+    if (PARAMS.numerator === 1 && PARAMS.denominator === 3)
+        special = 'trisectrix'
     if (PARAMS.numerator === 1 && PARAMS.denominator === 2) special = 'durer'
-    if (PARAMS.numerator === 2 && PARAMS.denominator === 1) special = 'quadrifolium'
-    if (PARAMS.numerator === 3 && PARAMS.denominator === 1) special = 'trifolium'
+    if (PARAMS.numerator === 2 && PARAMS.denominator === 1)
+        special = 'quadrifolium'
+    if (PARAMS.numerator === 3 && PARAMS.denominator === 1)
+        special = 'trifolium'
     PARAMS.special = special
     rc.refresh()
 }
@@ -116,7 +119,14 @@ function draw() {
             PARAMS.iterations
         )
     } else {
-        rose(0, 0, PARAMS.size, PARAMS.numerator, PARAMS.denominator, PARAMS.res)
+        rose(
+            0,
+            0,
+            PARAMS.size,
+            PARAMS.numerator,
+            PARAMS.denominator,
+            PARAMS.res
+        )
     }
     ctx.stroke()
 }

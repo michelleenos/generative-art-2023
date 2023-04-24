@@ -21,7 +21,7 @@ function createCanvas(
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 function ellipse(cx, cy, rx, ry) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
@@ -81,6 +81,7 @@ function simplify(num, denom) {
     return { num: num / factor, denom: denom / factor }
 }
 
+// @ts-ignore
 function epitrochoid(r0, r1, d) {
     let res = 0.05
     ellipse(0, 0, r0, r0)

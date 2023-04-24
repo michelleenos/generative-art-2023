@@ -32,7 +32,10 @@ new p5((p: p5) => {
                 circ[value] = PARAMS[value]
                 PARAMS.radius = circ.radius
                 PARAMS.baseRadius = circ.baseRadius
-            } else if (PARAMS.special === 'cardioid' && PARAMS.mode === 'radius') {
+            } else if (
+                PARAMS.special === 'cardioid' &&
+                PARAMS.mode === 'radius'
+            ) {
                 PARAMS.ratio = 1
                 if (value === 'radius') {
                     PARAMS.baseRadius = PARAMS.radius
@@ -47,7 +50,10 @@ new p5((p: p5) => {
                 circ['radius'] = PARAMS['radius']
                 circ['baseRadius'] = PARAMS['baseRadius']
                 circ['lineLen'] = PARAMS['lineLen']
-            } else if (PARAMS.special === 'limacon' && PARAMS.mode === 'radius') {
+            } else if (
+                PARAMS.special === 'limacon' &&
+                PARAMS.mode === 'radius'
+            ) {
                 if (value === 'radius') {
                     PARAMS.baseRadius = PARAMS.radius
                     circ.radius = PARAMS.radius
@@ -59,7 +65,10 @@ new p5((p: p5) => {
                 } else {
                     circ[value] = PARAMS[value]
                 }
-            } else if (PARAMS.special === 'nephroid' && PARAMS.mode === 'radius') {
+            } else if (
+                PARAMS.special === 'nephroid' &&
+                PARAMS.mode === 'radius'
+            ) {
                 if (value === 'radius') {
                     PARAMS.baseRadius = PARAMS.radius * 2
                     PARAMS.lineLen = PARAMS.radius
@@ -87,10 +96,10 @@ new p5((p: p5) => {
     }
 
     function setupControlsCircle() {
-        let inputLineLen = makeInput('lineLen')
+        makeInput('lineLen')
         let inputRadius = makeInput('radius')
         let inputRatio = makeInput('ratio', { min: 1, max: 20, step: 1 })
-        console.log(inputRatio)
+
         let inputBaseRadius = makeInput('baseRadius')
 
         if (PARAMS.mode === 'ratio') {
@@ -116,7 +125,10 @@ new p5((p: p5) => {
                 inputBaseRadius.disabled = false
                 inputRatio.disabled = true
                 PARAMS.special = 'none'
-                circ = new Trochoid({ radius: PARAMS.radius, baseRadius: PARAMS.baseRadius })
+                circ = new Trochoid({
+                    radius: PARAMS.radius,
+                    baseRadius: PARAMS.baseRadius,
+                })
             }
             rc.refresh()
         })
@@ -140,7 +152,10 @@ new p5((p: p5) => {
             if (PARAMS.special === 'cardioid') {
                 PARAMS.baseRadius = PARAMS.radius
                 PARAMS.lineLen = PARAMS.radius
-                circ = new Trochoid({ radius: PARAMS.radius, baseRadius: PARAMS.baseRadius })
+                circ = new Trochoid({
+                    radius: PARAMS.radius,
+                    baseRadius: PARAMS.baseRadius,
+                })
             } else if (PARAMS.special === 'limacon') {
                 PARAMS.baseRadius = PARAMS.radius
                 circ = new Trochoid({

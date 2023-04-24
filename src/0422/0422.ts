@@ -241,7 +241,7 @@ new p5((p: p5) => {
         p.angleMode(p.RADIANS)
         setStuff()
 
-        recorder = makeImages(canvas.elt, 0)
+        recorder = makeImages(canvas.elt)
 
         if (RECORD) {
             p.noLoop()

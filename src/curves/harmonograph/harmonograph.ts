@@ -4,7 +4,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 
 let width = window.innerWidth
 let height = window.innerHeight
-let { canvas, ctx } = createCanvas(window.innerWidth, window.innerHeight)
+let { ctx } = createCanvas(window.innerWidth, window.innerHeight)
 
 const PARAMS = {
     A: height * 0.4,
@@ -19,15 +19,40 @@ const PARAMS = {
 }
 
 let pane = new Pane()
-pane.addInput(PARAMS, 'A', { min: 0, max: height * 0.5, label: 'Amplitude A', step: 1 })
-pane.addInput(PARAMS, 'B', { min: 0, max: height * 0.5, label: 'Amplitude B', step: 1 })
+pane.addInput(PARAMS, 'A', {
+    min: 0,
+    max: height * 0.5,
+    label: 'Amplitude A',
+    step: 1,
+})
+pane.addInput(PARAMS, 'B', {
+    min: 0,
+    max: height * 0.5,
+    label: 'Amplitude B',
+    step: 1,
+})
 pane.addInput(PARAMS, 'a', { min: 0, max: 10, label: 'Frequency A', step: 0.1 })
 pane.addInput(PARAMS, 'b', { min: 0, max: 10, label: 'Frequency B', step: 0.1 })
 pane.addInput(PARAMS, 'p1', { min: 0, max: 10, label: 'phasing A', step: 0.1 })
 pane.addInput(PARAMS, 'p2', { min: 0, max: 10, label: 'phasing B', step: 0.1 })
-pane.addInput(PARAMS, 'd1', { min: 0, max: 0.1, step: 0.001, label: 'damping A' })
-pane.addInput(PARAMS, 'd2', { min: 0, max: 0.1, step: 0.001, label: 'damping B' })
-pane.addInput(PARAMS, 'iter', { min: 0, max: 40000, step: 1, label: 'iterations' })
+pane.addInput(PARAMS, 'd1', {
+    min: 0,
+    max: 0.1,
+    step: 0.001,
+    label: 'damping A',
+})
+pane.addInput(PARAMS, 'd2', {
+    min: 0,
+    max: 0.1,
+    step: 0.001,
+    label: 'damping B',
+})
+pane.addInput(PARAMS, 'iter', {
+    min: 0,
+    max: 40000,
+    step: 1,
+    label: 'iterations',
+})
 
 pane.on('change', () => {
     ctx.clearRect(-width / 2, -height / 2, width, height)
@@ -50,6 +75,8 @@ pane.on('change', () => {
 // A & B = amplitude of the wave on each axis
 // a & b = frequency on each axis
 // d = delta, puts x out of phase with y
+
+// @ts-ignore
 function liss(cx, cy, A, B, a, b, d) {
     let res = 0.01
     ctx.beginPath()
