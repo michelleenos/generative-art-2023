@@ -26,7 +26,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
+    - name: Setup pnpm
+      # uses: pnpm/action-setup@c3b53f6a16e57305370b4ae5a540c2077a1d50dd
+      uses: pnpm/action-setup@v2.2.4
+      with:
+        # If specified, run `pnpm install`
+        run_install: true
     - run: npm run build --if-present
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
