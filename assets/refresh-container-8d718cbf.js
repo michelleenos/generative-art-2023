@@ -1,0 +1,1 @@
+var n=Object.defineProperty;var t=(r,e,s)=>e in r?n(r,e,{enumerable:!0,configurable:!0,writable:!0,value:s}):r[e]=s;var h=(r,e,s)=>(t(r,typeof e!="symbol"?e+"":e,s),s);class f{constructor(e){h(this,"pane");h(this,"refreshing_",!1);this.pane=e}get refreshing(){return this.refreshing_}refresh(){this.refreshing_=!0,this.pane.refresh(),this.refreshing_=!1}}export{f as R};

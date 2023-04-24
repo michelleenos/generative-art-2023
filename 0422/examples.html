@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Generative Art</title>
+
+        
+
+        <style>
+            body {
+                padding: 2rem;
+            }
+            table {
+                border-collapse: collapse;
+                table-layout: fixed;
+                max-width: 800px;
+            }
+            table tr th:nth-child(1) {
+                width: 60%;
+            }
+            img {
+                max-width: 100%;
+            }
+            td {
+                padding: 1rem;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+            }
+        </style>
+      <link rel="stylesheet" href="/assets/style-e247505a.css">
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>image</th>
+                    <th>info</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <img src="/assets/grid-center-b13fb2e2.png" />
+                    </td>
+                    <td>
+                        <p>6x6 grid of particles</p>
+                        <p>initial vel: -x / n - 0.5, -y / n - 0.5 (points to the center, kinda?)</p>
+                        <p>highlighted (2, 1) and (1, 2)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="/assets/two-attractors-24c2dff8.jpg" />
+                    </td>
+                    <td>
+                        <p>6x6 grid of particles, start with initial vel going outwards</p>
+                        <p>initial vel: x / n - 0.5, y / n - 0.5</p>
+                        <p>two attractors (at width * 0.85 and width * 0.15)</p>
+                        <p>highlighted 1,1</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="/assets/dance-e6d6ff94.jpg" />
+                    </td>
+                    <td>
+                        <p>2 rows of 15 particles, one on top & one on bottom</p>
+                        <p>initial velocity like this: p.map(x, 0, nx - 1, -1, 0), p.map(y, 0, ny - 1, -0.5, 0.5)</p>
+                        <p>one attractor with mass 5</p>
+                        <p>this one was pretty cool to watch: <a href="./imgs/dance.mp4">dance.mp4</a></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="/assets/center-637d1ed3.jpg" />
+                    </td>
+                    <td>
+                        <p>grid of 6x6 particles</p>
+                        <p>initial velocity is: p.map(x, 0, nx - 1, -1, 1), p.map(y, 0, ny - 1, -0.5, 0.5)</p>
+                        <p>attractor in the center with mass 15</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="./images/flow.jpg" />
+                    </td>
+                    <td>
+                        <p>10 particles, distributed vertically at between 0 and 0.5</p>
+                        <p>initial velocity: both mapped -1 to 1</p>
+                        <p>attractor with mass 20</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <p>6x35 particles all with initial velocity of (-1, -1)</p>
+                        <p>particles distributed between (0.45, 0.1) and (0.4, 0.3)</p>
+                        <p>attractor in center has mass of 64</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="btns" class="absolute-container">
+            <a href="./index.html">back</a>
+        </div>
+    </body>
+</html>
