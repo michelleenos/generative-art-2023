@@ -1,25 +1,26 @@
 {
-  "name": "generative-art-2023",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@tweakpane/core": "^1.1.6",
-    "typescript": "^4.9.5",
-    "vite": "^4.2.1"
-  },
-  "dependencies": {
-    "@rollup/plugin-inject": "^5.0.3",
-    "@types/node": "^18.15.11",
-    "@types/p5": "^1.6.0",
-    "jszip": "^3.10.1",
-    "p5": "^1.6.0",
-    "simplex-noise": "^4.0.1",
-    "tweakpane": "^3.1.7"
-  }
+    "name": "generative-art-2023",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "buildwithout": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@tweakpane/core": "^1.1.6",
+        "typescript": "^4.9.5",
+        "vite": "^4.2.1"
+    },
+    "dependencies": {
+        "@rollup/plugin-inject": "^5.0.3",
+        "@types/node": "^18.15.11",
+        "@types/p5": "^1.6.0",
+        "jszip": "^3.10.1",
+        "p5": "^1.6.0",
+        "simplex-noise": "^4.0.1",
+        "tweakpane": "^3.1.7"
+    }
 }

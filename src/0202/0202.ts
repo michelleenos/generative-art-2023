@@ -18,6 +18,8 @@ const paletteFromUrl = (url) =>
 
 const palettes = paletteUrls.map((url) => paletteFromUrl(url))
 
+const MUSH = false
+
 new p5((p: p5) => {
     let palette, btn
     let colors: ReturnType<typeof colorUtils>
@@ -41,17 +43,16 @@ new p5((p: p5) => {
         let m = p.min(p.width, p.height)
         let yStep = m * 0.06
         let xStep = yStep * 0.8
-        let points: p5.Vector[][] = []
 
-        let len = 5
-        for (let xi = 0; xi < len; xi++) {
-            points[xi] = []
-            for (let yi = 0; yi < len; yi++) {
-                let x = xStep * (xi - 2)
-                let y = xi % 2 === 1 ? yStep * (yi - 2) + yStep / 2 : yStep * (yi - 2)
-                points[xi].push(p.createVector(x, y))
-            }
-        }
+        let c = p.createVector(0, 0)
+
+        let t = p.createVector(0, -yStep)
+        let rt = p.createVector(xStep, -yStep / 2)
+        let rb = p.createVector(xStep, yStep / 2)
+        let b = p.createVector(0, yStep)
+        let lb = p.createVector(-xStep, yStep / 2)
+        let lt = p.createVector(-xStep, -yStep / 2)
+        let pts = [t, rt, rb, b, lb, lt]
 
         let size = m * 0.9
         p.translate((p.width - size) / 2, (p.height - size) / 2)
@@ -62,7 +63,7 @@ new p5((p: p5) => {
                 p.push()
                 p.translate(x, y)
                 p.shuffle(palette, true)
-                designMushedTogether(points, 2, 2)
+                MUSH ? designMushedTogether(pts, c) : design(pts, c)
                 p.pop()
             }
         }
@@ -72,16 +73,7 @@ new p5((p: p5) => {
         if (e.target !== btn.elt) p.redraw()
     }
 
-    function design(points, cx, cy, style = -1) {
-        let c = points[cx][cy]
-        let t = points[cx][cy - 1]
-        let b = points[cx][cy + 1]
-        let lt = points[cx - 1][cy - 1]
-        let rt = points[cx + 1][cy - 1]
-        let lb = points[cx - 1][cy]
-        let rb = points[cx + 1][cy]
-
-        let pts = [t, rt, rb, b, lb, lt]
+    function design(pts, c, style = -1) {
         let indexes = pts.map((_, i) => i)
         p.shuffle(indexes, true)
 
@@ -95,17 +87,27 @@ new p5((p: p5) => {
                 shapes.baseShape(pts)
 
                 colors.fill(1)
-                shapes.shapeMoved(pts, { moveOpts: { subset: indexes[0] }, rotate: true })
+                shapes.shapeMoved(pts, {
+                    moveOpts: { subset: indexes[0] },
+                    rotate: true,
+                })
 
                 colors.stroke(2)
-                shapes.shapeMoved(pts, { moveOpts: { subset: indexes[1] }, rotate: true })
+                shapes.shapeMoved(pts, {
+                    moveOpts: { subset: indexes[1] },
+                    rotate: true,
+                })
 
                 let trisOpts = {
                     scale: p.random(0.3, 0.8),
                     chance: 0.4,
-                    chooseColor: () => (p.random() < 0.5 ? colors.fill(3) : colors.stroke(3)),
+                    chooseColor: () =>
+                        p.random() < 0.5 ? colors.fill(3) : colors.stroke(3),
                 }
-                shapes.trisMoved(pts, c, trisOpts, { subset: indexes[2], mult: [0.7, 1] })
+                shapes.trisRound(pts, c, trisOpts, {
+                    subset: indexes[2],
+                    mult: [0.7, 1],
+                })
 
                 colors.stroke(3, 3)
                 shapes.lines(pts, c, 2)
@@ -120,7 +122,10 @@ new p5((p: p5) => {
                 })
 
                 colors.stroke(0)
-                shapes.shapeMoved(pts, { moveOpts: { mult: [0, 0] }, scale: [1, 1] })
+                shapes.shapeMoved(pts, {
+                    moveOpts: { mult: [0, 0] },
+                    scale: [1, 1],
+                })
 
                 colors.fill(1)
                 shapes.circles(pts, {
@@ -138,7 +143,10 @@ new p5((p: p5) => {
                 })
 
                 colors.stroke(1)
-                shapes.shapeMoved(pts, { scale: [1, 1.3], moveOpts: { mult: [0.3, 0.6] } })
+                shapes.shapeMoved(pts, {
+                    scale: [1, 1.3],
+                    moveOpts: { mult: [0.3, 0.6] },
+                })
 
                 if (p.random() < 0.6) {
                     p.push()
@@ -156,16 +164,7 @@ new p5((p: p5) => {
         }
     }
 
-    function designMushedTogether(points, cx, cy) {
-        let c = points[cx][cy]
-        let t = points[cx][cy - 1]
-        let b = points[cx][cy + 1]
-        let lt = points[cx - 1][cy - 1]
-        let rt = points[cx + 1][cy - 1]
-        let lb = points[cx - 1][cy]
-        let rb = points[cx + 1][cy]
-
-        let pts = [t, rt, rb, b, lb, lt]
+    function designMushedTogether(pts, c) {
         let indexes = pts.map((_, i) => i)
 
         let steps: string[] = []
@@ -184,7 +183,10 @@ new p5((p: p5) => {
             shapes.baseShape(pts)
 
             colors.fill(1)
-            shapes.shapeMoved(pts, { moveOpts: { subset: indexes[0] }, rotate: true })
+            shapes.shapeMoved(pts, {
+                moveOpts: { subset: indexes[0] },
+                rotate: true,
+            })
         } else if (steps[0] === 'bigTris') {
             colors.strokeFill(0, 1, 3)
             shapes.trisRound(pts, c, {
@@ -194,7 +196,10 @@ new p5((p: p5) => {
             })
 
             colors.stroke(2)
-            shapes.shapeMoved(pts, { moveOpts: { subset: indexes[0] }, rotate: true })
+            shapes.shapeMoved(pts, {
+                moveOpts: { subset: indexes[0] },
+                rotate: true,
+            })
         } else {
             colors.fill(0)
             shapes.trisRound(pts, c, {
@@ -207,7 +212,10 @@ new p5((p: p5) => {
 
         if (steps.includes('shapeMoved')) {
             colors.stroke(2)
-            shapes.shapeMoved(pts, { moveOpts: { subset: indexes[1] }, rotate: true })
+            shapes.shapeMoved(pts, {
+                moveOpts: { subset: indexes[1] },
+                rotate: true,
+            })
         }
 
         if (steps.includes('thickLines')) {
@@ -235,7 +243,10 @@ new p5((p: p5) => {
                 trisOpts.scale = p.random(0.25, 0.35)
             }
 
-            shapes.trisMoved(pts, c, trisOpts, { subset: indexes[2], mult: [0.7, 1] })
+            shapes.trisRound(pts, c, trisOpts, {
+                subset: indexes[2],
+                mult: [0.7, 1],
+            })
         }
 
         if (steps.includes('circles')) {

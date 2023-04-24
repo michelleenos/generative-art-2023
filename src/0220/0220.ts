@@ -14,11 +14,11 @@ type ShapePolarSettings = {
 
 new p5((p: p5) => {
     let btns = document.querySelector('#btns')
-    let pre: p5.Element
     let settings: ShapePolarSettings
+    3333333
     p.setup = function () {
-        let canvas = p.createCanvas(window.innerWidth, window.innerHeight)
-        pre = p.createElement('pre').parent('btns')
+        p.createCanvas(window.innerWidth, window.innerHeight)
+        p.createElement('pre').parent('btns')
 
         p.createButton('save')
             .parent('btns')
@@ -30,9 +30,11 @@ new p5((p: p5) => {
 
     const name = (s) => {
         const r = (n) => p.round(n, 2)
-        let res = `a-${r(s.a)}--t-${r(s.translate.x)}-${r(s.translate.y)}--v1-${r(s.var1.x)}-${
-            s.var1.y
-        }--v2-${r(s.var2.x)}-${r(s.var2.y)}--n-${r(s.nSteps)}`
+        let res = `a-${r(s.a)}--t-${r(s.translate.x)}-${r(
+            s.translate.y
+        )}--v1-${r(s.var1.x)}-${s.var1.y}--v2-${r(s.var2.x)}-${r(
+            s.var2.y
+        )}--n-${r(s.nSteps)}`
         return res
     }
 
@@ -66,7 +68,10 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
+        if (
+            e.target instanceof HTMLElement &&
+            (!btns || !btns.contains(e.target))
+        ) {
             p.redraw()
         }
     }
@@ -90,6 +95,7 @@ new p5((p: p5) => {
             let angle = angleVals[0]
             while (angle < angleVals[1]) {
                 let r = secant(angle) + a * p.cos(angle)
+                // @ts-ignore
                 let v = p5.Vector.fromAngle(angle).mult(r)
 
                 let translated = v.copy().mult(translate)
@@ -113,6 +119,7 @@ new p5((p: p5) => {
 
         const atAngle = (angle) => {
             let r = secant(angle) + a * p.cos(angle)
+            // @ts-ignore
             let v = p5.Vector.fromAngle(angle).mult(r)
 
             // v.mult(scale)

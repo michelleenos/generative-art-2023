@@ -56,6 +56,7 @@ function curves(
                 return
             }
             let r = 2 / p.sqrt(val)
+            // @ts-ignore
             let v = p5.Vector.fromAngle(angle).mult(r).mult(scale)
 
             p.vertex(v.x, v.y)

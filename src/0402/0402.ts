@@ -53,7 +53,7 @@ function setPane() {
 
 let width = window.innerWidth
 let height = window.innerHeight
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 ctx.translate(width / 2, height / 2)
 
 let points1: Point[] = []
@@ -142,4 +142,5 @@ ctx.strokeStyle = '#fff'
 ctx.fillStyle = '#fff'
 
 setup()
+setPane()
 loop(drawing)

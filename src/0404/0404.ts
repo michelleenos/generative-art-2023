@@ -17,6 +17,7 @@ const PARAMS = {
     cpVarX: 0.1,
     cpVarY: 0.02,
     speed: 0.0005,
+    addRecordOption: false,
 }
 
 let pane = new Pane()
@@ -37,9 +38,12 @@ flower.addInput(PARAMS, 'cpVarY', {
     label: 'cp y var (wiggliness)',
 })
 flower.addInput(PARAMS, 'speed', { min: 0.0001, max: 0.01, step: 0.0001 })
-flower
-    .addButton({ title: 'restart & record' })
-    .on('click', () => petalStart(true))
+if (PARAMS.addRecordOption) {
+    flower
+        .addButton({ title: 'restart & record' })
+        .on('click', () => petalStart(true))
+}
+
 flower.addButton({ title: 'restart' }).on('click', () => petalStart())
 
 class PetalDrawer {
@@ -90,7 +94,6 @@ class PetalDrawer {
 
 let recorder
 let count = 0
-let start: DOMHighResTimeStamp = 0
 let petalLoop: ReturnType<typeof loop>
 let drawers: PetalDrawer[] = []
 let rotationStep
@@ -128,7 +131,6 @@ function makePetal(width, height, rotation) {
 function petalStart(record = false) {
     if (petalLoop) petalLoop.stop()
     ctx.clearRect(0, 0, width, height)
-    start = 0
     count = 0
     rotationStep = (Math.PI * 2) / PARAMS.numPetals
 

@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import inject from '@rollup/plugin-inject'
+import getEntries from './get-entries'
+
+let entries = await getEntries('src')
+console.log(entries)
 
 export default defineConfig({
     root: 'src',
@@ -16,9 +20,16 @@ export default defineConfig({
         }),
     ],
     build: {
+        outDir: '../dist',
+        emptyOutDir: true,
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'index.html'),
+                main: resolve(__dirname, 'src/index.html'),
+                ...entries,
+                // './src/0128/index.html': resolve(
+                //     __dirname,
+                //     'src/0128/index.html'
+                // ),
             },
         },
     },

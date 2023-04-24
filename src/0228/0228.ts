@@ -8,7 +8,7 @@ new p5((p: p5) => {
     let btns = document.querySelector('#btns')
 
     p.setup = function () {
-        let canvas = p.createCanvas(window.innerWidth, window.innerHeight)
+        p.createCanvas(window.innerWidth, window.innerHeight)
         p.noLoop()
         p.colorMode(p.HSB)
     }
@@ -29,7 +29,12 @@ new p5((p: p5) => {
                 return {
                     alphaStart: 1,
                     alphaEnd: p.random(0, 0.5),
-                    ease: p.random(['outQuad', 'outSine', 'inOutCirc', 'inQuad']),
+                    ease: p.random([
+                        'outQuad',
+                        'outSine',
+                        'inOutCirc',
+                        'inQuad',
+                    ]),
                 }
             }
         }
@@ -53,7 +58,10 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
+        if (
+            e.target instanceof HTMLElement &&
+            (!btns || !btns.contains(e.target))
+        ) {
             p.redraw()
         }
     }

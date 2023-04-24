@@ -1,7 +1,5 @@
 import '../../style.css'
 import p5 from 'p5'
-import { Pane } from 'tweakpane'
-
 import { Particle } from '../../helpers/particles/particle'
 
 new p5((p: p5) => {
@@ -38,32 +36,6 @@ new p5((p: p5) => {
             p.ellipse(this.x, this.y, this.radius * 2)
             p.pop()
         }
-    }
-
-    const getFriction = (velocity: p5.Vector) => {
-        const µ = 0.01 // mu = coefficient of friction (depends on material)
-        const N = 1 // N = normal force (force perpendicular to surface... based on gravitational force)
-
-        // friction = -1 * µ * N * v
-        return velocity
-            .copy()
-            .mult(-1)
-            .normalize()
-            .mult(µ * N)
-    }
-
-    const getDrag = (velocity: p5.Vector, Cd = 0.1) => {
-        // drag = -0.5 * ϱ * v^2 * A * Cd * v
-        // rho ϱ = density of fluid  // we ignore this here
-        // v^2 = speed of the object = magnitude of velocity vector
-        // A = frontal area of object pushing through the liquid
-        // for our purposes we consider the object is a sphere and ignore this
-        // Cd = drag coefficient (like coefficient of friction)
-        // v = velocity (normalized vector)
-        let mag = velocity.copy().magSq() * Cd
-        let drag = velocity.copy()
-        drag.mult(-0.5).normalize().mult(mag)
-        return drag
     }
 
     p.setup = () => {

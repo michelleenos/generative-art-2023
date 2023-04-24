@@ -22,7 +22,7 @@ let btns = document.getElementById('btns')
 
 new p5((p: p5) => {
     let div = p.createDiv()
-    let label = p.createElement('label', 'style: ').parent(div)
+    p.createElement('label', 'style: ').parent(div)
     let sel = p.createSelect().parent(div)
 
     div.parent('btns')
@@ -34,7 +34,7 @@ new p5((p: p5) => {
     // @ts-ignore
     sel.changed(selectEvent)
 
-    function selectEvent(e) {
+    function selectEvent() {
         let option = sel.value() as string
         setting = option
         p.redraw()
@@ -76,12 +76,27 @@ new p5((p: p5) => {
                 let pieces = p.floor(p.random(4, 8))
                 let chance =
                     setting === 'noisy'
-                        ? p.map(p.noise((xPos + add) * mult, (yPos + add) * mult), 0.35, 0.6, 0, 1)
+                        ? p.map(
+                              p.noise((xPos + add) * mult, (yPos + add) * mult),
+                              0.35,
+                              0.6,
+                              0,
+                              1
+                          )
                         : 1
                 strips(
                     squareSize,
                     pieces,
-                    p.random(['a', 'b', 'c', 'd', 'a-alt', 'b-alt', 'c-alt', 'd-alt']),
+                    p.random([
+                        'a',
+                        'b',
+                        'c',
+                        'd',
+                        'a-alt',
+                        'b-alt',
+                        'c-alt',
+                        'd-alt',
+                    ]),
                     chance
                 )
 
@@ -94,7 +109,10 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
+        if (
+            e.target instanceof HTMLElement &&
+            (!btns || !btns.contains(e.target))
+        ) {
             p.redraw()
         }
     }
@@ -110,59 +128,107 @@ new p5((p: p5) => {
             switch (style) {
                 case 'a':
                     p.fill(fill1)
-                    if (p.random() < chance) p.rect(wid * i, wid * i, squareSize - wid * i, wid)
+                    if (p.random() < chance)
+                        p.rect(wid * i, wid * i, squareSize - wid * i, wid)
                     p.fill(fill2)
-                    if (p.random() < chance) p.rect(wid * i, wid * i, wid, squareSize - wid * i)
+                    if (p.random() < chance)
+                        p.rect(wid * i, wid * i, wid, squareSize - wid * i)
                     break
                 case 'a-alt':
                     p.fill(fill1)
-                    if (p.random() < chance) p.rect(wid * i, wid * i, wid, squareSize - wid * i)
+                    if (p.random() < chance)
+                        p.rect(wid * i, wid * i, wid, squareSize - wid * i)
                     p.fill(fill2)
-                    if (p.random() < chance) p.rect(wid * i, wid * i, squareSize - wid * i, wid)
+                    if (p.random() < chance)
+                        p.rect(wid * i, wid * i, squareSize - wid * i, wid)
                     break
                 case 'b':
                     p.fill(fill1)
                     if (p.random() < chance)
-                        p.rect(squareSize - wid * (i + 1), 0, wid, squareSize - wid * i)
+                        p.rect(
+                            squareSize - wid * (i + 1),
+                            0,
+                            wid,
+                            squareSize - wid * i
+                        )
                     p.fill(fill2)
                     if (p.random() < chance)
-                        p.rect(0, squareSize - wid * (i + 1), squareSize - wid * i, wid)
+                        p.rect(
+                            0,
+                            squareSize - wid * (i + 1),
+                            squareSize - wid * i,
+                            wid
+                        )
                     break
                 case 'b-alt':
                     p.fill(fill1)
                     if (p.random() < chance)
-                        p.rect(0, squareSize - wid * (i + 1), squareSize - wid * i, wid)
+                        p.rect(
+                            0,
+                            squareSize - wid * (i + 1),
+                            squareSize - wid * i,
+                            wid
+                        )
                     p.fill(fill2)
                     if (p.random() < chance)
-                        p.rect(squareSize - wid * (i + 1), 0, wid, squareSize - wid * i)
+                        p.rect(
+                            squareSize - wid * (i + 1),
+                            0,
+                            wid,
+                            squareSize - wid * i
+                        )
                     break
                 case 'c':
                     p.fill(fill1)
                     if (p.random() < chance)
-                        p.rect(wid * i, squareSize - wid * (i + 1), squareSize - wid * i, wid)
+                        p.rect(
+                            wid * i,
+                            squareSize - wid * (i + 1),
+                            squareSize - wid * i,
+                            wid
+                        )
                     p.fill(fill2)
-                    if (p.random() < chance) p.rect(wid * i, 0, wid, squareSize - wid * i)
+                    if (p.random() < chance)
+                        p.rect(wid * i, 0, wid, squareSize - wid * i)
                     break
                 case 'c-alt':
                     p.fill(fill1)
-                    if (p.random() < chance) p.rect(wid * i, 0, wid, squareSize - wid * i)
+                    if (p.random() < chance)
+                        p.rect(wid * i, 0, wid, squareSize - wid * i)
                     p.fill(fill2)
                     if (p.random() < chance)
-                        p.rect(wid * i, squareSize - wid * (i + 1), squareSize - wid * i, wid)
+                        p.rect(
+                            wid * i,
+                            squareSize - wid * (i + 1),
+                            squareSize - wid * i,
+                            wid
+                        )
                     break
                 case 'd':
                     p.fill(fill1)
                     if (p.random() < chance)
-                        p.rect(squareSize - wid * (i + 1), wid * i, wid, squareSize - wid * i)
+                        p.rect(
+                            squareSize - wid * (i + 1),
+                            wid * i,
+                            wid,
+                            squareSize - wid * i
+                        )
                     p.fill(fill2)
-                    if (p.random() < chance) p.rect(0, wid * i, squareSize - wid * i, wid)
+                    if (p.random() < chance)
+                        p.rect(0, wid * i, squareSize - wid * i, wid)
                     break
                 case 'd-alt':
                     p.fill(fill1)
-                    if (p.random() < chance) p.rect(0, wid * i, squareSize - wid * i, wid)
+                    if (p.random() < chance)
+                        p.rect(0, wid * i, squareSize - wid * i, wid)
                     p.fill(fill2)
                     if (p.random() < chance)
-                        p.rect(squareSize - wid * (i + 1), wid * i, wid, squareSize - wid * i)
+                        p.rect(
+                            squareSize - wid * (i + 1),
+                            wid * i,
+                            wid,
+                            squareSize - wid * i
+                        )
                 default:
                     break
             }

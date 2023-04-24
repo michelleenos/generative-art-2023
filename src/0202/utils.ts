@@ -65,16 +65,11 @@ export type CirclesOpts = {
 export const shapeUtils = (p: p5) => ({
     midpoint: (a, b) => p.createVector((a.x + b.x) / 2, (a.y + b.y) / 2),
 
-    tri: (a: p5.Vector, b: p5.Vector, c: p5.Vector) => {
-        p.beginShape()
-        p.vertex(a.x, a.y)
-        p.vertex(b.x, b.y)
-        p.vertex(c.x, c.y)
-        p.vertex(a.x, a.y)
-        p.endShape()
-    },
-
-    moveCenter: ({ pts, subset = false, mult = [0.2, 0.8] }: MoveCenterOpts) => {
+    moveCenter: ({
+        pts,
+        subset = false,
+        mult = [0.2, 0.8],
+    }: MoveCenterOpts) => {
         let chooseFrom = pts
         if (typeof subset === 'number') {
             chooseFrom = [pts[subset]]
@@ -98,7 +93,7 @@ export const shapeUtils = (p: p5) => ({
         pts: p5.Vector[],
         { moveOpts = {}, rotate = false, scale = [0.4, 0.6] }: ShapeOpts = {}
     ) {
-        let rotateVals = [p.PI * 0.5, p.PI * 0.25, p.PI * -0.25]
+        // let rotateVals = [p.PI * 0.5, p.PI * 0.25, p.PI * -0.25]
         let scaleVal = p.random(scale[0], scale[1])
 
         p.push()
@@ -126,8 +121,11 @@ export const shapeUtils = (p: p5) => ({
             scale = [0.5, 0.8],
             scaleChance = 1,
             chooseColor = undefined,
-        }: TrisOpts = {}
+        }: TrisOpts = {},
+        moveOpts?: MoveOpts
     ) {
+        p.push()
+        if (moveOpts) this.moveCenter({ pts, ...moveOpts })
         let indexes = pts.map((_, i) => i)
         p.shuffle(indexes, true)
         if (!num) num = p.floor(p.random(indexes.length))
@@ -160,6 +158,8 @@ export const shapeUtils = (p: p5) => ({
             this.shape([center, pt1, pt2])
             p.pop()
         }
+
+        p.pop()
     },
 
     trisMoved: function (
@@ -186,7 +186,12 @@ export const shapeUtils = (p: p5) => ({
 
     circles: function (
         pts: p5.Vector[],
-        { radius = 7, num = 0, translate = 0.5, chooseColor = undefined }: CirclesOpts = {}
+        {
+            radius = 7,
+            num = 0,
+            translate = 0.5,
+            chooseColor = undefined,
+        }: CirclesOpts = {}
     ) {
         let ptsCopy = pts.map((pt) => pt)
         p.shuffle(ptsCopy, true)
