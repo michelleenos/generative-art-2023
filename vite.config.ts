@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import inject from '@rollup/plugin-inject'
+import vitePluginFaviconsInject from 'vite-plugin-favicons-inject'
 import getEntries from './get-entries'
 
 let entries = await getEntries('src')
@@ -17,6 +18,9 @@ export default defineConfig({
         inject({
             p5: 'p5',
         }),
+        process.env.NODE_ENV == 'production'
+            ? vitePluginFaviconsInject('./src/icon.svg')
+            : false,
     ],
     build: {
         outDir: '../dist',

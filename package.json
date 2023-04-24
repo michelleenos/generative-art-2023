@@ -21,6 +21,7 @@
         "jszip": "^3.10.1",
         "p5": "^1.6.0",
         "simplex-noise": "^4.0.1",
-        "tweakpane": "^3.1.7"
+        "tweakpane": "^3.1.7",
+        "vite-plugin-favicons-inject": "^2.2.0"
     }
 }
