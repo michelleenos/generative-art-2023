@@ -108,10 +108,12 @@ new p5((p: p5) => {
     }
 
     p.setup = () => {
-        p.createCanvas(400, 400)
+        let c = p.createCanvas(400, 400)
 
         for (let i = 0; i < 7; i++) {
-            particles.push(new Particle(p.random(p.width), p.random(p.height), 10, 0.5))
+            particles.push(
+                new Particle(p.random(p.width), p.random(p.height), 10, 0.5)
+            )
         }
 
         img = p.createGraphics(400, 400)
@@ -164,4 +166,4 @@ new p5((p: p5) => {
 
         p.image(img, 0, 0)
     }
-})
+}, document.getElementById('sketch') ?? undefined)
