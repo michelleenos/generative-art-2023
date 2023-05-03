@@ -17,6 +17,7 @@
         "types": ["node", "vite/client"],
         "baseUrl": "./",
         "noImplicitAny": false,
+        "strictFunctionTypes": false,
         "paths": {
             "~/*": ["src/*"]
         }

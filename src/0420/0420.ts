@@ -31,14 +31,7 @@ new p5((p: p5) => {
     pane.addInput(PARAMS, 'edges', { options: EDGEOPTS })
     pane.addInput(PARAMS, 'forceHigh', { min: 0, max: 0.3 })
     pane.addInput(PARAMS, 'forceLow', { min: 0, max: 0.3 })
-    pane.on('change', () => {
-        img.clear()
-
-        particles.forEach((particle) => {
-            particle.edgeForce = generateEdgeForce()
-        })
-        edgeForcesSame = generateEdgeForce()
-    })
+    pane.on('change', setup)
 
     class Particle extends p5.Vector {
         radius: number
@@ -107,14 +100,21 @@ new p5((p: p5) => {
         }
     }
 
-    p.setup = () => {
-        let c = p.createCanvas(400, 400)
-
+    function setup() {
+        if (img) img.clear()
+        particles = []
         for (let i = 0; i < 7; i++) {
             particles.push(
                 new Particle(p.random(p.width), p.random(p.height), 10, 0.5)
             )
         }
+        edgeForcesSame = generateEdgeForce()
+    }
+
+    p.setup = () => {
+        p.createCanvas(400, 400)
+
+        setup()
 
         img = p.createGraphics(400, 400)
         img.strokeWeight(0.5)

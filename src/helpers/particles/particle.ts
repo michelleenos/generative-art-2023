@@ -25,6 +25,12 @@ export type ParticleOpts = {
     mass?: number
     velInit?: p5.Vector
 }
+
+export type ForceOpts = {
+    G?: number
+    min?: number
+    max?: number
+}
 export class Particle extends p5.Vector {
     radius: number
     acceleration: p5.Vector = new p5.Vector()
@@ -83,7 +89,10 @@ export class Particle extends p5.Vector {
         p.circle(this.x, this.y, this.radius * 2)
     }
 
-    attract(particle: Particle, G = 1) {
+    attract(
+        particle: Particle,
+        { G = 1, min = this.min, max = this.max }: ForceOpts = {}
+    ) {
         // F = (G * m1 * m2) / r^2 * rn
         // G = gravitational constant
         // m1 and m2 = mass of objects
@@ -92,23 +101,26 @@ export class Particle extends p5.Vector {
 
         let force = this.copy().sub(particle)
         let distance = force.mag()
-        distance = constrain(distance, this.min, this.max)
+        // distance = constrain(distance, this.attractMin, this.attractMax)
+        distance = constrain(distance, min, max)
         force.normalize()
         let strength = (G * this.mass * particle.mass) / (distance * distance)
         force.mult(strength)
         return force
     }
 
-    get constraint() {
-        return {
-            min: this.min,
-            max: this.max,
-        }
-    }
-
-    set constraint({ min, max }: { min?: number; max?: number }) {
-        if (min) this.min = min
-        if (max) this.max = max
+    repel(
+        particle: Particle,
+        { min = this.min, max = this.max }: ForceOpts = {}
+    ) {
+        let between = this.copy().sub(particle)
+        let distance = between.mag()
+        // distance = constrain(distance, 1, 100)
+        distance = constrain(distance, min, max)
+        let direction = between.normalize()
+        let strength = (this.mass * particle.mass) / (distance * distance)
+        let force = direction.mult(strength * -1)
+        return force
     }
 }
 

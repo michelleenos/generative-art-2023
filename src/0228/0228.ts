@@ -42,9 +42,9 @@ new p5((p: p5) => {
         let { alphaStart, alphaEnd, ease } = getAlphaVals()
 
         let options: CurvesOptions = {
-            colorful: false,
-            // nStart: p.random(-2, 0),
-            nStart: -1,
+            color: p.random(['light', 'dark', 'color']),
+            nStart: p.random(-2, 0),
+            // nStart: -1,
             nEnd: p.random(0.5, 1.5),
             // angleMult: p.random([p.random(0.5, 2), p.random([3, 4, 5, 6, 7])]),
             angleMult: p.random([3, 4, 5, 6, 7, 8]),

@@ -229,10 +229,10 @@ new p5((p: p5) => {
             mass: mass,
             radius: 40,
         })
-        attractor.constraint = {
-            min: PARAMS.aConstrainMin,
-            max: PARAMS.aConstrainMax,
-        }
+        // attractor.attractConstraint = {
+        //     min: PARAMS.aConstrainMin,
+        //     max: PARAMS.aConstrainMax,
+        // }
         return attractor
     }
 
@@ -298,10 +298,11 @@ new p5((p: p5) => {
                 let prev = particle.copy()
 
                 attractors.forEach((attractor) => {
-                    let gravity = attractor.attract(
-                        particle,
-                        PARAMS.gravityConstant
-                    )
+                    let gravity = attractor.attract(particle, {
+                        G: PARAMS.gravityConstant,
+                        min: PARAMS.aConstrainMin,
+                        max: PARAMS.aConstrainMax,
+                    })
                     particle.applyForce(gravity.mult(particle.mass))
                 })
 

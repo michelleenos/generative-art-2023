@@ -18,9 +18,10 @@ const chords = {
     E7:     ['d2', 'e2', 'e2', 'g#2','b2', 'e3', 'g#3'],
     a7:     ['c2', 'e2', 'g2', 'a2', 'c3', 'e3', 'g3'],
     F:      ['c2', 'f2', 'g2', 'a2', 'c3', 'f3', 'a3'],
+    G9:     ['d2', 'f2', 'a2', 'b2', 'd3', 'g3', 'b3']
 }
 
-let chooseChords = [chords.Csus, chords.d7, chords.a7, chords.F]
+let chooseChords = [chords.Csus, chords.d7, chords.a7, chords.F, chords.G9]
 
 new p5((p: p5) => {
     class Particle {
@@ -51,8 +52,22 @@ new p5((p: p5) => {
             this._freq = freq
             this.freqHue = p.map(p.freqToMidi(freq), lowest, highest, 0, 360)
             this.hue = this.freqHue
-            // this.env.set(0.1, 0.15, 0.1, 0.1, 0, 0)
-            this.env.set(0.25, 0.15, 0.25, 0.1, 0.25, 0)
+
+            let attackTime = 0.1
+            let attackLevel = 0.15
+            let decayTime = 0.05
+            let decayLevel = 0.02
+            let releaseTime = 0.05
+            let releaseLevel = 0
+
+            this.env.set(
+                attackTime,
+                attackLevel,
+                decayTime,
+                decayLevel,
+                releaseTime,
+                releaseLevel
+            )
         }
 
         move() {
@@ -61,19 +76,15 @@ new p5((p: p5) => {
 
             if (this.x > p.width - this.radius) {
                 this.addX = -p.abs(this.addX)
-                // start = true
             }
             if (this.y > p.height - this.radius) {
                 this.addY = -p.abs(this.addY)
-                // start = true
             }
             if (this.x < this.radius) {
                 this.addX = p.abs(this.addX)
-                // start = true
             }
             if (this.y < this.radius) {
                 this.addY = p.abs(this.addY)
-                // start = true
             }
         }
 
@@ -112,8 +123,8 @@ new p5((p: p5) => {
             p.fill(this.hue, 80, 50, 1)
             p.circle(this.x, this.y, this.radius * 2)
 
-            let energy = fft.getEnergy(this._freq)
-            p.text(energy, this.x + 10, this.y + 10)
+            // let energy = fft.getEnergy(this._freq)
+            // p.text(energy, this.x + 10, this.y + 10)
         }
 
         distanceFrom(particle: Particle) {
@@ -149,9 +160,6 @@ new p5((p: p5) => {
         highest = p.max(freqVals)
 
         sloop = new p5.SoundLoop(() => {
-            // console.log(time)
-            // let index = (sloop.iterations - 1) % chordsArr.length
-            // let chord = chordsArr[index]
             let chord = p.random(chordsFreq)
             for (let i = 0; i < particles.length; i++) {
                 let note = chord[i % chord.length]
@@ -175,29 +183,21 @@ new p5((p: p5) => {
         p.background(10)
         p.noStroke()
 
-        spectrum = fft.analyze()
-        p.fill(0, 0, 100, 1)
-        p.beginShape()
-        p.vertex(0, p.height)
-        p.vertex(0, p.height)
-        for (let i = lowest; i < highest; i++) {
-            let x = p.map(i, lowest, highest, 0, p.width)
-            let energy = fft.getEnergy(p.midiToFreq(i))
-            let height = p.map(energy, 0, 255, 0, p.height)
-            // p.rect(x, p.height, p.width / 300, h)
-            p.curveVertex(x, height)
-            if (p.frameCount === 30) {
-                console.log({ x, height })
-            }
-        }
-        p.vertex(p.width, p.height)
-        p.vertex(p.width, p.height)
-        p.endShape()
+        // spectrum = fft.analyze()
 
-        if (p.frameCount === 30) {
-            console.log({ lowest, highest })
-            console.log(spectrum)
-        }
+        // for (let i = lowest; i < highest; i++) {
+        //     let x = p.map(i, lowest, highest, 0, p.width)
+        //     let energy = fft.getEnergy(p.midiToFreq(i))
+        //     let alpha = p.map(energy, 0, 255, 0, 360)
+        //     p.fill(alpha, 80, 50)
+        //     p.rect(x, 0, 3, p.height)
+        //     // p.rect(x, p.height, p.width / 300, h)
+        // }
+
+        // if (p.frameCount === 30) {
+        //     console.log({ lowest, highest })
+        //     console.log(spectrum)
+        // }
 
         for (let i = 0; i < particles.length; i++) {
             particles[i].move()

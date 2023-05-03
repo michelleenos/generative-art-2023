@@ -84,7 +84,8 @@ button:focus-visible {
 }
 
 .info {
-    padding: 2% 5%;
+    padding: 1.5rem 2rem;
+    max-width: 600px;
 }
 
 .absolute-container {

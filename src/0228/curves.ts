@@ -4,7 +4,7 @@ import easings from '../helpers/easings'
 type Ease = (x: number) => number
 
 type CurvesOptions = {
-    colorful?: boolean
+    color?: 'dark' | 'light' | 'color'
     nStart?: number
     nEnd?: number
     angleMult?: number
@@ -18,7 +18,7 @@ type CurvesOptions = {
 function curves(
     p: p5,
     {
-        colorful = false,
+        color = 'dark',
         nStart = -1,
         nEnd = 2,
         angleMult = 4,
@@ -42,6 +42,12 @@ function curves(
     const whiteStroke = () => {
         return (alpha = 1) => {
             p.stroke(0, 0, 100, alpha)
+        }
+    }
+
+    const darkStroke = () => {
+        return (alpha = 1) => {
+            p.stroke(0, 0, 0, alpha)
         }
     }
 
@@ -77,10 +83,15 @@ function curves(
         easeFunc = ease
     }
 
-    let setStroke = colorful ? colorStroke() : whiteStroke()
+    let setStroke =
+        color === 'color'
+            ? colorStroke()
+            : color === 'dark'
+            ? whiteStroke()
+            : darkStroke()
 
     p.push()
-    p.background(3)
+    color === 'light' ? p.background(350) : p.background(3)
     p.strokeWeight(1)
     p.noFill()
     p.translate(p.width / 2, p.height / 2)

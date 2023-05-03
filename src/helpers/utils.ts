@@ -22,9 +22,14 @@ const shuffle = (array: any[]) => {
     return array
 }
 
+const round = (num, precision) => {
+    const factor = Math.pow(10, precision)
+    return Math.round(num * factor) / factor
+}
+
 const constrain = (num, min, max) => Math.min(Math.max(num, min), max)
 
 const mouseAngle = (mouse, width, height) =>
     Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
 
-export { lerp, map, random, shuffle, constrain, mouseAngle }
+export { lerp, map, random, shuffle, constrain, mouseAngle, round }
