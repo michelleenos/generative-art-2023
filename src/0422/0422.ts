@@ -39,10 +39,10 @@ const PARAMS = {
     boxSize: 0.25,
     aConstrainMin: 5,
     aConstrainMax: 25,
-    weightH: 1.5,
     weight: 1,
     alpha: 0.2,
     alphaH: 0.8,
+    showAttractors: true,
 }
 
 new p5((p: p5) => {
@@ -121,8 +121,6 @@ new p5((p: p5) => {
         for (let i = 0; i < n; i++) {
             let mass = 1
 
-            // let a = p.atan2(posY - attractor.y, posX - attractor.x)
-            // velInit.setHeading(a).mult(-1) // point particle directly at attractor
             particles.push({
                 particle: new Particle(
                     p.random(PARAMS.size),
@@ -229,10 +227,6 @@ new p5((p: p5) => {
             mass: mass,
             radius: 40,
         })
-        // attractor.attractConstraint = {
-        //     min: PARAMS.aConstrainMin,
-        //     max: PARAMS.aConstrainMax,
-        // }
         return attractor
     }
 
@@ -280,7 +274,7 @@ new p5((p: p5) => {
         p.stroke(100, 100)
         p.strokeWeight(2)
         p.fill(50, 100)
-        attractors.forEach((attractor) => attractor.draw(p))
+        if (PARAMS.showAttractors) attractors.forEach((attractor) => attractor.draw(p))
 
         p.fill(200, 100)
         p.noStroke()

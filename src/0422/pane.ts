@@ -10,6 +10,7 @@ function setPane(PARAMS, p, initVelOpts, makeParticles, setup: () => void) {
     pane.addInput(PARAMS, 'gravityConstant', { min: 0.1, max: 3, step: 0.1 })
     pane.addInput(PARAMS, 'alpha', { min: 0, max: 1, step: 0.01 })
     pane.addInput(PARAMS, 'weight', { min: 0, max: 10, step: 0.1 })
+    pane.addInput(PARAMS, 'showAttractors')
 
     let pFolder = pane.addFolder({ title: 'particles grid' })
     pFolder

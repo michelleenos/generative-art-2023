@@ -258,4 +258,4 @@ new p5((p: p5) => {
             })
         }
     }
-})
+}, document.getElementById('sketch') ?? undefined)
