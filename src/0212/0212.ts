@@ -34,7 +34,7 @@ new p5((p: p5) => {
         }
     }
 
-    function drawings(style) {
+    function drawings(style: number) {
         let r_radius = 0.2
         let r_yi = 0.1
         let r_xi = p.random(100, 300)

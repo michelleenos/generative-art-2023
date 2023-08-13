@@ -17,7 +17,7 @@ new p5((p: p5) => {
         const getAlphaVals: () => {
             alphaStart: number
             alphaEnd: number
-            ease: (number) => number
+            ease: (n: number) => number
         } = () => {
             if (p.random() < 0.5) {
                 return {

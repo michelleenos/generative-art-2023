@@ -28,16 +28,18 @@ new p5((p: p5) => {
         p.noLoop()
     }
 
-    const secant = (x) => 1 / p.cos(x)
+    const secant = (x: number) => 1 / p.cos(x)
 
-    const name = (s) => {
-        const r = (n) => p.round(n, 2)
-        let res = `a-${r(s.a)}--t-${r(s.translate.x)}-${r(
-            s.translate.y
-        )}--v1-${r(s.var1.x)}-${s.var1.y}--v2-${r(s.var2.x)}-${r(
-            s.var2.y
-        )}--n-${r(s.nSteps)}`
-        return res
+    const name = (s = settings) => {
+        const r = (n: number) => p.round(n, 2)
+        let res: string[] = []
+        if (s.a) res.push(`a-${r(s.a)}`)
+        if (s.translate) res.push(`t-${r(s.translate.x)}-${r(s.translate.y)}`)
+        if (s.var1) res.push(`v1-${r(s.var1.x)}-${s.var1.y}`)
+        if (s.var2) res.push(`v2-${r(s.var2.x)}-${r(s.var2.y)}`)
+        if (s.nSteps) res.push(`n-${r(s.nSteps)}`)
+
+        return res.join('--')
     }
 
     p.draw = function () {
@@ -117,7 +119,7 @@ new p5((p: p5) => {
             return scale
         }
 
-        const atAngle = (angle) => {
+        const atAngle = (angle: number) => {
             let r = secant(angle) + a * p.cos(angle)
             // @ts-ignore
             let v = p5.Vector.fromAngle(angle).mult(r)

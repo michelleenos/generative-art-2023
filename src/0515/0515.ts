@@ -5,7 +5,7 @@ import { Pane } from 'tweakpane'
 let palette = ['#f398c3', '#cf3895', '#a0d28d', '#06b4b0', '#fed000', '#FF8552']
 let grads: CanvasGradient[] = []
 let zs: number[] = []
-let m
+let m: number
 
 const PS = {
     precision: 49,
@@ -70,7 +70,7 @@ new p5((p: p5) => {
         folder.addInput(PS, 'diff', { min: 0, max: 1, step: 0.1 })
         folder.addInput(PS, 'noiseScaleDenom', { min: 0, max: 10, step: 0.1 })
         folder.addInput(PS, 'noiseAmt', { min: 0, max: 2, step: 0.01 })
-        folder.addInput(PS, 'radiusToStep', { min: 0.01, max: 2, step: 0.01 })
+        folder.addInput(PS, 'radiusToStep', { min: 0.01, max: 0.5, step: 0.01 })
 
         folder
             .addButton({ title: 'noiseSeed++ (spacebar)' })
@@ -92,8 +92,8 @@ new p5((p: p5) => {
         let radius = PS.step * PS.radiusToStep
         p.push()
         p.translate(
-            (p.width - size) / 2 + radius,
-            (p.height - size) / 2 + radius
+            (p.width - size) / 2 + PS.step / 2,
+            (p.height - size) / 2 + PS.step / 2
         )
         p.noStroke()
         let i = 0
@@ -129,7 +129,7 @@ new p5((p: p5) => {
         }
     }
 
-    function circle(x, y, r, noiseZ?: number) {
+    function circle(x: number, y: number, r: number, noiseZ?: number) {
         let noiseScale = PS.noiseScaleDenom / r
         let noiseAmt = r * PS.noiseAmt
         p.push()

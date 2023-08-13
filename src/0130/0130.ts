@@ -9,14 +9,14 @@ const paletteUrls = [
     'https://coolors.co/d7263d-f46036-2e294e',
 ]
 
-const paletteFromUrl = (url) =>
+const paletteFromUrl = (url: string) =>
     url
         .replace('https://coolors.co/', '')
         .split('-')
         .map((c) => `#${c}`)
 
 const palettes = paletteUrls.map((p) => paletteFromUrl(p))
-let palette
+let palette: string[]
 let setting = 'noisy'
 let btns = document.getElementById('btns')
 
@@ -117,7 +117,12 @@ new p5((p: p5) => {
         }
     }
 
-    function strips(squareSize, pieces, style = 'a', chance = 0.5) {
+    function strips(
+        squareSize: number,
+        pieces: number,
+        style = 'a',
+        chance = 0.5
+    ) {
         let wid = squareSize / pieces
         p.stroke(0)
         p.strokeWeight(3)

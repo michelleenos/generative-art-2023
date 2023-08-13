@@ -10,7 +10,7 @@ const paletteUrls = [
     'https://coolors.co/080708-3772ff-df2935-fdca40-e6e8e6',
 ]
 
-const paletteFromUrl = (url) =>
+const paletteFromUrl = (url: string) =>
     url
         .replace('https://coolors.co/', '')
         .split('-')
@@ -21,7 +21,7 @@ const palettes = paletteUrls.map((url) => paletteFromUrl(url))
 const MUSH = false
 
 new p5((p: p5) => {
-    let palette, btn
+    let palette, btn: p5.Element
     let colors: ReturnType<typeof colorUtils>
     let shapes: ReturnType<typeof shapeUtils> = shapeUtils(p)
 
@@ -35,7 +35,7 @@ new p5((p: p5) => {
     }
 
     p.draw = function () {
-        palette = p.random(palettes).map((c) => c)
+        palette = p.random(palettes).map((c: string) => c)
         colors = colorUtils(p, palette)
 
         p.background(palette.shift())
@@ -73,7 +73,7 @@ new p5((p: p5) => {
         if (e.target !== btn.elt) p.redraw()
     }
 
-    function design(pts, c, style = -1) {
+    function design(pts: p5.Vector[], c: p5.Vector, style = -1) {
         let indexes = pts.map((_, i) => i)
         p.shuffle(indexes, true)
 
@@ -164,7 +164,7 @@ new p5((p: p5) => {
         }
     }
 
-    function designMushedTogether(pts, c) {
+    function designMushedTogether(pts: p5.Vector[], c: p5.Vector) {
         let indexes = pts.map((_, i) => i)
 
         let steps: string[] = []

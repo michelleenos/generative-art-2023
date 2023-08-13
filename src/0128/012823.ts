@@ -51,9 +51,9 @@ new p5((p: p5) => {
         }
     }
 
-    const checkered = (x, y) => x % 2 === y % 2
+    const checkered = (x: number, y: number) => x % 2 === y % 2
 
-    const squareStar = (rectWid, rectLen, sides = 3) => {
+    const squareStar = (rectWid: number, rectLen: number, sides = 3) => {
         let angle = 360 / sides
         let i = 0
         while (i < sides) {

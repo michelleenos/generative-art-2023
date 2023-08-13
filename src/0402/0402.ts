@@ -18,7 +18,17 @@ const easeOpts = Object.keys(easings).reduce(
     {}
 )
 
-const PARAMS = {
+type params = {
+    showPoints: boolean
+    showOrigin: boolean
+    pointsReflection: boolean
+    easing: keyof typeof easings
+    lines: number
+    scaleMin: number
+    pointsN: number
+}
+
+const PARAMS: params = {
     showPoints: false,
     showOrigin: true,
     pointsReflection: true,
@@ -60,7 +70,11 @@ let points1: Point[] = []
 let points2: Point[] = []
 let timing: { x: (t: number) => number; y: (t: number) => number }[] = []
 
-function scaledLoop(origin, scale, points) {
+function scaledLoop(
+    origin: { x: number; y: number },
+    scale: number,
+    points: Point[]
+) {
     ctx.save()
     ctx.translate(origin.x, origin.y)
     ctx.scale(scale, scale)
@@ -70,7 +84,7 @@ function scaledLoop(origin, scale, points) {
     ctx.restore()
 }
 
-function drawing(t) {
+function drawing(t: number) {
     ctx.clearRect(-width / 2, -height / 2, width, height)
 
     let points: Point[] = []

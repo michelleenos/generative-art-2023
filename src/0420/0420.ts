@@ -25,7 +25,7 @@ type EdgeForces = {
 new p5((p: p5) => {
     let particles: Particle[] = []
     let edgeForcesSame: EdgeForces
-    let img
+    let img: p5.Graphics
 
     let pane = new Pane()
     pane.addInput(PARAMS, 'edges', { options: EDGEOPTS })
@@ -40,7 +40,7 @@ new p5((p: p5) => {
         mass: number
         edgeForce: EdgeForces
 
-        constructor(x, y, r, mass = 1) {
+        constructor(x: number, y: number, r: number, mass = 1) {
             super(x, y)
             this.radius = r
             this.mass = mass
@@ -101,6 +101,7 @@ new p5((p: p5) => {
     }
 
     function setup() {
+        // @ts-ignore  // NOTE p5 types issue where clear() expects 4 parameters but that's only for wegl mode
         if (img) img.clear()
         particles = []
         for (let i = 0; i < 7; i++) {

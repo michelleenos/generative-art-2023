@@ -103,7 +103,12 @@ button:focus-visible {
     left: 0;
     background: rgba(255, 255, 255, 0.7);
     color: #000;
-    padding: 0 1rem;
+    padding: 0.3rem 1rem;
+}
+
+.absolute-container.dark {
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
 }
 
 .absolute-container .info {

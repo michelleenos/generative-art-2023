@@ -1,5 +1,5 @@
 export default function loop(cb: FrameRequestCallback): { stop: () => void } {
-    let id
+    let id: number
     function animation(t: DOMHighResTimeStamp) {
         id = requestAnimationFrame(animation)
         cb(t)

@@ -33,7 +33,7 @@ function curves(
         let hueMin = p.floor(p.random(0, 360))
         let hueMax = p.floor(hueMin + p.random(30, 120))
 
-        return (n, alpha = 1) => {
+        return (n: number, alpha = 1) => {
             let hue = p.map(n, -1, 2, hueMin, hueMax)
             p.stroke(hue % 360, 80, 90, alpha)
         }
@@ -54,7 +54,7 @@ function curves(
     const shape = (add: number = 0, angleMult: number = 4) => {
         let angle = 0
 
-        const drawVertex = (angle) => {
+        const drawVertex = (angle: number) => {
             let val = p.sin(angleMult * angle) + add
             if (val <= 0) {
                 p.endShape()

@@ -24,6 +24,7 @@ export type ParticleOpts = {
     radius?: number
     mass?: number
     velInit?: p5.Vector
+    edges?: { left: number; right: number; top: number; bottom: number }
 }
 
 export type ForceOpts = {
@@ -38,12 +39,14 @@ export class Particle extends p5.Vector {
     mass: number
     min: number = 5
     max: number = 25
+    edges?: { left: number; right: number; top: number; bottom: number }
 
-    constructor(x, y, opts: ParticleOpts = {}) {
+    constructor(x: number, y: number, opts: ParticleOpts = {}) {
         super(x, y)
         this.radius = opts.radius ?? 5
         this.mass = opts.mass ?? 1
         this.velocity = opts.velInit ?? new p5.Vector(0, 0)
+        if (opts.edges) this.edges = opts.edges
     }
 
     applyForce(force: p5.Vector) {
@@ -57,31 +60,59 @@ export class Particle extends p5.Vector {
         this.add(this.velocity)
     }
 
-    distFromEdge(p: p5) {
-        let dist = {
-            left: this.x - this.radius,
-            right: p.width - this.x - this.radius,
-            top: this.y - this.radius,
-            bottom: p.height - this.y - this.radius,
+    distFromEdge(p?: p5) {
+        if (p) {
+            return {
+                left: this.x - this.radius,
+                right: p.width - this.x - this.radius,
+                top: this.y - this.radius,
+                bottom: p.height - this.y - this.radius,
+            }
+        } else if (this.edges) {
+            return {
+                left: this.x - this.radius - this.edges.left,
+                right: this.edges.right - this.x - this.radius,
+                top: this.y - this.radius - this.edges.top,
+                bottom: this.edges.bottom - this.y - this.radius,
+            }
+        } else {
+            throw new Error(`No edges defined for particle: ${this}`)
         }
-        return dist
     }
 
-    checkEdges(p: p5) {
-        if (this.x + this.radius >= p.width) {
-            this.x = p.width - this.radius
-            this.velocity.x *= -1
-        } else if (this.x - this.radius <= 0) {
-            this.x = this.radius
-            this.velocity.x *= -1
-        }
-
-        if (this.y + this.radius >= p.height) {
-            this.velocity.y *= -1
-            this.y = p.height - this.radius
-        } else if (this.y - this.radius <= 0) {
-            this.velocity.y *= -1
-            this.y = this.radius
+    checkEdges(multIfEdge = -1, p?: p5) {
+        if (p) {
+            let dist = this.distFromEdge(p)
+            if (dist.left <= 0) {
+                this.x = this.radius
+                this.velocity.x *= multIfEdge
+            } else if (dist.right <= 0) {
+                this.x = p.width - this.radius
+                this.velocity.x *= multIfEdge
+            } else if (dist.top <= 0) {
+                this.velocity.y *= multIfEdge
+                this.y = this.radius
+            } else if (dist.bottom <= 0) {
+                this.velocity.y *= multIfEdge
+                this.y = p.height - this.radius
+            }
+        } else if (this.edges) {
+            let dist = this.distFromEdge()
+            if (dist.left <= 0) {
+                this.x = this.radius + this.edges.left
+                this.velocity.x *= multIfEdge
+            } else if (dist.right <= 0) {
+                this.x = this.edges.right - this.radius
+                this.velocity.x *= multIfEdge
+            } else if (dist.top <= 0) {
+                this.velocity.y *= multIfEdge
+                this.y = this.radius + this.edges.top
+            } else if (dist.bottom <= 0) {
+                this.velocity.y *= multIfEdge
+                this.y = this.edges.bottom - this.radius
+            }
+        } else {
+            throw new Error(`No edges defined for particle: ${this}`)
         }
     }
 

@@ -1,7 +1,12 @@
-const lerp = (a, b, alpha) => a + alpha * (b - a)
+const lerp = (a: number, b: number, alpha: number) => a + alpha * (b - a)
 
-const map = (num, inMin, inMax, outMin, outMax) =>
-    ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+const map = (
+    num: number,
+    inMin: number,
+    inMax: number,
+    outMin: number,
+    outMax: number
+) => ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
 
 const random = (min: number = 0, max: number = 1) =>
     Math.random() * (max - min) + min
@@ -22,14 +27,35 @@ const shuffle = (array: any[]) => {
     return array
 }
 
-const round = (num, precision) => {
+const round = (num: number, precision = 1) => {
     const factor = Math.pow(10, precision)
     return Math.round(num * factor) / factor
 }
 
-const constrain = (num, min, max) => Math.min(Math.max(num, min), max)
+const constrain = (num: number, min: number, max: number) =>
+    Math.min(Math.max(num, min), max)
 
-const mouseAngle = (mouse, width, height) =>
-    Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
+const mouseAngle = (
+    mouse: { x: number; y: number },
+    width: number,
+    height: number
+) => Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
 
-export { lerp, map, random, shuffle, constrain, mouseAngle, round }
+const throttle = (fn: Function, wait: number = 300) => {
+    let inThrottle: boolean = false
+
+    return function (this: any) {
+        const context = this
+        const args = arguments
+
+        if (inThrottle) {
+            return
+        }
+
+        fn.apply(context, args)
+        inThrottle = true
+        setTimeout(() => (inThrottle = false), wait)
+    }
+}
+
+export { lerp, map, random, shuffle, constrain, mouseAngle, round, throttle }

@@ -46,6 +46,13 @@ if (PARAMS.addRecordOption) {
 
 flower.addButton({ title: 'restart' }).on('click', () => petalStart())
 
+type PetalDrawOpts = {
+    numLines?: number
+    positions: number[]
+    startAt?: number
+    color?: string
+}
+
 class PetalDrawer {
     numLines: number
     positions: number[]
@@ -61,7 +68,7 @@ class PetalDrawer {
         positions,
         startAt = 0,
         color = 'rgba(255,255,255,0.1)',
-    }) {
+    }: PetalDrawOpts) {
         this.numLines = numLines
         this.positions = positions
         this.startAt = startAt
@@ -92,7 +99,7 @@ class PetalDrawer {
     }
 }
 
-let recorder
+let recorder: ReturnType<typeof canvasToVideo> | null
 let count = 0
 let petalLoop: ReturnType<typeof loop>
 let drawers: PetalDrawer[] = []
@@ -114,7 +121,7 @@ function draw(t: DOMHighResTimeStamp) {
     drawers.forEach((drawer) => drawer.draw(t, count))
 }
 
-function makePetal(width, height, rotation) {
+function makePetal(width: number, height: number, rotation: number) {
     let min = Math.min(width, height)
     return createPetal(ctx, {
         x: width * 0.5,

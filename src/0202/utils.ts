@@ -1,6 +1,6 @@
 import p5 from 'p5'
 
-export const colorUtils = (p: p5, palette) => ({
+export const colorUtils = (p: p5, palette: string[]) => ({
     fillOrStroke: (index: number = -1, weight = 2) => {
         let color = index > -1 ? palette[index] : p.random(palette)
         if (p.random() < 0.5) {
@@ -63,7 +63,8 @@ export type CirclesOpts = {
 }
 
 export const shapeUtils = (p: p5) => ({
-    midpoint: (a, b) => p.createVector((a.x + b.x) / 2, (a.y + b.y) / 2),
+    midpoint: (a: p5.Vector, b: p5.Vector) =>
+        p.createVector((a.x + b.x) / 2, (a.y + b.y) / 2),
 
     moveCenter: ({
         pts,
