@@ -1,15 +1,25 @@
 const lerp = (a: number, b: number, alpha: number) => a + alpha * (b - a)
 
-const map = (
-    num: number,
-    inMin: number,
-    inMax: number,
-    outMin: number,
-    outMax: number
-) => ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+const map = (num: number, inMin: number, inMax: number, outMin: number, outMax: number) =>
+    ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
 
-const random = (min: number = 0, max: number = 1) =>
-    Math.random() * (max - min) + min
+function random(): number
+function random(max: number): number
+function random(minOrMax: number, max: number): number
+function random<T>(array: T[]): T
+
+function random<T>(numOrArray?: number | T[], max?: number) {
+    if (Array.isArray(numOrArray)) {
+        return numOrArray[Math.floor(Math.random() * numOrArray.length)]
+    }
+    if (numOrArray === undefined) {
+        return Math.random()
+    }
+    if (max === undefined) {
+        return Math.random() * numOrArray
+    }
+    return Math.random() * (max - numOrArray) + numOrArray
+}
 
 const shuffle = (array: any[]) => {
     let currentIndex = array.length
@@ -18,10 +28,7 @@ const shuffle = (array: any[]) => {
     while (0 !== currentIndex) {
         randomIndex = Math.floor(Math.random() * currentIndex)
         currentIndex -= 1
-        ;[array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-        ]
+        ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
     }
 
     return array
@@ -32,14 +39,10 @@ const round = (num: number, precision = 1) => {
     return Math.round(num * factor) / factor
 }
 
-const constrain = (num: number, min: number, max: number) =>
-    Math.min(Math.max(num, min), max)
+const constrain = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
 
-const mouseAngle = (
-    mouse: { x: number; y: number },
-    width: number,
-    height: number
-) => Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
+const mouseAngle = (mouse: { x: number; y: number }, width: number, height: number) =>
+    Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
 
 const throttle = (fn: Function, wait: number = 300) => {
     let inThrottle: boolean = false

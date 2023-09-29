@@ -12,6 +12,7 @@ import {
     drawRects,
     drawZigZag,
     drawArcs2,
+    SheetOpts,
 } from './sheet'
 
 let palette = [
@@ -34,7 +35,7 @@ let opts = {
 
 type Pattern = {
     drawing: (typeof opts)[keyof typeof opts]
-    color: p5.Color
+    color: p5.Color | string
     nx: number
     ny: number
     size1: number
@@ -45,10 +46,8 @@ type Pattern = {
 
 new p5((pmain: p5) => {
     // let btns = document.querySelector('#btns')
-    let size
-    let colors: string[] = pmain
-        .shuffle(palette)
-        .map((c) => pmain.color(c).toString())
+    let size: number
+    let colors: string[] = pmain.shuffle(palette).map((c) => pmain.color(c).toString())
 
     pmain.setup = function () {
         pmain.createCanvas(window.innerWidth, window.innerHeight)
@@ -59,7 +58,7 @@ new p5((pmain: p5) => {
         genPatterns()
     }
 
-    let ONE = {
+    let ONE: Pattern = {
         drawing: 'rects',
         color: pmain.random(colors).toString(),
         nx: 1,
@@ -69,7 +68,7 @@ new p5((pmain: p5) => {
         show: false,
         offset: false,
     }
-    let TWO = {
+    let TWO: Pattern = {
         drawing: 'rects',
         color: pmain.random(colors).toString(),
         nx: 5,
@@ -79,7 +78,7 @@ new p5((pmain: p5) => {
         show: true,
         offset: false,
     }
-    let THREE = {
+    let THREE: Pattern = {
         drawing: 'arcs2',
         color: pmain.random(colors).toString(),
         nx: 5,
@@ -135,7 +134,7 @@ new p5((pmain: p5) => {
         if (!rc.refreshing) draw()
     })
 
-    function setParam(PARAM, color, drawOpts = Object.keys(opts)) {
+    function setParam(PARAM: Pattern, color: p5.Color | string, drawOpts = Object.keys(opts)) {
         let drawing = pmain.random(drawOpts)
         PARAM['size1'] = pmain.round(pmain.random(0.6, 0.9), 2)
         PARAM['size2'] = pmain.round(pmain.random(0.6, 0.9), 2)
@@ -168,7 +167,7 @@ new p5((pmain: p5) => {
         PARAM['drawing'] = drawing
     }
 
-    function setParamTop(PARAM, color, drawOpts = Object.keys(opts)) {
+    function setParamTop(PARAM: Pattern, color: p5.Color | string, drawOpts = Object.keys(opts)) {
         let drawing = pmain.random(drawOpts)
 
         PARAM['size1'] = pmain.round(pmain.random(0.7, 0.9), 2)
@@ -199,9 +198,7 @@ new p5((pmain: p5) => {
     }
 
     function genPatterns() {
-        let colors = pmain
-            .shuffle(palette)
-            .map((c) => pmain.color(c).toString())
+        let colors = pmain.shuffle(palette).map((c) => pmain.color(c).toString())
 
         setParam(TWO, colors[0])
         setParam(ONE, colors[1])
@@ -210,7 +207,7 @@ new p5((pmain: p5) => {
         rc.refresh()
     }
 
-    function drawPattern(pattern: Pattern, sheetOpts) {
+    function drawPattern(pattern: Pattern, sheetOpts: SheetOpts) {
         if (!pattern.show) return
         let p = pmain.createGraphics(sheetOpts.w, sheetOpts.h)
         p.colorMode(p.HSL)
@@ -227,7 +224,7 @@ new p5((pmain: p5) => {
             offset: pattern.offset,
         }
 
-        p.fill(pattern.color)
+        p.fill(pattern.color as p5.Color)
         p.noStroke()
         if (pattern.drawing === 'rects') {
             drawRects(sheet, p, opts)
