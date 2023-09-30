@@ -70,19 +70,22 @@ function setPane() {
 
 const getCheckerboard = (w: number, h: number) => {
     const gcdIsh = (a: number, b: number): number => {
-        if (b <= 0.5 || a < 3) return a
+        // console.log(a, b)
+        if (b < 3 || a < 3) return a
         return gcdIsh(b, a % b)
     }
-
     let size = gcdIsh(w, h)
     while (size > 40) {
         size /= 2
     }
     let chX = size
     let chY = size
-
     let nx = Math.ceil(w / chX)
     let ny = Math.ceil(h / chY)
+
+    let leftover = w % size
+    chX += leftover / nx
+    chY += leftover / ny
     return [nx, ny, chX, chY]
 }
 
@@ -331,6 +334,28 @@ function draw() {
     ctx.fillRect(0, 0, width, height)
 
     crazyTiles(width / 2, height / 2, width, height, props.iterations, patterns)
+
+    // let cols = shuffle(colors)
+    // let x = 200
+    // let y = 200
+    // let w = 350
+    // let h = 321.011
+
+    // ctx.rect(x, y, w, h)
+    // ctx.clip()
+    // let [nx, ny, chX, chY] = getCheckerboard(w, h)
+    // let xx = x
+    // let yy = y
+    // ctx.fillStyle = cols[1]
+    // for (let xi = 0; xi < nx; xi++) {
+    //     for (let yi = 0; yi < ny; yi++) {
+    //         ctx.beginPath()
+    //         if (xi % 2 === yi % 2) {
+    //             ctx.rect(xx + chX * xi, yy + chY * yi, chX, chY)
+    //             ctx.fill()
+    //         }
+    //     }
+    // }
 }
 
 setPane()
