@@ -25,9 +25,9 @@ type Props = {
 }
 
 let props: Props = {
-    iterations: 6,
+    iterations: 8,
     divisions: '2s-3s',
-    minSize: 50,
+    minSize: 20,
 }
 
 let width = 700
@@ -38,7 +38,7 @@ let colors = [...random(palettes.darks), ...random(palettes.lights)]
 function setPane() {
     let pane = new Pane()
     let folder = pane.addFolder({ title: 'settings' })
-    folder.addInput(props, 'iterations', { min: 1, max: 12, step: 1 })
+    folder.addInput(props, 'iterations', { min: 1, max: 15, step: 1 })
     folder.addInput(props, 'divisions', {
         options: {
             '2s': '2s',
@@ -46,7 +46,7 @@ function setPane() {
             random: 'random',
         },
     })
-    folder.addInput(props, 'minSize', { min: 10, max: 300, step: 1 })
+    folder.addInput(props, 'minSize', { min: -1, max: 300, step: 1 })
     let colorBtn = folder.addButton({
         title: 'new palette+redraw',
     })
@@ -105,7 +105,7 @@ function crazyTiles(
     }
 
     if (w > h) {
-        let w1
+        let w1, w2
 
         if (props.divisions === '2s') {
             w1 = w / random([2, 4])
@@ -115,14 +115,20 @@ function crazyTiles(
             w1 = w * random(0.2, 0.8)
         }
 
-        let w2 = w - w1
+        if (random() < 0.5) {
+            w2 = w - w1
+        } else {
+            w2 = w1
+            w1 = w - w2
+        }
+
         let x1 = x - w / 2 + w1 / 2
         let x2 = x + w / 2 - w2 / 2
 
         crazyTiles(x1, y, w1, h, iterations, fn)
         crazyTiles(x2, y, w2, h, iterations, fn)
     } else {
-        let h1
+        let h1, h2
         if (props.divisions === '2s') {
             h1 = h / random([2, 4])
         } else if (props.divisions === '2s-3s') {
@@ -130,7 +136,13 @@ function crazyTiles(
         } else {
             h1 = h * random(0.2, 0.8)
         }
-        let h2 = h - h1
+
+        if (random() < 0.5) {
+            h2 = h - h1
+        } else {
+            h2 = h1
+            h1 = h - h2
+        }
         let y1 = y - h / 2 + h1 / 2
         let y2 = y + h / 2 - h2 / 2
 
@@ -330,7 +342,7 @@ function patterns(cx: number, cy: number, w: number, h: number) {
 
 function draw() {
     ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = '#fafafa'
+    ctx.fillStyle = '#fff'
     ctx.fillRect(0, 0, width, height)
 
     crazyTiles(width / 2, height / 2, width, height, props.iterations, patterns)
