@@ -1,69 +1,88 @@
 import '../style.css'
 import { random, shuffle } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
+import { polygon, burst, zigzag, rectCenter } from '~/helpers/canvas/shapes'
+import { Pane } from 'tweakpane'
 
-let colors = ['#3682ce', '#1d1f6c', '#2eca5d', '#cd293f', '#f36f1d', '#ffb129']
-colors = ['#281951', '#4A64BF', '#50b2d3', '#FF9F31', '#3CBC50', '#E32033', '#FA5621']
-colors = [
-    '#f6b02c',
-    '#6a105e',
-    '#f24333',
-    '#058ed9',
-    '#BB1B4E',
-    '#E0002D',
-    '#143642',
-    '#5bc0eb',
-    '#ec89df',
-    '#5cb52d',
-]
-let width = 800
-let height = 800
+let palettes = {
+    darks: [
+        ['#6a105e', '#fa0939', '#0C2F4B', '#ed2b92'],
+        ['#0e1428', '#5D2A42', '#3f612d', '#1d201f', '#414066'],
+        ['#D01FD0', '#25A2DB', '#02BA36', '#BB1B4E'],
+        ['#281951', '#4A64BF', '#E32033', '#FA5621'],
+    ],
+    lights: [
+        ['#f6b02c', '#f24333', '#ff7a27', '#058ed9', '#5bc4f1', '#FC6C9C'],
+        ['#f0a202', '#f18805', '#d95d39', '#d1dede', '#ceff1a'],
+        ['#50b2d3', '#FF9F31', '#3CBC50', '#81d560'],
+    ],
+}
 
+type Props = {
+    iterations: number
+    divisions: '2s' | '2s-3s' | 'random'
+    minSize: number
+}
+
+let props: Props = {
+    iterations: 6,
+    divisions: '2s-3s',
+    minSize: 50,
+}
+
+let width = 700
+let height = 700
 let { ctx } = createCanvas(width, height)
+let colors = [...random(palettes.darks), ...random(palettes.lights)]
 
-const rectCenter = (x: number, y: number, w: number, h: number) => {
-    ctx.rect(x - w / 2, y - h / 2, w, h)
-}
+function setPane() {
+    let pane = new Pane()
+    let folder = pane.addFolder({ title: 'settings' })
+    folder.addInput(props, 'iterations', { min: 1, max: 12, step: 1 })
+    folder.addInput(props, 'divisions', {
+        options: {
+            '2s': '2s',
+            '2s-3s': '2s-3s',
+            random: 'random',
+        },
+    })
+    folder.addInput(props, 'minSize', { min: 10, max: 300, step: 1 })
+    let colorBtn = folder.addButton({
+        title: 'new palette+redraw',
+    })
+    colorBtn.on('click', () => {
+        colors = [...random(palettes.darks), ...random(palettes.lights)]
+        draw()
+    })
 
-function polygon(cx: number, cy: number, r: number, sides: number, rotation = 0) {
-    let step = (Math.PI * 2) / sides
-    ctx.beginPath()
-    for (let i = 0; i < sides; i++) {
-        ctx.lineTo(cx + Math.cos(i * step + rotation) * r, cy + Math.sin(i * step + rotation) * r)
-    }
-    ctx.closePath()
-}
+    let redrawBtn = folder
+        .addButton({
+            title: 'redraw',
+        })
+        .on('click', () => {
+            draw()
+        })
 
-function burst(
-    x: number,
-    y: number,
-    radius: number,
-    nodes: number,
-    vary: number,
-    start: number = 0
-) {
-    for (let i = 0; i < 2 * Math.PI; i += 0.01) {
-        let ri = radius + Math.sin(i * nodes + start) * vary
-
-        let x1 = x + Math.cos(i) * ri
-        let y1 = y + Math.sin(i) * ri
-        ctx.lineTo(x1, y1)
-    }
+    pane.on('change', () => {
+        draw()
+    })
 }
 
 const getCheckerboard = (w: number, h: number) => {
-    let nx, ny, chX, chY
-    if (w < h) {
-        nx = 4
-        chX = w / nx
-        ny = Math.floor(h / chX)
-        chY = h / ny
-    } else {
-        ny = 4
-        chY = h / ny
-        nx = Math.floor(w / chY)
-        chX = w / nx
+    const gcdIsh = (a: number, b: number): number => {
+        if (b <= 0.5 || a < 3) return a
+        return gcdIsh(b, a % b)
     }
+
+    let size = gcdIsh(w, h)
+    while (size > 40) {
+        size /= 2
+    }
+    let chX = size
+    let chY = size
+
+    let nx = Math.ceil(w / chX)
+    let ny = Math.ceil(h / chY)
     return [nx, ny, chX, chY]
 }
 
@@ -77,13 +96,22 @@ function crazyTiles(
 ) {
     iterations--
 
-    if (iterations === 0 || w < 50 || h < 50) {
+    if (iterations === 0 || w < props.minSize || h < props.minSize) {
         fn(x, y, w, h)
         return
     }
 
     if (w > h) {
-        let w1 = w / random([2, 4])
+        let w1
+
+        if (props.divisions === '2s') {
+            w1 = w / random([2, 4])
+        } else if (props.divisions === '2s-3s') {
+            w1 = w / random([2, 3, 4])
+        } else {
+            w1 = w * random(0.2, 0.8)
+        }
+
         let w2 = w - w1
         let x1 = x - w / 2 + w1 / 2
         let x2 = x + w / 2 - w2 / 2
@@ -91,8 +119,14 @@ function crazyTiles(
         crazyTiles(x1, y, w1, h, iterations, fn)
         crazyTiles(x2, y, w2, h, iterations, fn)
     } else {
-        // let h1 = random(h * 0.15, h * 0.85)
-        let h1 = h / random([2, 4])
+        let h1
+        if (props.divisions === '2s') {
+            h1 = h / random([2, 4])
+        } else if (props.divisions === '2s-3s') {
+            h1 = h / random([2, 3, 4])
+        } else {
+            h1 = h * random(0.2, 0.8)
+        }
         let h2 = h - h1
         let y1 = y - h / 2 + h1 / 2
         let y2 = y + h / 2 - h2 / 2
@@ -102,10 +136,12 @@ function crazyTiles(
     }
 }
 
-function patterns(x: number, y: number, w: number, h: number) {
-    let n = Math.floor(random(8))
+function patterns(cx: number, cy: number, w: number, h: number) {
+    let n = Math.floor(random(9))
     let cols = shuffle(colors)
 
+    let x = cx - w / 2
+    let y = cy - h / 2
     let min = Math.min(w, h)
     let max = Math.max(w, h)
     let r = min * 0.5
@@ -113,59 +149,78 @@ function patterns(x: number, y: number, w: number, h: number) {
     ctx.save()
 
     ctx.beginPath()
-    rectCenter(x, y, w, h)
+    rectCenter(ctx, { cx, cy, w, h })
     ctx.fillStyle = cols[0]
     ctx.fill()
 
     if (n === 0) {
-        ctx.beginPath()
-        ctx.arc(x, y, r * 0.9, 0, Math.PI * 2)
+        // circle(s)
+        ctx.clip()
+        let r = (w + h) * random(0.35, 1)
+        let step = r * random(0.05, 0.15)
+        let xx = cx + random(-min / 2, min / 2)
+        let yy = cy + random(-min / 2, min / 2)
         ctx.fillStyle = cols[1]
-        ctx.fill()
+
+        let i = 0
+        while (r - i * step > 10) {
+            ctx.beginPath()
+            ctx.arc(xx, yy, r - i * step, 0, Math.PI * 2)
+            ctx.fillStyle = cols[i % 2 === 0 ? 1 : 2]
+            ctx.fill()
+            i++
+        }
     } else if (n === 1) {
+        // triangle(s)
         let num = w > h ? Math.floor(random(1, 5)) : 1
         let step = w / num
         let size = Math.min(step * 0.45, r * 0.9)
 
         for (let i = 0; i < num; i++) {
-            ctx.beginPath()
-            polygon(x - w / 2 + step * i + step / 2, y + size * 0.2, size, 3, Math.PI / 6)
+            polygon(ctx, {
+                cx: x + step * i + step / 2,
+                cy: cy + size * 0.2,
+                r: size,
+                sides: 3,
+                rotation: Math.PI / 6,
+            })
             ctx.fillStyle = cols[1]
             ctx.fill()
         }
     } else if (n === 2) {
+        // plus (rotated or not)
         ctx.lineWidth = min * 0.15
         ctx.strokeStyle = cols[1]
-        let side = r * 0.7
+        let side = min * 0.35
         if (random() < 0.5) {
             ctx.beginPath()
-            ctx.moveTo(x - side, y)
-            ctx.lineTo(x + side, y)
+            ctx.moveTo(cx - side, cy)
+            ctx.lineTo(cx + side, cy)
             ctx.stroke()
 
             ctx.beginPath()
-            ctx.moveTo(x, y - side)
-            ctx.lineTo(x, y + side)
+            ctx.moveTo(cx, cy - side)
+            ctx.lineTo(cx, cy + side)
             ctx.stroke()
         } else {
             ctx.beginPath()
-            ctx.moveTo(x - side, y - side)
-            ctx.lineTo(x + side, y + side)
+            ctx.moveTo(cx - side, cy - side)
+            ctx.lineTo(cx + side, cy + side)
             ctx.stroke()
 
             ctx.beginPath()
-            ctx.moveTo(x + side, y - side)
-            ctx.lineTo(x - side, y + side)
+            ctx.moveTo(cx + side, cy - side)
+            ctx.lineTo(cx - side, cy + side)
             ctx.stroke()
         }
     } else if (n === 3) {
+        // outline rects
         ctx.clip()
-
-        let size = random() < 0.5 ? max : min
+        let size = random() < 0.5 ? w : h
         let wid = size * 0.12
         let step = size * 0.17
-        let xx = x + random(-r, r)
-        let yy = y + random(-r, r)
+        let xx = cx + random(-min / 2, min / 2)
+        let yy = cy + random(-min / 2, min / 2)
         ctx.fillStyle = cols[1]
 
         for (let i = 0; i < 3; i++) {
@@ -188,12 +243,14 @@ function patterns(x: number, y: number, w: number, h: number) {
             ctx.fill('evenodd')
         }
     } else if (n === 4) {
-        let nodes = Math.floor(random(5, 9))
-        let radius = r * 0.7
-        let vary = r * 0.2
-        let start = random(Math.PI)
-        ctx.beginPath()
-        burst(x, y, radius, nodes, vary, start)
+        burst(ctx, {
+            cx,
+            cy,
+            r: min * 0.35,
+            nodes: Math.floor(random(5, 9)),
+            vary: min * 0.1,
+            start: random(Math.PI),
+        })
         ctx.fillStyle = cols[1]
         ctx.fill()
     } else if (n === 5) {
@@ -202,17 +259,17 @@ function patterns(x: number, y: number, w: number, h: number) {
         let stepHeight = (h * 0.9) / num
         let rectHeight = (h * 0.8) / num
         let space = (h * 0.1) / 2 + (stepHeight - rectHeight) / 2
-        let xx = x - w / 2 + w * 0.1
+        let xx = x + w * 0.1
         ctx.beginPath()
         for (let i = 0; i < num; i++) {
-            let yy = y - h / 2 + stepHeight * i + space
+            let yy = y + stepHeight * i + space
             ctx.roundRect(xx, yy, rectWidth, rectHeight, r * 0.1)
         }
         ctx.fillStyle = cols[1]
         ctx.fill()
     } else if (n === 6) {
         ctx.beginPath()
-        rectCenter(x, y, w, h)
+        rectCenter(ctx, { cx, cy, w, h })
         ctx.fillStyle = cols[1]
         ctx.fill()
         ctx.clip()
@@ -222,39 +279,44 @@ function patterns(x: number, y: number, w: number, h: number) {
         ctx.lineWidth = zig * random(0.7, 1.3)
         ctx.strokeStyle = cols[2]
 
-        if (random() < 0.5) {
-            for (let yy = y - h; yy <= y + h; yy += step) {
-                ctx.beginPath()
-                let xi = 0
-                for (let xx = x - w; xx <= x + w; xx += step) {
-                    xi += 1
-                    ctx.lineTo(xx, yy + (xi % 2 === 0 ? zig * -1 : zig))
-                }
-                ctx.stroke()
-            }
-        } else {
-            for (let xx = x - w; xx <= x + w; xx += step) {
-                ctx.beginPath()
-                let yi = 0
-                for (let yy = y - h; yy <= y + h; yy += step) {
-                    yi += 1
-                    ctx.lineTo(xx + (yi % 2 === 0 ? zig * -1 : zig), yy)
-                }
-                ctx.stroke()
-            }
-        }
+        zigzag(ctx, {
+            x: cx - w,
+            y: cy - h,
+            w: w * 2,
+            h: h * 2,
+            step,
+            zig,
+            dir: random() < 0.5 ? 'horizontal' : 'vertical',
+        })
     } else if (n === 7) {
         ctx.clip()
         let [nx, ny, chX, chY] = getCheckerboard(w, h)
-
-        let xx = x - w / 2
-        let yy = y - h / 2
-
+        let xx = x
+        let yy = y
+        ctx.fillStyle = cols[1]
         for (let xi = 0; xi < nx; xi++) {
             for (let yi = 0; yi < ny; yi++) {
                 ctx.beginPath()
-                ctx.rect(xx + chX * xi, yy + chY * yi, chX, chY)
-                ctx.fillStyle = xi % 2 === yi % 2 ? cols[1] : cols[2]
+                if (xi % 2 === yi % 2) {
+                    ctx.rect(xx + chX * xi, yy + chY * yi, chX, chY)
+                    ctx.fill()
+                }
+            }
+        }
+    } else if (n === 8) {
+        let stepx = w / Math.floor(random(2, 9))
+        let stepy = h / Math.floor(random(3, 9))
+        let square = Math.min(stepx, stepy) / 3
+        for (let xi = 0; xi < w / stepx; xi++) {
+            for (let yi = 0; yi < h / stepy; yi++) {
+                ctx.beginPath()
+                polygon(ctx, {
+                    cx: x + stepx * xi + stepx / 2,
+                    cy: y + stepy * yi + stepy / 2,
+                    r: square,
+                    sides: 4,
+                })
+                ctx.fillStyle = cols[1]
                 ctx.fill()
             }
         }
@@ -268,7 +330,8 @@ function draw() {
     ctx.fillStyle = '#fafafa'
     ctx.fillRect(0, 0, width, height)
 
-    crazyTiles(width / 2, height / 2, width, height, 8, patterns)
+    crazyTiles(width / 2, height / 2, width, height, props.iterations, patterns)
 }
 
+setPane()
 draw()
