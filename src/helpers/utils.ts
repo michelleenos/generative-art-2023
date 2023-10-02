@@ -40,6 +40,7 @@ const round = (num: number, precision = 1) => {
 }
 
 const constrain = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
+const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
 
 const mouseAngle = (mouse: { x: number; y: number }, width: number, height: number) =>
     Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
@@ -61,4 +62,4 @@ const throttle = (fn: Function, wait: number = 300) => {
     }
 }
 
-export { lerp, map, random, shuffle, constrain, mouseAngle, round, throttle }
+export { lerp, map, random, shuffle, constrain, clamp, mouseAngle, round, throttle }

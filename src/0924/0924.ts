@@ -1,7 +1,7 @@
 import '../style.css'
 import { random, shuffle } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import { polygon, burst, zigzag, rectCenter } from '~/helpers/canvas/shapes'
+import { polygon, burst, zigzag, rectCenter, crazyTiles } from '~/helpers/canvas/shapes'
 import { Pane } from 'tweakpane'
 
 let palettes = {
@@ -87,68 +87,6 @@ const getCheckerboard = (w: number, h: number) => {
     chX += leftover / nx
     chY += leftover / ny
     return [nx, ny, chX, chY]
-}
-
-function crazyTiles(
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    iterations = 6,
-    fn: (x: number, y: number, w: number, h: number) => void
-) {
-    iterations--
-
-    if (iterations === 0 || w < props.minSize || h < props.minSize) {
-        fn(x, y, w, h)
-        return
-    }
-
-    if (w > h) {
-        let w1, w2
-
-        if (props.divisions === '2s') {
-            w1 = w / random([2, 4])
-        } else if (props.divisions === '2s-3s') {
-            w1 = w / random([2, 3, 4])
-        } else {
-            w1 = w * random(0.2, 0.8)
-        }
-
-        if (random() < 0.5) {
-            w2 = w - w1
-        } else {
-            w2 = w1
-            w1 = w - w2
-        }
-
-        let x1 = x - w / 2 + w1 / 2
-        let x2 = x + w / 2 - w2 / 2
-
-        crazyTiles(x1, y, w1, h, iterations, fn)
-        crazyTiles(x2, y, w2, h, iterations, fn)
-    } else {
-        let h1, h2
-        if (props.divisions === '2s') {
-            h1 = h / random([2, 4])
-        } else if (props.divisions === '2s-3s') {
-            h1 = h / random([2, 3, 4])
-        } else {
-            h1 = h * random(0.2, 0.8)
-        }
-
-        if (random() < 0.5) {
-            h2 = h - h1
-        } else {
-            h2 = h1
-            h1 = h - h2
-        }
-        let y1 = y - h / 2 + h1 / 2
-        let y2 = y + h / 2 - h2 / 2
-
-        crazyTiles(x, y1, w, h1, iterations, fn)
-        crazyTiles(x, y2, w, h2, iterations, fn)
-    }
 }
 
 function patterns(cx: number, cy: number, w: number, h: number) {
@@ -345,29 +283,15 @@ function draw() {
     ctx.fillStyle = '#fff'
     ctx.fillRect(0, 0, width, height)
 
-    crazyTiles(width / 2, height / 2, width, height, props.iterations, patterns)
-
-    // let cols = shuffle(colors)
-    // let x = 200
-    // let y = 200
-    // let w = 350
-    // let h = 321.011
-
-    // ctx.rect(x, y, w, h)
-    // ctx.clip()
-    // let [nx, ny, chX, chY] = getCheckerboard(w, h)
-    // let xx = x
-    // let yy = y
-    // ctx.fillStyle = cols[1]
-    // for (let xi = 0; xi < nx; xi++) {
-    //     for (let yi = 0; yi < ny; yi++) {
-    //         ctx.beginPath()
-    //         if (xi % 2 === yi % 2) {
-    //             ctx.rect(xx + chX * xi, yy + chY * yi, chX, chY)
-    //             ctx.fill()
-    //         }
-    //     }
-    // }
+    crazyTiles({
+        x: width / 2,
+        y: height / 2,
+        w: width,
+        h: height,
+        iterations: props.iterations,
+        fn: patterns,
+        minSize: props.minSize,
+    })
 }
 
 setPane()
