@@ -17,22 +17,22 @@ export default defineConfig({
     plugins: [
         inject({
             p5: 'p5',
+            sourceMap: false,
         }),
-        process.env.NODE_ENV == 'production'
-            ? vitePluginFaviconsInject('./src/icon.svg')
-            : false,
+        process.env.NODE_ENV == 'production' ? vitePluginFaviconsInject('./src/icon.svg') : false,
     ],
+    // optimizeDeps: {
+    //     include: ['p5', 'p5/lib/addons/p5.sound.js'],
+    // },
+
     build: {
         outDir: '../dist',
         emptyOutDir: true,
+        commonjsOptions: {},
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'src/index.html'),
                 ...entries,
-                // './src/0128/index.html': resolve(
-                //     __dirname,
-                //     'src/0128/index.html'
-                // ),
             },
         },
     },

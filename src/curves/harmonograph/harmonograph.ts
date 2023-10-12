@@ -9,13 +9,15 @@ let { ctx } = createCanvas(window.innerWidth, window.innerHeight)
 const PARAMS = {
     A: height * 0.4,
     B: height * 0.4,
-    a: 5.1,
+    a: 3,
     b: 5,
     p1: 5,
     p2: 8.5,
     d1: 0.01,
     d2: 0.01,
+    delta: 1,
     iter: 5000,
+    shape: 'liss',
 }
 
 let pane = new Pane()
@@ -53,31 +55,39 @@ pane.addInput(PARAMS, 'iter', {
     step: 1,
     label: 'iterations',
 })
-
+pane.addInput(PARAMS, 'delta', {
+    min: 0,
+    max: 10,
+    step: 0.1,
+    label: 'delta',
+})
 pane.on('change', () => {
     ctx.clearRect(-width / 2, -height / 2, width, height)
-    harmonograph(
-        0,
-        0,
-        PARAMS.A,
-        PARAMS.B,
-        PARAMS.a,
-        PARAMS.b,
-        PARAMS.p1,
-        PARAMS.p2,
-        PARAMS.d1,
-        PARAMS.d2,
-        PARAMS.iter
-    )
+
+    if (PARAMS.shape == 'liss') {
+        liss(0, 0, PARAMS.A, PARAMS.B, PARAMS.a, PARAMS.b, PARAMS.delta)
+    } else {
+        harmonograph(
+            0,
+            0,
+            PARAMS.A,
+            PARAMS.B,
+            PARAMS.a,
+            PARAMS.b,
+            PARAMS.p1,
+            PARAMS.p2,
+            PARAMS.d1,
+            PARAMS.d2,
+            PARAMS.iter
+        )
+    }
 })
 
 // lissajous curve
 // A & B = amplitude of the wave on each axis
 // a & b = frequency on each axis
 // d = delta, puts x out of phase with y
-
-// @ts-ignore
-function liss(cx, cy, A, B, a, b, d) {
+function liss(cx: number, cy: number, A: number, B: number, a: number, b: number, d: number) {
     let res = 0.01
     ctx.beginPath()
 
@@ -89,6 +99,7 @@ function liss(cx, cy, A, B, a, b, d) {
         ctx.lineTo(x, y)
     }
     // ctx.closePath()
+    ctx.stroke()
 }
 
 // p1 & p2 = "phases" (same thing as d above, except now we use them on both axes)
@@ -96,7 +107,19 @@ function liss(cx, cy, A, B, a, b, d) {
 // for best results...
 // keep a & b close to whole number, but let them vary by a small amount like 0.1
 // and/or make a & B have a simple ratio like 1:2 or 1:3 (and try adding a tiny bit to one of them)
-function harmonograph(cx, cy, A, B, a, b, p1, p2, d1, d2, iter) {
+function harmonograph(
+    cx: number,
+    cy: number,
+    A: number,
+    B: number,
+    a: number,
+    b: number,
+    p1: number,
+    p2: number,
+    d1: number,
+    d2: number,
+    iter: number
+) {
     let res = 0.01
     ctx.beginPath()
     for (let t = 0; t < iter; t += res) {
@@ -108,23 +131,24 @@ function harmonograph(cx, cy, A, B, a, b, p1, p2, d1, d2, iter) {
     ctx.stroke()
 }
 
-function damping(d, t) {
+function damping(d: number, t: number) {
     return Math.pow(Math.E, -d * t)
 }
 
 ctx.strokeStyle = '#fff'
 ctx.lineWidth = 0.5
 ctx.translate(width / 2, height / 2)
-harmonograph(
-    0,
-    0,
-    PARAMS.A,
-    PARAMS.B,
-    PARAMS.a,
-    PARAMS.b,
-    PARAMS.p1,
-    PARAMS.p2,
-    PARAMS.d1,
-    PARAMS.d2,
-    PARAMS.iter
-)
+liss(0, 0, PARAMS.A, PARAMS.B, PARAMS.a, PARAMS.b, PARAMS.delta)
+// harmonograph(
+//     0,
+//     0,
+//     PARAMS.A,
+//     PARAMS.B,
+//     PARAMS.a,
+//     PARAMS.b,
+//     PARAMS.p1,
+//     PARAMS.p2,
+//     PARAMS.d1,
+//     PARAMS.d2,
+//     PARAMS.iter
+// )
