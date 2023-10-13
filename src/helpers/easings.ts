@@ -3,16 +3,15 @@
 // easings.net
 
 const easings = {
-    inSine: (x: number) => Math.sin(x * (Math.PI / 2)),
-    outSine: (x: number) => Math.sin(x * (Math.PI / 2)),
+    inSine: (x: number) => 1 - Math.cos((x * Math.PI) / 2),
+    outSine: (x: number) => Math.sin((x * Math.PI) / 2),
     inOutSine: (x: number) => -0.5 * (Math.cos(Math.PI * x) - 1),
     inQuad: (x: number) => x * x,
-    outQuad: (x: number) => x * (2 - x),
+    outQuad: (x: number) => 1 - (1 - x) * (1 - x),
     inOutQuad: (x: number) => (x < 0.5 ? 2 * x * x : -1 + (4 - 2 * x) * x),
     inCubic: (x: number) => x * x * x,
     outCubic: (x: number) => 1 - Math.pow(1 - x, 3),
-    inOutCubic: (x: number) =>
-        x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+    inOutCubic: (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
     inQuart: (x: number) => x * x * x * x,
     outQuart: (x: number) => 1 - Math.pow(1 - x, 4),
     inCirc: (x: number) => 1 - Math.sqrt(1 - x * x),
@@ -22,5 +21,7 @@ const easings = {
             ? (1 - Math.sqrt(1 - Math.pow(2 * x, 2))) / 2
             : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2,
 }
+
+export type Easing = keyof typeof easings
 
 export default easings
