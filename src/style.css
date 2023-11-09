@@ -95,6 +95,7 @@ button:focus-visible {
     left: 0;
     z-index: 1;
     font-weight: 500;
+    color: #000;
 }
 
 .absolute-container.top {

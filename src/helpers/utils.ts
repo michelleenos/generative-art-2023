@@ -39,6 +39,7 @@ const round = (num: number, precision = 1) => {
     return Math.round(num * factor) / factor
 }
 
+// (constrain & clamp are the same)
 const constrain = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
 
