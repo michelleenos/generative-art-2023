@@ -1,6 +1,6 @@
 import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import loop from '~/helpers/loop'
+import { Pane } from 'tweakpane'
 import { random } from '~/helpers/utils'
 import { hexToHsb, hsbToHex, type ColorHSB } from '~/helpers/color-utils'
 
@@ -11,10 +11,27 @@ let blue = '#2ec2ea' // 0
 let green = '#3bed73' // 1
 let pink = '#fc6c9c' // 5
 
+const params = {
+    countX: 3,
+    countY: 4,
+    dotRadiusMin: 0.02,
+    dotRadiusMax: 0.03,
+    dotPosMin: 0.3,
+    dotPosMax: 0.4,
+    flameSizeMin: 1,
+    flameSizeMax: 1.3,
+    circRadMin: 0.15,
+    circRadMax: 0.3,
+    circStrokeMin: 0.03,
+    circStrokeMax: 0.1,
+    florCenterMin: 0.1,
+    florCenterMax: 0.2,
+}
+
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { ctx, resizeCanvas } = createCanvas(width, height)
+let { ctx, resizeCanvas, canvas } = createCanvas(width, height)
 
 let offscreenCanvas = document.createElement('canvas')
 generateNoise(offscreenCanvas)
@@ -51,16 +68,17 @@ function draw(time: number = 0) {
     ctx.translate(width / 2, height / 2)
     let m = Math.min(width, height) * 0.9
 
-    let cells = 6
-    let cellSize = m / cells
-    ctx.translate((cellSize - m) * 0.5, (cellSize - m) * 0.5)
+    let cellSizeX = m / params.countX
+    let cellSizeY = m / params.countY
+    let cellSize = Math.min(cellSizeX, cellSizeY)
+    ctx.translate((cellSizeX - m) * 0.5, (cellSizeY - m) * 0.5)
 
     let i = 0
 
-    for (let cx = 0; cx < cells; cx++) {
-        for (let cy = 0; cy < cells; cy++) {
+    for (let cx = 0; cx < params.countX; cx++) {
+        for (let cy = 0; cy < params.countY; cy++) {
             ctx.save()
-            ctx.translate(cx * cellSize, cy * cellSize)
+            ctx.translate(cx * cellSizeX, cy * cellSizeY)
             let steps = random([3, 4, 4, 5, 5, 6])
 
             {
@@ -68,12 +86,17 @@ function draw(time: number = 0) {
                 ctx.globalCompositeOperation = random(['lighter', 'screen'])
                 let color = random([blue, pink, yellow, orange])
                 let double = random() < 0.5
-                burstFlower(cellSize, color, random([4, 5]), double ? steps * 2 : steps)
+                burstFlor({
+                    size: cellSize,
+                    color: color,
+                    count: random([4, 5]),
+                    steps: double ? steps * 2 : steps,
+                    fromCenter: cellSize * random(params.florCenterMin, params.florCenterMax),
+                })
 
                 if (random() < 0.5) {
-                    burstFlower(cellSize, color, random([4, 5]), steps)
-                    let dotRadius = cellSize * random(0.02, 0.03)
-                    let dotPos = cellSize * random(0.3, 0.4)
+                    let dotRadius = cellSize * random(params.dotRadiusMin, params.dotRadiusMax)
+                    let dotPos = cellSize * random(params.dotPosMin, params.dotPosMax)
                     dots(cellSize, color, steps, dotRadius, dotPos, random() < 0.5)
                 }
 
@@ -85,21 +108,24 @@ function draw(time: number = 0) {
                 ctx.globalCompositeOperation = random(['lighten', 'screen'])
                 ctx.globalAlpha = +random(0.65, 0.9).toFixed(2)
                 let color = random([orange, blue, red, yellow])
-                burstFlames(cellSize * random(1, 1.3), steps, color)
+                burstFlames(cellSize * random(params.flameSizeMax, params.flameSizeMax), steps, color)
+
+                ctx.globalAlpha -= 0.2
                 if (random() < 0.5) {
                     ctx.rotate(Math.PI / steps)
-                    burstFlames(cellSize * random(1, 1.3), steps, color)
+                    burstFlames(cellSize * random(params.flameSizeMin, params.flameSizeMax), steps, color)
                 }
                 ctx.globalCompositeOperation = random(['lighten', 'screen'])
-                ctx.globalAlpha -= 0.2
                 ctx.beginPath()
+                let circRadius = cellSize * random(params.circRadMin, params.circRadMax)
                 if (random() < 0.5) {
-                    ctx.arc(0, 0, cellSize * random(0.15, 0.3), 0, Math.PI * 2)
+                    ctx.arc(0, 0, circRadius, 0, Math.PI * 2)
                     ctx.fillStyle = random([pink, yellow])
                     ctx.fill()
                 } else {
-                    ctx.arc(0, 0, cellSize * random(0.2, 0.4), 0, Math.PI * 2)
-                    ctx.lineWidth = cellSize * random(0.03, 0.1)
+                    ctx.globalAlpha += 0.2
+                    ctx.arc(0, 0, circRadius, 0, Math.PI * 2)
+                    ctx.lineWidth = cellSize * random(params.circStrokeMin, params.circStrokeMax)
                     ctx.strokeStyle = random([green, blue, pink, yellow])
                     ctx.stroke()
                 }
@@ -144,10 +170,20 @@ function burstFlames(size: number, steps = 6, color = orange) {
     }
 }
 
-function burstFlower(size: number, color: string = green, count = 5, steps = 12) {
+type BurstFlorParams = {
+    size: number
+    color?: string
+    count?: number
+    steps?: number
+    centerMin?: number
+    centerMax?: number
+    fromCenter?: number
+}
+
+function burstFlor({ size, color = green, count = 5, steps = 12, fromCenter = size * 0.15 }: BurstFlorParams) {
     let colHsb = hexToHsb(color)
     ctx.lineWidth = size * 0.01
-    let distFromCenter = size * 0.15
+    let distFromCenter = fromCenter
 
     for (let i = 0; i < count; i++) {
         let stroke: ColorHSB = { ...colHsb }
@@ -195,14 +231,7 @@ function burstFlower(size: number, color: string = green, count = 5, steps = 12)
     }
 }
 
-function dots(
-    size: number,
-    color: string,
-    steps: number,
-    dotRadius = size * 0.02,
-    dotPos = size * 0.35,
-    fill = true
-) {
+function dots(size: number, color: string, steps: number, dotRadius = size * 0.02, dotPos = size * 0.35, fill = true) {
     for (let i = 0; i < steps; i++) {
         let angle = (i / steps) * Math.PI * 2 + Math.PI / steps
         ctx.save()
@@ -266,6 +295,29 @@ function burst(params: BurstParams) {
     }
 }
 
+function setupPane() {
+    const pane = new Pane()
+    let folder = pane.addFolder({ title: 'controls' })
+    folder.addInput(params, 'countX', { min: 1, max: 10, step: 1 })
+    folder.addInput(params, 'countY', { min: 1, max: 10, step: 1 })
+    folder.addInput(params, 'dotRadiusMin', { min: 0, max: 0.1 })
+    folder.addInput(params, 'dotRadiusMax', { min: 0, max: 0.1 })
+    folder.addInput(params, 'dotPosMin', { min: 0, max: 1 })
+    folder.addInput(params, 'dotPosMax', { min: 0, max: 1 })
+    folder.addInput(params, 'flameSizeMin', { min: 0, max: 2 })
+    folder.addInput(params, 'flameSizeMax', { min: 0, max: 2 })
+    folder.addInput(params, 'circRadMin', { min: 0, max: 0.5 })
+    folder.addInput(params, 'circRadMax', { min: 0, max: 0.5 })
+    folder.addInput(params, 'circStrokeMin', { min: 0, max: 0.5 })
+    folder.addInput(params, 'circStrokeMax', { min: 0, max: 0.5 })
+    folder.addInput(params, 'florCenterMin', { min: 0, max: 0.5 })
+    folder.addInput(params, 'florCenterMax', { min: 0, max: 0.5 })
+
+    pane.on('change', () => {
+        draw()
+    })
+}
+
 window.addEventListener('resize', () => {
     width = window.innerWidth
     height = window.innerHeight
@@ -273,4 +325,7 @@ window.addEventListener('resize', () => {
     draw()
 })
 
+canvas.addEventListener('click', () => draw())
+
+setupPane()
 draw()
