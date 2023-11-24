@@ -1,7 +1,6 @@
 import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { random } from '~/helpers/utils'
-import { showMessage } from '~/helpers/messages'
 import loop from '~/helpers/loop'
 
 let yellow = '#f6b02c'

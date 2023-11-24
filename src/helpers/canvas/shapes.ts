@@ -31,7 +31,7 @@ export function burst(
 ) {
     ctx.beginPath()
     for (let i = 0; i < 2 * Math.PI; i += 0.01) {
-        let ri = r + Math.sin(i * nodes ) * vary
+        let ri = r + Math.sin(i * nodes) * vary
 
         let x1 = cx + Math.cos(i + start) * ri
         let y1 = cy + Math.sin(i + start) * ri
@@ -88,6 +88,14 @@ export function rectCenter(
     ctx: CanvasRenderingContext2D,
     { x, y, w, h }: { x: number; y: number; w: number; h: number }
 ): void
+export function rectCenter(
+    ctx: CanvasRenderingContext2D,
+    { x, y, size }: { x: number; y: number; size: number }
+): void
+export function rectCenter(
+    ctx: CanvasRenderingContext2D,
+    { cx, cy, size }: { cx: number; cy: number; size: number }
+): void
 
 export function rectCenter(
     ctx: CanvasRenderingContext2D,
@@ -96,14 +104,23 @@ export function rectCenter(
         y,
         cx,
         cy,
+        size,
         w,
         h,
-    }: { x?: number; y?: number; cx?: number; cy?: number; w: number; h: number }
+    }: { x?: number; y?: number; cx?: number; cy?: number; size?: number; w?: number; h?: number }
 ) {
-    if (cx && cy) {
-        ctx.rect(cx - w / 2, cy - h / 2, w, h)
-    } else if (x && y) {
-        ctx.rect(x - w / 2, y - h / 2, w, h)
+    if (cx !== undefined && cy !== undefined) {
+        if (size) {
+            ctx.rect(cx - size / 2, cy - size / 2, size, size)
+        } else if (w && h) {
+            ctx.rect(cx - w / 2, cy - h / 2, w, h)
+        }
+    } else if (x !== undefined && y !== undefined) {
+        if (size) {
+            ctx.rect(x - size / 2, y - size / 2, size, size)
+        } else if (w && h) {
+            ctx.rect(x - w / 2, y - h / 2, w, h)
+        }
     }
 }
 

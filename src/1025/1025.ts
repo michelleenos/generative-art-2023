@@ -3,6 +3,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
 import { random } from '~/helpers/utils'
 import { hexToHsb, hsbToHex, type ColorHSB } from '~/helpers/color-utils'
+import { generateNoise } from '~/helpers/canvas-noise'
 
 let red = '#f24333' // 4
 let orange = '#ff8019' // 3
@@ -30,34 +31,8 @@ const params = {
 
 let width = window.innerWidth
 let height = window.innerHeight
-
 let { ctx, resizeCanvas, canvas } = createCanvas(width, height)
-
-let offscreenCanvas = document.createElement('canvas')
-generateNoise(offscreenCanvas)
-
-function generateNoise(offscreenCanvas: HTMLCanvasElement) {
-    const iData = ctx.createImageData(width, height)
-    const buffer32 = new Uint32Array(iData.data.buffer)
-    const len = buffer32.length
-    offscreenCanvas.width = width
-    offscreenCanvas.height = height
-    let offscreenCtx = offscreenCanvas.getContext('2d')!
-
-    let subArrayLength = Math.ceil(len / 8)
-
-    for (let i = 0; i < subArrayLength; i++) {
-        if (Math.random() < 0.5) {
-            buffer32[i] = 0x09ffffff
-        }
-    }
-
-    buffer32.set(buffer32.subarray(0, subArrayLength), subArrayLength)
-    buffer32.set(buffer32.subarray(0, subArrayLength * 2), subArrayLength * 2)
-    buffer32.set(buffer32.subarray(0, subArrayLength * 4), len - subArrayLength * 4)
-
-    offscreenCtx.putImageData(iData, 0, 0)
-}
+let offscreenCanvas = generateNoise(width, height)
 
 function draw(time: number = 0) {
     ctx.clearRect(0, 0, width, height)
@@ -321,6 +296,7 @@ function setupPane() {
 window.addEventListener('resize', () => {
     width = window.innerWidth
     height = window.innerHeight
+    offscreenCanvas = generateNoise(width, height)
     resizeCanvas(width, height)
     draw()
 })

@@ -13,7 +13,7 @@
             }
         },
         {
-            "files": "1025.ts",
+            "files": "1025.ts, 1122.ts",
             "options": {
                 "printWidth": 120
             }
