@@ -2,7 +2,7 @@ import '../../style.css'
 import { Pane } from 'tweakpane'
 import RefreshContainer from '~/helpers/refresh-container'
 
-function createCanvas(width, height) {
+function createCanvas(width: number, height: number) {
     const canvas = document.createElement('canvas')
     let resolution = window.devicePixelRatio
     canvas.width = width * resolution
@@ -113,16 +113,16 @@ pane.on('change', () => {
     draw()
 })
 
-const spirals = {
-    archimedean: (a, t) => a * t,
-    hyperbolic: (a, t) => a / t,
-    fermat: (a, t) => a * Math.pow(t, 0.5),
-    lituus: (a, t) => a * Math.pow(t, -0.5),
-    logarithmic: (a, k, t) => a * Math.pow(Math.E, k * t),
-    golden: (t) => Math.pow(PHI, 2 * (t / Math.PI)),
+const spirals: { [key: string]: Function } = {
+    archimedean: (a: number, t: number) => a * t,
+    hyperbolic: (a: number, t: number) => a / t,
+    fermat: (a: number, t: number) => a * Math.pow(t, 0.5),
+    lituus: (a: number, t: number) => a * Math.pow(t, -0.5),
+    logarithmic: (a: number, k: number, t: number) => a * Math.pow(Math.E, k * t),
+    golden: (t: number) => Math.pow(PHI, 2 * (t / Math.PI)),
 }
 
-const defaults = {
+const defaults: { [key: string]: { [key: string]: number } } = {
     archimedean: { a: 5, cycles: 10 },
     hyperbolic: { a: 1000, cycles: 30 },
     fermat: { a: 20, cycles: 20 },
