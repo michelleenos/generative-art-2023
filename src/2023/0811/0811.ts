@@ -1,7 +1,7 @@
 import '../style.css'
 import Voronoi, { VoronoiDiagram, Cell } from 'voronoi'
 import { Particle, ParticleOpts } from '~/helpers/particles/particle'
-import { throttle } from '../helpers/utils'
+import { throttle } from '../../helpers/utils'
 import { Pane } from 'tweakpane'
 
 import p5 from 'p5'

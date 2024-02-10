@@ -1,8 +1,8 @@
 import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import { random } from '../helpers/utils'
-import { mouseTracker } from '../helpers/mouse'
-import loop from '../helpers/loop'
+import { random } from '../../helpers/utils'
+import { mouseTracker } from '../../helpers/mouse'
+import loop from '../../helpers/loop'
 import { debugBubbles } from './debug'
 
 // inspiration:
@@ -93,10 +93,7 @@ function accelTo(particle: Particle, x, y) {
     if (!x || !y) return [0, 0]
     let distX = x - particle.x
     let distY = y - particle.y
-    let distance = Math.max(
-        Math.sqrt(distX * distX + distY * distY),
-        PARAMS.mouseRadius * 0.5
-    )
+    let distance = Math.max(Math.sqrt(distX * distX + distY * distY), PARAMS.mouseRadius * 0.5)
 
     let heading = Math.atan2(distY, distX)
     let headingV = Math.atan2(particle.vel.y, particle.vel.x)
@@ -106,20 +103,16 @@ function accelTo(particle: Particle, x, y) {
     difference /= Math.PI
 
     let force =
-        ((distance - PARAMS.mouseRadius) * PARAMS.mouseMass * particle.mass) /
-        (distance * distance)
+        ((distance - PARAMS.mouseRadius) * PARAMS.mouseMass * particle.mass) / (distance * distance)
 
     force += force * PARAMS.mouseDiffMult * difference
-    ctx.fillStyle = `rgba(50, ${255 * difference}, ${
-        100 + 155 * (1 - difference)
-    }, 0.8)`
+    ctx.fillStyle = `rgba(50, ${255 * difference}, ${100 + 155 * (1 - difference)}, 0.8)`
     force *= PARAMS.mouseMult
 
     return [force * distX, force * distY]
 }
 
-const createParticle = (x, y) =>
-    new Particle({ x, y, mass: random(PARAMS.mmin, PARAMS.mmax) })
+const createParticle = (x, y) => new Particle({ x, y, mass: random(PARAMS.mmin, PARAMS.mmax) })
 
 for (let i = 0; i < 10; i++) {
     pcles.push(createParticle(random(W), random(H)))
@@ -147,8 +140,7 @@ function draw() {
             let distY = pcles[j].y - pcles[i].y
             let dist = Math.max(Math.sqrt(distX * distX + distY * distY), 1)
 
-            let force =
-                (dist - PARAMS.bubbleRadius) * pcles[j].mass * pcles[i].mass
+            let force = (dist - PARAMS.bubbleRadius) * pcles[j].mass * pcles[i].mass
             force /= dist * (dist * 1.5)
             force *= PARAMS.bubblesMult
             pcles[i].accel.x += force * distX
@@ -161,12 +153,8 @@ function draw() {
         pcles[i].accel.x += mouseAX
         pcles[i].accel.y += mouseAY
 
-        pcles[i].vel.x =
-            pcles[i].vel.x * PARAMS.viscosity +
-            pcles[i].accel.x * PARAMS.finalMult
-        pcles[i].vel.y =
-            pcles[i].vel.y * PARAMS.viscosity +
-            pcles[i].accel.y * PARAMS.finalMult
+        pcles[i].vel.x = pcles[i].vel.x * PARAMS.viscosity + pcles[i].accel.x * PARAMS.finalMult
+        pcles[i].vel.y = pcles[i].vel.y * PARAMS.viscosity + pcles[i].accel.y * PARAMS.finalMult
 
         pcles[i].x += pcles[i].vel.x
         pcles[i].y += pcles[i].vel.y

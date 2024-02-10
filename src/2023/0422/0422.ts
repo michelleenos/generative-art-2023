@@ -1,8 +1,8 @@
 import '../style.css'
 import p5 from 'p5'
 
-import { Particle } from '../helpers/particles/particle'
-import { DragBox, getDrag } from '../helpers/friction-drag'
+import { Particle } from '../../helpers/particles/particle'
+import { DragBox, getDrag } from '../../helpers/friction-drag'
 
 import setPane from './pane'
 
@@ -93,10 +93,7 @@ new p5((p: p5) => {
         if (img) img.remove()
         img = p.createGraphics(p.width, p.height)
         img.colorMode(p.HSL)
-        translate.set(
-            p.width / 2 - PARAMS.size / 2,
-            p.height / 2 - PARAMS.size / 2
-        )
+        translate.set(p.width / 2 - PARAMS.size / 2, p.height / 2 - PARAMS.size / 2)
     }
 
     function makeBoxes() {
@@ -104,15 +101,7 @@ new p5((p: p5) => {
         for (let i = 0; i < PARAMS.nBoxes; i++) {
             let boxx = p.random(p.width)
             let boxy = p.random(p.height)
-            boxes.push(
-                new DragBox(
-                    boxx,
-                    boxy,
-                    p.width * 0.25,
-                    p.height * 0.25,
-                    PARAMS.boxDrag
-                )
-            )
+            boxes.push(new DragBox(boxx, boxy, p.width * 0.25, p.height * 0.25, PARAMS.boxDrag))
         }
     }
 
@@ -122,18 +111,14 @@ new p5((p: p5) => {
             let mass = 1
 
             particles.push({
-                particle: new Particle(
-                    p.random(PARAMS.size),
-                    p.random(PARAMS.size),
-                    {
-                        radius: mass * 8,
-                        mass,
-                        velInit: new p5.Vector(
-                            initVelFunctions[PARAMS.particles.initVelX](),
-                            initVelFunctions[PARAMS.particles.initVelY]()
-                        ),
-                    }
-                ),
+                particle: new Particle(p.random(PARAMS.size), p.random(PARAMS.size), {
+                    radius: mass * 8,
+                    mass,
+                    velInit: new p5.Vector(
+                        initVelFunctions[PARAMS.particles.initVelX](),
+                        initVelFunctions[PARAMS.particles.initVelY]()
+                    ),
+                }),
                 highlight: false,
             })
         }
@@ -141,9 +126,7 @@ new p5((p: p5) => {
 
     function isHighlighted(x, y) {
         let vals = [2, 2]
-        return (
-            (x === vals[0] && y === vals[1]) || (x === vals[1] && y === vals[0])
-        )
+        return (x === vals[0] && y === vals[1]) || (x === vals[1] && y === vals[0])
     }
 
     function makeParticlesGrid() {
@@ -154,39 +137,19 @@ new p5((p: p5) => {
             for (let y = 0; y < ny; y++) {
                 let mass = 1
                 let posX =
-                    p.map(
-                        x,
-                        0,
-                        nx - 1,
-                        PARAMS.particles.gridXMin,
-                        PARAMS.particles.gridXMax
-                    ) * PARAMS.size
+                    p.map(x, 0, nx - 1, PARAMS.particles.gridXMin, PARAMS.particles.gridXMax) *
+                    PARAMS.size
                 if (nx === 1)
                     posX =
-                        p.map(
-                            0.5,
-                            0,
-                            1,
-                            PARAMS.particles.gridXMin,
-                            PARAMS.particles.gridXMax
-                        ) * PARAMS.size
+                        p.map(0.5, 0, 1, PARAMS.particles.gridXMin, PARAMS.particles.gridXMax) *
+                        PARAMS.size
                 let posY =
-                    p.map(
-                        y,
-                        0,
-                        ny - 1,
-                        PARAMS.particles.gridYMin,
-                        PARAMS.particles.gridYMax
-                    ) * PARAMS.size
+                    p.map(y, 0, ny - 1, PARAMS.particles.gridYMin, PARAMS.particles.gridYMax) *
+                    PARAMS.size
                 if (ny === 1)
                     posY =
-                        p.map(
-                            0.5,
-                            0,
-                            1,
-                            PARAMS.particles.gridYMin,
-                            PARAMS.particles.gridYMax
-                        ) * PARAMS.size
+                        p.map(0.5, 0, 1, PARAMS.particles.gridYMin, PARAMS.particles.gridYMax) *
+                        PARAMS.size
 
                 let highlight = isHighlighted(x, y)
 
@@ -207,15 +170,11 @@ new p5((p: p5) => {
     function makeAttractors() {
         attractors = []
         if (PARAMS.a1.enable) {
-            attractors.push(
-                makeAttractor(PARAMS.a1.pos.x, PARAMS.a1.pos.y, PARAMS.a1.mass)
-            )
+            attractors.push(makeAttractor(PARAMS.a1.pos.x, PARAMS.a1.pos.y, PARAMS.a1.mass))
         }
 
         if (PARAMS.a2.enable) {
-            attractors.push(
-                makeAttractor(PARAMS.a2.pos.x, PARAMS.a2.pos.y, PARAMS.a2.mass)
-            )
+            attractors.push(makeAttractor(PARAMS.a2.pos.x, PARAMS.a2.pos.y, PARAMS.a2.mass))
         }
     }
 
@@ -242,15 +201,10 @@ new p5((p: p5) => {
             doLoop()
         }
 
-        pane.addButton({ title: 'save canvas' }).on('click', () =>
-            p.saveCanvas(canvas)
-        )
-        pane.addButton({ title: 'save image (only overlay)' }).on(
-            'click',
-            () => {
-                STOPANDSAVEIMG = true
-            }
-        )
+        pane.addButton({ title: 'save canvas' }).on('click', () => p.saveCanvas(canvas))
+        pane.addButton({ title: 'save image (only overlay)' }).on('click', () => {
+            STOPANDSAVEIMG = true
+        })
     }
 
     p.draw = () => {

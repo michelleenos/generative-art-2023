@@ -1,7 +1,7 @@
 import '../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
-import easings from '../helpers/easings'
+import easings from '../../helpers/easings'
 import { shuffle } from '~/helpers/utils'
 
 let palettes = [

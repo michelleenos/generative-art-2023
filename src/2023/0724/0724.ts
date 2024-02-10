@@ -1,6 +1,6 @@
 import '../style.css'
-import createCanvas from '../helpers/canvas/createCanvas'
-import { random } from '../helpers/utils'
+import createCanvas from '../../helpers/canvas/createCanvas'
+import { random } from '../../helpers/utils'
 import { Rect, Quilt, QuiltPattern } from './patterns'
 
 let palette = ['#a935bb', '#f7b32b', '#f72c25', '#1c77c3']
@@ -19,12 +19,7 @@ const corners = [
 
 function triLines(
     step: number,
-    {
-        start = { x: 0.24, y: 0.4 },
-        space = -0.06,
-        count = 4,
-        linew = 0.015,
-    } = {}
+    { start = { x: 0.24, y: 0.4 }, space = -0.06, count = 4, linew = 0.015 } = {}
 ) {
     ctx.lineWidth = step * linew
     ctx.beginPath()

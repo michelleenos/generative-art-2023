@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import easings from '../helpers/easings'
+import easings from '../../helpers/easings'
 
 type Ease = (x: number) => number
 
@@ -84,11 +84,7 @@ function curves(
     }
 
     let setStroke =
-        color === 'color'
-            ? colorStroke()
-            : color === 'dark'
-            ? whiteStroke()
-            : darkStroke()
+        color === 'color' ? colorStroke() : color === 'dark' ? whiteStroke() : darkStroke()
 
     p.push()
     color === 'light' ? p.background(350) : p.background(3)

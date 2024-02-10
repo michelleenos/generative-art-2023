@@ -1,6 +1,6 @@
 import '../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import { createPetal, type Petal } from '~/0404/petal'
+import { createPetal, type Petal } from '~/2023/0404/petal'
 import loop from '~/helpers/loop'
 // import map from '~/helpers/map'
 // import random from '~/helpers/random'
@@ -61,10 +61,7 @@ class MorphPetal {
             y: min / 2,
             endRangeX: [min * PARAMS.endRangeX[0], min * PARAMS.endRangeX[1]],
             endRangeY: [petalLen, petalLen],
-            controlRangeX: [
-                min * PARAMS.controlRangeX[0],
-                min * PARAMS.controlRangeX[1],
-            ],
+            controlRangeX: [min * PARAMS.controlRangeX[0], min * PARAMS.controlRangeX[1]],
             controlVarX: min * PARAMS.controlVarX,
             controlVarY: min * PARAMS.controlVarY,
             rotation: 0,
@@ -76,10 +73,7 @@ class MorphPetal {
         this.ctx.lineWidth = 0.5
         this.scaleXVar = [random(0.8, 1), random(1.4, 2)]
         if (random() < 0.5)
-            [this.scaleXVar[0], this.scaleXVar[1]] = [
-                this.scaleXVar[1],
-                this.scaleXVar[0],
-            ]
+            [this.scaleXVar[0], this.scaleXVar[1]] = [this.scaleXVar[1], this.scaleXVar[0]]
         this.skewYVar = [-0.3, 0.3]
 
         console.log({
@@ -194,12 +188,7 @@ btn.addEventListener('click', () => {
     drawLoop.stop()
 
     petals.forEach((petal) => {
-        petal.ctx.clearRect(
-            0,
-            0,
-            petal.ctx.canvas.width,
-            petal.ctx.canvas.height
-        )
+        petal.ctx.clearRect(0, 0, petal.ctx.canvas.width, petal.ctx.canvas.height)
         petal.rotateCurrent = petal.rotateStart
     })
 

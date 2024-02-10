@@ -1,5 +1,5 @@
 import '~/style.css'
-import { getRandomPoints } from '~/0402/parts/points'
+import { getRandomPoints } from '~/2023/0402/parts/points'
 import createCanvas from '../createCanvas'
 import quadLoop from '.'
 
