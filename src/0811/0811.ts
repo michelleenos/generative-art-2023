@@ -15,17 +15,19 @@ let palettes = [
 let palette: string[]
 
 let props = {
-    numSites: 20,
+    numSites: 70,
     width: 500,
     height: 500,
-    repelThreshold: 150,
-    gravConstantAttract: 1,
-    gravConstantRepel: 6.5,
+    repelThreshold: 300,
+    constAttract: 3,
+    constRepel: 8,
+    startEdge: 0.4,
     attractMaxDist: 250,
     repelMinDist: 1,
-    repelMaxDist: 100,
-    dragMult: 0.99,
-    maxVel: 0.1,
+    repelMaxDist: 200,
+    dragMult: 0.995,
+    maxVel: 0.2,
+    showParticles: false,
 }
 const voronoi = new Voronoi()
 let bbox = {
@@ -63,27 +65,39 @@ function setPane() {
     let pane = new Pane()
     let folder = pane.addFolder({ title: 'settings' })
     folder.addInput(props, 'repelThreshold', { min: 1, max: 500, step: 1 })
-    folder.addInput(props, 'gravConstantAttract', {
+    folder.addInput(props, 'constAttract', {
         min: 0,
         max: 10,
         step: 0.5,
     })
-    folder.addInput(props, 'gravConstantRepel', { min: 0, max: 29, step: 0.5 })
+    folder.addInput(props, 'constRepel', { min: 0, max: 29, step: 0.5 })
     folder.addInput(props, 'attractMaxDist', { min: 1, max: 800, step: 1 })
     folder.addInput(props, 'repelMinDist', { min: 1, max: 800, step: 1 })
     folder.addInput(props, 'repelMaxDist', { min: 1, max: 800, step: 1 })
-    folder.addInput(props, 'dragMult', { min: 0, max: 1, step: 0.01 })
+    folder.addInput(props, 'dragMult', { min: 0, max: 1, step: 0.001 })
     folder.addInput(props, 'maxVel', { min: 0, max: 1, step: 0.01 })
+    folder.addInput(props, 'startEdge', { min: 0, max: 1, step: 0.01 })
+
+    folder.addInput(props, 'showParticles')
 }
 
+const numSitesSpan = document.getElementById('numSites') as HTMLSpanElement
+
 new p5((p: p5) => {
-    function setSites() {
+    let canvas: p5.Renderer
+    function recolor() {
+        for (let i = 0; i < sites.length; i++) {
+            sites[i].color = palette[i % palette.length]
+        }
+    }
+    function setSites(count?: number) {
+        if (!count) count = sites.length ? sites.length : props.numSites
         sites = []
-        for (let i = 0; i < props.numSites; i++) {
+        for (let i = 0; i < count; i++) {
             // p.createVector(p.round(p.random(props.width)), p.round(p.random(props.width)))
             let site = new ParticleWithColor(
-                p.random(props.width * 0.2, props.width * 0.8),
-                p.random(props.height * 0.2, props.height * 0.8),
+                p.random(props.width * props.startEdge, props.width * (1 - props.startEdge)),
+                p.random(props.height * props.startEdge, props.height * (1 - props.startEdge)),
                 {
                     edges: {
                         left: bbox.xl,
@@ -101,7 +115,7 @@ new p5((p: p5) => {
 
     p.setup = () => {
         setSizes()
-        p.createCanvas(props.width, props.height)
+        canvas = p.createCanvas(props.width, props.height)
 
         palette = [...p.random(palettes)]
         palette = p.shuffle(palette)
@@ -117,6 +131,7 @@ new p5((p: p5) => {
         p.noStroke()
 
         let len = sites.length
+        numSitesSpan.textContent = len.toString()
 
         for (let i = 0; i < len; i++) {
             const siteA = sites[i]
@@ -128,13 +143,13 @@ new p5((p: p5) => {
                     let repel = siteB.attract(siteA, {
                         min: props.repelMinDist,
                         max: props.repelMaxDist,
-                        G: props.gravConstantRepel,
+                        G: props.constRepel,
                     })
                     siteA.applyForce(repel.copy().mult(-1))
                     siteB.applyForce(repel)
                 } else {
                     let force = siteB.attract(siteA, {
-                        G: props.gravConstantAttract,
+                        G: props.constAttract,
                         max: props.attractMaxDist,
                     })
                     siteA.applyForce(force)
@@ -160,6 +175,16 @@ new p5((p: p5) => {
             if (cell.site.color) p.fill(cell.site.color)
             drawCell(cell)
         })
+
+        if (props.showParticles) {
+            p.push()
+            sites.forEach((site) => {
+                p.fill('#fff')
+                p.stroke('#000')
+                p.circle(site.x, site.y, 5)
+            })
+            p.pop()
+        }
 
         if (p.mouseIsPressed) {
             throttledMouse()
@@ -187,13 +212,7 @@ new p5((p: p5) => {
 
     let throttledMouse = throttle(() => {
         let { mouseX, mouseY } = p
-        if (
-            mouseX < 0 ||
-            mouseX > props.width ||
-            mouseY < 0 ||
-            mouseY > props.height
-        )
-            return
+        if (mouseX < 0 || mouseX > props.width || mouseY < 0 || mouseY > props.height) return
 
         let newsite = new ParticleWithColor(mouseX, mouseY, {
             radius: 10,
@@ -209,12 +228,18 @@ new p5((p: p5) => {
         sites.push(newsite)
     }, 50)
 
-    p.keyPressed = () => {
-        console.log('key', p.key)
+    p.keyPressed = (e: KeyboardEvent) => {
+        // console.log('key', p.key, e.target)
+        if (e.target !== document.body) return
         if (p.key === ' ') {
             palette = [...p.random(palettes)]
             palette = p.shuffle(palette)
             bg = palette.pop() ?? ''
+            // setSites()
+            recolor()
+        } else if (parseInt(p.key)) {
+            setSites(parseInt(p.key) * 10)
+        } else if (p.key === 'r') {
             setSites()
         }
     }
