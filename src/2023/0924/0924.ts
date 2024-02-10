@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import { random, shuffle } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { polygon, burst, zigzag, rectCenter, crazyTiles } from '~/helpers/canvas/shapes'

@@ -1,6 +1,6 @@
 import p5 from 'p5'
 import { colorUtils, shapeUtils, TrisOpts } from './utils'
-import '../style.css'
+import '../../style.css'
 
 const paletteUrls = [
     'https://coolors.co/ffedeb-320d6d-ffd447-700353-fc814a',
@@ -101,8 +101,7 @@ new p5((p: p5) => {
                 let trisOpts = {
                     scale: p.random(0.3, 0.8),
                     chance: 0.4,
-                    chooseColor: () =>
-                        p.random() < 0.5 ? colors.fill(3) : colors.stroke(3),
+                    chooseColor: () => (p.random() < 0.5 ? colors.fill(3) : colors.stroke(3)),
                 }
                 shapes.trisRound(pts, c, trisOpts, {
                     subset: indexes[2],

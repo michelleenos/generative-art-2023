@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import { random, shuffle, clamp, map, round } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { burst, crazyTiles } from '~/helpers/canvas/shapes'

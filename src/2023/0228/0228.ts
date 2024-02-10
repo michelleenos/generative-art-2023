@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import '../style.css'
+import '../../style.css'
 import { curves, CurvesOptions } from './curves'
 
 // https://mathworld.wolfram.com/MalteseCrossCurve.html
@@ -29,12 +29,7 @@ new p5((p: p5) => {
                 return {
                     alphaStart: 1,
                     alphaEnd: p.random(0, 0.5),
-                    ease: p.random([
-                        'outQuad',
-                        'outSine',
-                        'inOutCirc',
-                        'inQuad',
-                    ]),
+                    ease: p.random(['outQuad', 'outSine', 'inOutCirc', 'inQuad']),
                 }
             }
         }
@@ -58,10 +53,7 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (
-            e.target instanceof HTMLElement &&
-            (!btns || !btns.contains(e.target))
-        ) {
+        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
             p.redraw()
         }
     }

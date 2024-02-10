@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
 import { rectCenter } from '~/helpers/canvas/shapes'

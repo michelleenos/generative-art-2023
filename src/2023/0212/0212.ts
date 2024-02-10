@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import '../style.css'
+import '../../style.css'
 
 // imagemagick crop saved images:
 // magick circles-s6-4.jpg -gravity Center -crop 1200x1200+0+0 circles-s6-4-crop.jpg
@@ -26,10 +26,7 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (
-            e.target instanceof HTMLElement &&
-            (!btns || !btns.contains(e.target))
-        ) {
+        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
             p.redraw()
         }
     }
@@ -55,11 +52,7 @@ new p5((p: p5) => {
                 p.fill(0)
                 p.textAlign(p.RIGHT)
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
-                p.text(
-                    `r_radius: ${r_radius}`,
-                    p.width / 2 - 10,
-                    p.height / 2 - 40
-                )
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_yi: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
                 break
 
@@ -88,11 +81,7 @@ new p5((p: p5) => {
                 p.fill(0)
                 p.textAlign(p.RIGHT)
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
-                p.text(
-                    `r_radius: ${r_radius}`,
-                    p.width / 2 - 10,
-                    p.height / 2 - 40
-                )
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_xi: ${r_xi}`, p.width / 2 - 10, p.height / 2 - 25)
                 break
             case 3:
@@ -112,11 +101,7 @@ new p5((p: p5) => {
                 p.fill(0)
                 p.textAlign(p.RIGHT)
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
-                p.text(
-                    `r_radius: ${r_radius}`,
-                    p.width / 2 - 10,
-                    p.height / 2 - 40
-                )
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_yi: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
 
                 break
@@ -136,11 +121,7 @@ new p5((p: p5) => {
                 p.fill(0)
                 p.textAlign(p.RIGHT)
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
-                p.text(
-                    `r_radius: ${r_radius}`,
-                    p.width / 2 - 10,
-                    p.height / 2 - 40
-                )
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_radius: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
                 break
 
@@ -151,11 +132,7 @@ new p5((p: p5) => {
                 for (let x = -200; x <= 200; x += 5) {
                     // let ybase = ((3 * p.sin(x)) / x) * 0.02
 
-                    let ybase =
-                        (x - r_xi / 2) *
-                        (x - (r_xi - 150)) *
-                        (x + (r_xi - 100)) *
-                        0.00001
+                    let ybase = (x - r_xi / 2) * (x - (r_xi - 150)) * (x + (r_xi - 100)) * 0.00001
 
                     for (let yi = 0; yi < 20; yi++) {
                         let y = ybase * p.cos(yi * r_yi) * 3
@@ -167,11 +144,7 @@ new p5((p: p5) => {
                 p.fill(0)
                 p.textAlign(p.RIGHT)
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
-                p.text(
-                    `r_radius: ${r_radius}`,
-                    p.width / 2 - 10,
-                    p.height / 2 - 40
-                )
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_xi: ${r_xi}`, p.width / 2 - 10, p.height / 2 - 25)
                 break
             case 6:
@@ -192,11 +165,7 @@ new p5((p: p5) => {
                 p.fill(0)
                 p.textAlign(p.RIGHT)
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
-                p.text(
-                    `r_radius: ${r_radius}`,
-                    p.width / 2 - 10,
-                    p.height / 2 - 40
-                )
+                p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_yi: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
                 p.text(`r_xi: ${r_xi}`, p.width / 2 - 10, p.height / 2 - 10)
                 break

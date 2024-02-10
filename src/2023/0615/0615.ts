@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import loop from '~/helpers/loop'
 

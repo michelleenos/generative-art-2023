@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
 import easings from '../../helpers/easings'

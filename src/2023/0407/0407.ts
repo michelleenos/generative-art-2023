@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { createPetal, type Petal } from '~/2023/0404/petal'
 import loop from '~/helpers/loop'

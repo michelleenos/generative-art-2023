@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
 
@@ -105,9 +105,7 @@ new p5((p: p5) => {
         if (img) img.clear()
         particles = []
         for (let i = 0; i < 7; i++) {
-            particles.push(
-                new Particle(p.random(p.width), p.random(p.height), 10, 0.5)
-            )
+            particles.push(new Particle(p.random(p.width), p.random(p.height), 10, 0.5))
         }
         edgeForcesSame = generateEdgeForce()
     }

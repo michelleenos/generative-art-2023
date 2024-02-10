@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
 import { random } from '~/helpers/utils'
@@ -83,12 +83,20 @@ function draw(time: number = 0) {
                 ctx.globalCompositeOperation = random(['lighten', 'screen'])
                 ctx.globalAlpha = +random(0.65, 0.9).toFixed(2)
                 let color = random([orange, blue, red, yellow])
-                burstFlames(cellSize * random(params.flameSizeMax, params.flameSizeMax), steps, color)
+                burstFlames(
+                    cellSize * random(params.flameSizeMax, params.flameSizeMax),
+                    steps,
+                    color
+                )
 
                 ctx.globalAlpha -= 0.2
                 if (random() < 0.5) {
                     ctx.rotate(Math.PI / steps)
-                    burstFlames(cellSize * random(params.flameSizeMin, params.flameSizeMax), steps, color)
+                    burstFlames(
+                        cellSize * random(params.flameSizeMin, params.flameSizeMax),
+                        steps,
+                        color
+                    )
                 }
                 ctx.globalCompositeOperation = random(['lighten', 'screen'])
                 ctx.beginPath()
@@ -155,7 +163,13 @@ type BurstFlorParams = {
     fromCenter?: number
 }
 
-function burstFlor({ size, color = green, count = 5, steps = 12, fromCenter = size * 0.15 }: BurstFlorParams) {
+function burstFlor({
+    size,
+    color = green,
+    count = 5,
+    steps = 12,
+    fromCenter = size * 0.15,
+}: BurstFlorParams) {
     let colHsb = hexToHsb(color)
     ctx.lineWidth = size * 0.01
     let distFromCenter = fromCenter
@@ -206,7 +220,14 @@ function burstFlor({ size, color = green, count = 5, steps = 12, fromCenter = si
     }
 }
 
-function dots(size: number, color: string, steps: number, dotRadius = size * 0.02, dotPos = size * 0.35, fill = true) {
+function dots(
+    size: number,
+    color: string,
+    steps: number,
+    dotRadius = size * 0.02,
+    dotPos = size * 0.35,
+    fill = true
+) {
     for (let i = 0; i < steps; i++) {
         let angle = (i / steps) * Math.PI * 2 + Math.PI / steps
         ctx.save()

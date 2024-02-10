@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import '../style.css'
+import '../../style.css'
 
 // https://mathworld.wolfram.com/ConchoidofdeSluze.html
 
@@ -70,10 +70,7 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (
-            e.target instanceof HTMLElement &&
-            (!btns || !btns.contains(e.target))
-        ) {
+        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
             p.redraw()
         }
     }

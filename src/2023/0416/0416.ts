@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import p5, { Oscillator } from 'p5'
 import 'p5/lib/addons/p5.sound.js'
 import { midiNumbers } from '~/helpers/midiNumbers'
@@ -60,14 +60,7 @@ new p5((p: p5) => {
             let releaseTime = 0.05
             let releaseLevel = 0
 
-            this.env.set(
-                attackTime,
-                attackLevel,
-                decayTime,
-                decayLevel,
-                releaseTime,
-                releaseLevel
-            )
+            this.env.set(attackTime, attackLevel, decayTime, decayLevel, releaseTime, releaseLevel)
         }
 
         move() {
@@ -171,9 +164,7 @@ new p5((p: p5) => {
         let current = chordsFreq[0]
         for (let i = 0; i < 7; i++) {
             let note = current[i % current.length]
-            particles.push(
-                new Particle(note, p.random(0.2, 2), p.random(0.2, 2))
-            )
+            particles.push(new Particle(note, p.random(0.2, 2), p.random(0.2, 2)))
         }
 
         fft = new p5.FFT()
@@ -212,12 +203,7 @@ new p5((p: p5) => {
                 if (d < distmax) {
                     p.stroke(0, 100, 100, 0.2)
                     p.strokeWeight(1)
-                    p.line(
-                        particles[i].x,
-                        particles[i].y,
-                        particles[j].x,
-                        particles[j].y
-                    )
+                    p.line(particles[i].x, particles[i].y, particles[j].x, particles[j].y)
                     touching = true
                 }
             }

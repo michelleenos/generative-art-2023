@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import * as Tone from 'tone'
 import { random } from '~/helpers/utils'
 

@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { createNoise2D, createNoise3D } from 'simplex-noise'
 import { map, lerp, random } from '~/helpers/utils'

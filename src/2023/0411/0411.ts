@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import '../style.css'
+import '../../style.css'
 import { Pane } from 'tweakpane'
 import RefreshContainer from '~/helpers/refresh-container'
 import {

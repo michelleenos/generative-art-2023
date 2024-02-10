@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import '../style.css'
+import '../../style.css'
 import { Pane } from 'tweakpane'
 import easings from '~/helpers/easings'
 

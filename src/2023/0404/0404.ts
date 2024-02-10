@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { Pane } from 'tweakpane'
 import loop from '~/helpers/loop'
@@ -39,9 +39,7 @@ flower.addInput(PARAMS, 'cpVarY', {
 })
 flower.addInput(PARAMS, 'speed', { min: 0.0001, max: 0.01, step: 0.0001 })
 if (PARAMS.addRecordOption) {
-    flower
-        .addButton({ title: 'restart & record' })
-        .on('click', () => petalStart(true))
+    flower.addButton({ title: 'restart & record' }).on('click', () => petalStart(true))
 }
 
 flower.addButton({ title: 'restart' }).on('click', () => petalStart())
@@ -90,11 +88,7 @@ class PetalDrawer {
             }
             this.currentLine = 0
             this.currentPetal++
-            this.petal = makePetal(
-                width,
-                height,
-                this.positions[this.currentPetal]
-            )
+            this.petal = makePetal(width, height, this.positions[this.currentPetal])
         }
     }
 }
@@ -153,8 +147,7 @@ function petalStart(record = false) {
     for (let i = 0; i < PARAMS.drawAtOnce; i++) {
         let pos = positions.slice(i * each, (i + 1) * each)
         // if each isn't an integer, the last drawer(s) will have more petals
-        let startAt =
-            (PARAMS.numLines / PARAMS.drawAtOnce) * (PARAMS.drawAtOnce - i - 1)
+        let startAt = (PARAMS.numLines / PARAMS.drawAtOnce) * (PARAMS.drawAtOnce - i - 1)
 
         drawers.push(
             new PetalDrawer({

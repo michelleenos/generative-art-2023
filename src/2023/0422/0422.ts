@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import p5 from 'p5'
 
 import { Particle } from '../../helpers/particles/particle'

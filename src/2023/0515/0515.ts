@@ -1,4 +1,4 @@
-import '../style.css'
+import '../../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
 
@@ -32,9 +32,14 @@ new p5((p: p5) => {
                 }
                 let gx = p.random(PS.step * -0.25, PS.step * 0.25)
                 let gy = p.random(PS.step * -0.25, PS.step * 0.25)
-                let grad = (
-                    p.drawingContext as CanvasRenderingContext2D
-                ).createRadialGradient(gx, gy, 0, gx, gy, PS.step)
+                let grad = (p.drawingContext as CanvasRenderingContext2D).createRadialGradient(
+                    gx,
+                    gy,
+                    0,
+                    gx,
+                    gy,
+                    PS.step
+                )
                 let ci1 = p.floor(p.random(palette.length))
                 let ci2 = p.floor(p.random(palette.length))
                 if (ci1 == ci2) ci2 = (ci1 + 1) % palette.length
@@ -72,13 +77,9 @@ new p5((p: p5) => {
         folder.addInput(PS, 'noiseAmt', { min: 0, max: 2, step: 0.01 })
         folder.addInput(PS, 'radiusToStep', { min: 0.01, max: 0.5, step: 0.01 })
 
-        folder
-            .addButton({ title: 'noiseSeed++ (spacebar)' })
-            .on('click', randomize)
+        folder.addButton({ title: 'noiseSeed++ (spacebar)' }).on('click', randomize)
 
-        folder
-            .addButton({ title: 'save' })
-            .on('click', () => p.saveCanvas('noisy-circles'))
+        folder.addButton({ title: 'save' }).on('click', () => p.saveCanvas('noisy-circles'))
 
         pane.on('change', () => {
             setVars()
@@ -91,10 +92,7 @@ new p5((p: p5) => {
         let size = m
         let radius = PS.step * PS.radiusToStep
         p.push()
-        p.translate(
-            (p.width - size) / 2 + PS.step / 2,
-            (p.height - size) / 2 + PS.step / 2
-        )
+        p.translate((p.width - size) / 2 + PS.step / 2, (p.height - size) / 2 + PS.step / 2)
         p.noStroke()
         let i = 0
         for (let x = 0; x < size; x += PS.step) {
