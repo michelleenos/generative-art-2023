@@ -2,7 +2,7 @@ export type ColorHSL = { h: number; s: number; l: number }
 export type ColorRGB = { r: number; g: number; b: number }
 export type ColorHSB = { h: number; s: number; b: number }
 
-export function hslToHex(hsl: ColorHSL): string {
+function hslToHex(hsl: ColorHSL): string {
     const { h, s, l } = hsl
 
     const hDecimal = l / 100
@@ -19,9 +19,23 @@ export function hslToHex(hsl: ColorHSL): string {
     return `#${f(0)}${f(8)}${f(4)}`
 }
 
-export function hexToHsl(hex: string): ColorHSL {
-    let { r, g, b } = hexToRgb(hex)
+function hslToRgb(hsl: ColorHSL): ColorRGB {
+    let { h, s, l } = hsl
+    s /= 100
+    l /= 100
 
+    const k = (n: number) => (n + h / 30) % 12
+    const a = s * Math.min(l, 1 - l)
+    const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+    return { r: Math.round(f(0) * 255), g: Math.round(f(8) * 255), b: Math.round(f(4) * 255) }
+}
+
+function hexToHsl(hex: string): ColorHSL {
+    return rgbToHsl(hexToRgb(hex))
+}
+
+function rgbToHsl(rgb: ColorRGB): ColorHSL {
+    let { r, g, b } = rgb
     r /= 255
     g /= 255
     b /= 255
@@ -35,7 +49,7 @@ export function hexToHsl(hex: string): ColorHSL {
 
     if (max === min) {
         // Achromatic
-        return { h: 0, s: 0, l }
+        return { h: 0, s: 0, l: Math.round(l * 100) }
     }
 
     const d = max - min
@@ -62,7 +76,7 @@ export function hexToHsl(hex: string): ColorHSL {
     return { h, s, l }
 }
 
-export function rgbToHsb(rgb: ColorRGB): ColorHSB {
+function rgbToHsb(rgb: ColorRGB): ColorHSB {
     let { r, g, b } = rgb
     r /= 255
     g /= 255
@@ -103,7 +117,7 @@ export function rgbToHsb(rgb: ColorRGB): ColorHSB {
     }
 }
 
-export function hsbToRgb(hsb: ColorHSB): ColorRGB {
+function hsbToRgb(hsb: ColorHSB): ColorRGB {
     let { h, s, b: v } = hsb
     h /= 360
     s /= 100
@@ -116,7 +130,7 @@ export function hsbToRgb(hsb: ColorHSB): ColorRGB {
     if (s == 0) {
         // achromatic (grey)
         r = g = b = v
-        return { r, g, b }
+        return { r: r * 255, g: g * 255, b: b * 255 }
     }
 
     let i = Math.floor(h * 6)
@@ -149,7 +163,7 @@ export function hsbToRgb(hsb: ColorHSB): ColorRGB {
     return { r: r * 255, g: g * 255, b: b * 255 }
 }
 
-export function hexToRgb(hex: string): ColorRGB {
+function hexToRgb(hex: string): ColorRGB {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
 
     if (!result) {
@@ -167,7 +181,7 @@ export function hexToRgb(hex: string): ColorRGB {
     }
 }
 
-export function rgbToHex(rgb: ColorRGB): string {
+function rgbToHex(rgb: ColorRGB): string {
     let { r, g, b } = rgb
     r = Math.round(r)
     g = Math.round(g)
@@ -180,18 +194,20 @@ export function rgbToHex(rgb: ColorRGB): string {
     return `#${rHex}${gHex}${bHex}`
 }
 
-export function hexToHsb(hex: string): ColorHSB {
+function hexToHsb(hex: string): ColorHSB {
     return rgbToHsb(hexToRgb(hex))
 }
 
-export function hsbToHex(hsb: ColorHSB): string {
+function hsbToHex(hsb: ColorHSB): string {
     return rgbToHex(hsbToRgb(hsb))
 }
 
 const colorUtils = {
     hslToHex,
+    hslToRgb,
     hexToHsl,
     rgbToHsb,
+    rgbToHsl,
     hsbToRgb,
     hexToRgb,
     rgbToHex,
@@ -199,4 +215,16 @@ const colorUtils = {
     hsbToHex,
 }
 
-export default colorUtils
+export {
+    colorUtils as default,
+    hslToHex,
+    hslToRgb,
+    hexToHsl,
+    rgbToHsb,
+    rgbToHsl,
+    hsbToRgb,
+    hexToRgb,
+    rgbToHex,
+    hexToHsb,
+    hsbToHex,
+}

@@ -164,7 +164,7 @@ for (let i = 0; i < 1; i++) {
 function framesLoop() {
     let t = 0
 
-    const animate = (t) => {
+    const animate = (t: number) => {
         // draw(t * 10)
         draw()
         getImage().then(() => {

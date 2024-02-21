@@ -18,9 +18,9 @@
     "dependencies": {
         "@rollup/plugin-inject": "^5.0.3",
         "@types/node": "^18.15.11",
-        "@types/p5": "^1.6.0",
+        "@types/p5": "^1.7.6",
         "jszip": "^3.10.1",
-        "p5": "^1.7.0",
+        "p5": "^1.9.0",
         "simplex-noise": "^4.0.1",
         "tone": "^14.7.77",
         "tweakpane": "^3.1.7",

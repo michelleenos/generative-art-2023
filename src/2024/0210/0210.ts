@@ -1,117 +1,89 @@
-import '../../style.css'
-import p5 from 'p5'
-import { leaf } from './leaf'
+import { hexToRgb } from '~/helpers/color-utils'
+import loop from '~/helpers/loop'
+import { random, shuffle } from '~/helpers/utils'
+import '~/style.css'
+import { RandomLines } from './random-lines'
+import { Blur, Smear, SmearOpts } from './smear-pixels'
 
-new p5((p: p5) => {
-    let coords: number[][]
-    let current: number = 0
-    let pixelCount: number
+let palettes = [
+    ['#241e4e', '#960200', '#ce6c47', '#00635D', '#7a4656'],
+    ['#020887', '#334195', '#00635D', '#ff715b', '#77cf63'],
+    ['#861657', '#a64253', '#d56aa0', '#247ba0', '#011638'],
+]
 
-    let done = false
+const size = 500
 
-    function setup() {
-        coords = leaf
-        current = 0
-        pixelCount = p.width * p.height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')!
+let sketch = document.getElementById('sketch')
+sketch ? sketch.appendChild(canvas) : document.body.appendChild(canvas)
+let pixelDensity = Math.min(window.devicePixelRatio, 2)
 
-        let xvals = coords.map((c) => c[0])
-        let yvals = coords.map((c) => c[1])
-        let xmin = Math.min(...xvals)
-        let xmax = Math.max(...xvals)
-        let ymin = Math.min(...yvals)
-        let ymax = Math.max(...yvals)
+canvas.width = size * pixelDensity
+canvas.height = size * pixelDensity
+canvas.style.width = size + 'px'
+canvas.style.height = size + 'px'
+ctx.scale(pixelDensity, pixelDensity)
 
-        // scale the coordinates to fit the canvas
-        coords = coords.map((c) => [
-            p.map(c[0], xmin, xmax, 40, p.width - 40),
-            p.map(c[1], ymin, ymax, 40, p.height - 40),
-        ])
+let palette: string[]
+let lines: RandomLines
+let smear: Smear
+
+const getDirection = (lines: RandomLines): SmearOpts['direction'] => {
+    const horizontal = lines.isHorizontal()
+    const vertical = lines.isVertical()
+    if ((horizontal && vertical) || (!horizontal && !vertical)) {
+        return random(['down', 'up', 'left', 'right'])
+    } else if (horizontal) {
+        return random(['down', 'up'])
+    } else {
+        return random(['left', 'right'])
     }
+}
 
-    p.setup = () => {
-        p.createCanvas(500, 500)
-        p.pixelDensity(1)
-        p.background('#fff')
-        setup()
+const setup = () => {
+    palette = random(palettes)
+    shuffle(palette)
+
+    lines = new RandomLines({
+        palette,
+        width: size,
+        height: size,
+        pixelDensity,
+        maxLines: 100,
+        stepRate: 10000,
+        weight: 2,
+    })
+
+    smear = new Smear({
+        direction: getDirection(lines),
+        width: size,
+        height: size,
+        palette: palette.map(hexToRgb),
+        pixelDensity,
+    })
+
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(0, 0, size, size)
+    ctx.strokeStyle = random(palette)
+    ctx.lineWidth = 2
+    ctx.strokeRect(0, 0, size, size)
+}
+
+let timeLast = 0
+const draw = (t: number) => {
+    let dt = t - timeLast
+    timeLast = t
+    if (!lines.done) {
+        lines.update(ctx, dt)
+    } else if (!smear.done) {
+        smear.update(ctx, dt)
     }
+}
 
-    p.draw = () => {
-        p.fill('#000')
-        if (done) return
+setup()
+loop(draw)
 
-        p.loadPixels()
-
-        let i = 0
-        while (i < 1000) {
-            let px = current % p.width
-            let py = p.floor(current / p.width)
-            let pixel = current * 4
-            let closest = getClosest(px, py, coords)
-            let amount = p.map(closest[1], 0, 5, 250, 0)
-            amount = p.constrain(amount, 0, 250)
-            p.pixels[pixel] = 250
-            p.pixels[pixel + 1] = amount
-            p.pixels[pixel + 2] = amount
-            p.pixels[pixel + 3] = 255
-            current++
-            if (current >= pixelCount) {
-                done = true
-                break
-            }
-            i += p.floor(p.random(1, 10))
-        }
-        // let drawnCount = 0
-        // for (let i = 0; i < 200; i++) {
-        //     let pixelCoords = getRandomBlankPixel()
-        //     if (!pixelCoords) continue
-        //     let [x, y] = pixelCoords
-        //     drawnCount++
-        //     drawPoint(x, y)
-        // }
-
-        p.updatePixels()
-    }
-
-    function getRandomBlankPixel(): [number, number] | undefined {
-        let x = p.floor(p.random(p.width))
-        let y = p.floor(p.random(p.height))
-        let pixel = (x + y * p.width) * 4
-
-        let tries = 0
-        let maxTries = 5
-        while (tries < maxTries) {
-            if (p.pixels[pixel] === 255) {
-                return [x, y]
-            }
-            x = p.floor(p.random(p.width))
-            y = p.floor(p.random(p.height))
-            pixel = (x + y * p.width) * 4
-
-            tries++
-        }
-    }
-
-    function getClosest(x: number, y: number, coords: number[][]) {
-        return coords.reduce(
-            (acc, c, i) => {
-                let d = p.dist(x, y, c[0], c[1])
-                if (d < acc[1]) {
-                    return [i, d]
-                }
-                return acc
-            },
-            [0, Infinity]
-        )
-    }
-
-    function drawPoint(x: number, y: number) {
-        let pixel = (x + y * p.width) * 4
-        let closest = getClosest(x, y, coords)
-        let amount = p.map(closest[1], 0, 100, 250, 0)
-        amount = p.constrain(amount, 0, 250)
-        p.pixels[pixel] = 250
-        p.pixels[pixel + 1] = amount
-        p.pixels[pixel + 2] = amount
-        p.pixels[pixel + 3] = 255
-    }
-}, document.getElementById('sketch') ?? undefined)
+document.body.addEventListener('click', () => {
+    setup()
+})

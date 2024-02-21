@@ -12,14 +12,14 @@ dependencies:
     specifier: ^18.15.11
     version: 18.15.11
   '@types/p5':
-    specifier: ^1.6.0
-    version: 1.6.0
+    specifier: ^1.7.6
+    version: 1.7.6
   jszip:
     specifier: ^3.10.1
     version: 3.10.1
   p5:
-    specifier: ^1.7.0
-    version: 1.7.0
+    specifier: ^1.9.0
+    version: 1.9.0
   simplex-noise:
     specifier: ^4.0.1
     version: 4.0.1
@@ -297,8 +297,8 @@ packages:
   /@types/node@18.15.11:
     resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
 
-  /@types/p5@1.6.0:
-    resolution: {integrity: sha512-1DuGI41woYiMjEGh0hvt1NJPMvjiBHQO/4uKvPCy3IYvytCAq/c3S+0zlRrfhzwVNjydwr2hgkfdBTnptd6nSw==}
+  /@types/p5@1.7.6:
+    resolution: {integrity: sha512-6pLTOo0V3N5jZb5nTwjiv3lPHLK3Z/TjbhQUj8CTWXocUk1Z/f6OHTp3Pcwi1BhWnf5gqKUcyEb1gP0KIJuQgw==}
     dev: false
 
   /automation-events@6.0.10:
@@ -563,8 +563,8 @@ packages:
       wrappy: 1.0.2
     dev: false
 
-  /p5@1.7.0:
-    resolution: {integrity: sha512-qrbT/44Dwm63ZtOKX/mp61pw+5yj6ijYLOmRv7p6zcfjbo83Vb0gVFEvW0kTLFu7hceWCig0HONo9F1bSlqbsQ==}
+  /p5@1.9.0:
+    resolution: {integrity: sha512-+5/hz0ZokCDf7BMMAeemE7FIo7gFZK7ImL62acHLXZwerGjqj+171bnaAWj4aCFCx6fwysAr2U7/AKuPyPhehA==}
     dev: false
 
   /pako@1.0.11:

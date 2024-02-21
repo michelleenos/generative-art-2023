@@ -13,7 +13,7 @@ export default function createCanvas(
 
     const resizeCanvas = (width: number, height: number) => {
         if (scale) {
-            let resolution = window.devicePixelRatio
+            let resolution = Math.min(window.devicePixelRatio, 2)
             canvas.width = width * resolution
             canvas.height = height * resolution
             ctx.scale(resolution, resolution)
