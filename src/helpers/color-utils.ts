@@ -202,6 +202,58 @@ function hsbToHex(hsb: ColorHSB): string {
     return rgbToHex(hsbToRgb(hsb))
 }
 
+function blendScreen(a: ColorRGB, b: ColorRGB): ColorRGB {
+    return {
+        r: 255 - ((255 - a.r) * (255 - b.r)) / 255,
+        g: 255 - ((255 - a.g) * (255 - b.g)) / 255,
+        b: 255 - ((255 - a.b) * (255 - b.b)) / 255,
+    }
+}
+
+function overlay(a: number, b: number) {
+    let a1 = a / 255
+    let b1 = b / 255
+    if (a1 < 0.5) {
+        return 2 * a1 * b1 * 255
+    } else {
+        return (1 - 2 * (1 - a1) * (1 - b1)) * 255
+    }
+}
+
+function difference(a: number, b: number) {
+    return Math.abs(a / 255 - b / 255) * 255
+}
+
+function exclusion(a: number, b: number) {
+    let a1 = a / 255
+    let b1 = b / 255
+    return (b1 + a1 - 2 * b1 * a1) * 255
+}
+
+function blendOverlay(a: ColorRGB, b: ColorRGB) {
+    return {
+        r: overlay(a.r, b.r),
+        g: overlay(a.g, b.g),
+        b: overlay(a.b, b.b),
+    }
+}
+
+function blendDifference(a: ColorRGB, b: ColorRGB) {
+    return {
+        r: difference(a.r, b.r),
+        g: difference(a.g, b.g),
+        b: difference(a.b, b.b),
+    }
+}
+
+function blendExclusion(a: ColorRGB, b: ColorRGB) {
+    return {
+        r: exclusion(a.r, b.r),
+        g: exclusion(a.g, b.g),
+        b: exclusion(a.b, b.b),
+    }
+}
+
 const colorUtils = {
     hslToHex,
     hslToRgb,
@@ -227,4 +279,8 @@ export {
     rgbToHex,
     hexToHsb,
     hsbToHex,
+    blendScreen,
+    blendOverlay,
+    blendDifference,
+    blendExclusion,
 }

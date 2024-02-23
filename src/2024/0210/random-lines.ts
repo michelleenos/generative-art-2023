@@ -8,6 +8,14 @@ let angleOpts: { [key in AngleType]: [number, number] } = {
     vert: [Math.PI * 0.5, -Math.PI * 0.5], // vertical
 }
 
+const angleCombos: [AngleType, AngleType][] = [
+    ['diag1', 'diag2'],
+    ['diag1', 'horz'],
+    ['diag1', 'vert'],
+    ['diag2', 'horz'],
+    ['diag2', 'vert'],
+]
+
 type RandomLinesOptions = {
     palette: string[]
     pixelDensity?: number
@@ -18,6 +26,7 @@ type RandomLinesOptions = {
     weight?: number
     width?: number
     height?: number
+    stepMult?: number
 }
 
 export class RandomLines {
@@ -35,7 +44,7 @@ export class RandomLines {
     maxLineLength: number
     minLineLength: number
     stepRate: number
-    stepMult: number = 1
+    stepMult: number
     weight: number
     pixelDensity: number
     width: number
@@ -56,6 +65,7 @@ export class RandomLines {
         width = 500,
         height = 500,
         weight = 1,
+        stepMult = 1,
     }: RandomLinesOptions) {
         this.drawing = false
         this.palette = palette
@@ -67,6 +77,7 @@ export class RandomLines {
         this.width = width
         this.height = height
         this.weight = weight
+        this.stepMult = stepMult
 
         this.offscreenCanvas = document.createElement('canvas')
         this.offscreenCtx = this.offscreenCanvas.getContext('2d', { willReadFrequently: true })!
@@ -76,8 +87,9 @@ export class RandomLines {
         this.offscreenCtx.fillStyle = '#fff'
         this.offscreenCtx.fillRect(0, 0, this.width, this.height)
 
-        let angleTypes = shuffle(Object.keys(angleOpts))
-        this.angleTypes = [angleTypes[0], angleTypes[1]]
+        // let angleTypes = shuffle(Object.keys(angleOpts))
+        shuffle(angleCombos)
+        this.angleTypes = [angleCombos[0][0], angleCombos[0][1]]
         this.angleOptions = [...angleOpts[this.angleTypes[0]], ...angleOpts[this.angleTypes[1]]]
     }
 
@@ -116,10 +128,10 @@ export class RandomLines {
 
             if (
                 imageData.data[pix] < 255 ||
-                nextX < 0 ||
-                nextX >= this.width ||
-                nextY < 0 ||
-                nextY >= this.height
+                nextX < -10 ||
+                nextX >= this.width + 10 ||
+                nextY < -10 ||
+                nextY >= this.height + 10
             ) {
                 break
             } else {
@@ -196,6 +208,7 @@ export class RandomLines {
 
     drawStep = (ctx: CanvasRenderingContext2D) => {
         ctx.strokeStyle = this.color
+        ctx.lineCap = 'round'
         ctx.lineWidth = this.weight
 
         let nextPoint = this.pointsToDraw[this.pointIndexCurrent + 1]

@@ -3,7 +3,9 @@ import loop from '~/helpers/loop'
 import { random, shuffle } from '~/helpers/utils'
 import '~/style.css'
 import { RandomLines } from './random-lines'
-import { Blur, Smear, SmearOpts } from './smear-pixels'
+import { Blur, Smudge } from './pixels'
+import { ButtonApi, Pane } from 'tweakpane'
+import { createElement } from '~/helpers/dom'
 
 let palettes = [
     ['#241e4e', '#960200', '#ce6c47', '#00635D', '#7a4656'],
@@ -13,11 +15,11 @@ let palettes = [
 
 const size = 500
 
+const pixelDensity = Math.min(2, window.devicePixelRatio)
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')!
 let sketch = document.getElementById('sketch')
 sketch ? sketch.appendChild(canvas) : document.body.appendChild(canvas)
-let pixelDensity = Math.min(window.devicePixelRatio, 2)
 
 canvas.width = size * pixelDensity
 canvas.height = size * pixelDensity
@@ -25,11 +27,37 @@ canvas.style.width = size + 'px'
 canvas.style.height = size + 'px'
 ctx.scale(pixelDensity, pixelDensity)
 
-let palette: string[]
 let lines: RandomLines
-let smear: Smear
+let smudge: Smudge
+let blur: Blur | undefined
+let palette: string[]
 
-const getDirection = (lines: RandomLines): SmearOpts['direction'] => {
+const pane = new Pane()
+let btnRestart: ButtonApi
+let btnBlur: ButtonApi
+
+const setupInfo = () => {
+    const infoLines = createElement('span')
+    const infoLinesStep = createElement('span')
+    const infoBlur = createElement('span')
+
+    const lines = createElement('div', [
+        createElement('strong', 'lines: '),
+        infoLines,
+        createElement('div', [createElement('strong', 'stepMult: '), infoLinesStep]),
+    ])
+    const info = createElement('div', { class: 'info' }, [lines, createElement('div', infoBlur)])
+
+    document.body.appendChild(info)
+
+    return { info, infoLines, infoLinesStep, infoBlur }
+}
+
+const { infoLines, infoLinesStep, infoBlur } = setupInfo()
+
+type Direction = 'up' | 'down' | 'left' | 'right'
+
+const getSmudgeDirection = (lines: RandomLines): Direction => {
     const horizontal = lines.isHorizontal()
     const vertical = lines.isVertical()
     if ((horizontal && vertical) || (!horizontal && !vertical)) {
@@ -41,33 +69,73 @@ const getDirection = (lines: RandomLines): SmearOpts['direction'] => {
     }
 }
 
+const oppositeDirections: Record<Direction, Direction> = {
+    up: 'down',
+    down: 'up',
+    left: 'right',
+    right: 'left',
+}
+
 const setup = () => {
-    palette = random(palettes)
-    shuffle(palette)
+    shuffle(palettes)
+    palette = palettes[0]
+    btnBlur.disabled = true
+    infoBlur.innerHTML = ''
+
+    let stepMult = random([1, 2, 3, 5, 8])
+    let maxLines = stepMult >= 4 ? Math.floor(random(20, 80)) : Math.floor(random(50, 150))
+
+    let stepRate = Math.max(3200 - (stepMult - 1) * 500, 800)
 
     lines = new RandomLines({
         palette,
         width: size,
         height: size,
         pixelDensity,
-        maxLines: 100,
-        stepRate: 10000,
-        weight: 2,
+        maxLines,
+        stepRate,
+        weight: 3,
+        stepMult,
     })
 
-    smear = new Smear({
-        direction: getDirection(lines),
+    smudge = new Smudge({
+        direction: getSmudgeDirection(lines),
         width: size,
         height: size,
         palette: palette.map(hexToRgb),
         pixelDensity,
+        stepRate: 150,
     })
+    smudge.init()
+
+    infoLines.textContent = `${lines.maxLines}`
+    infoLinesStep.textContent = `${lines.stepMult}`
 
     ctx.fillStyle = '#fff'
     ctx.fillRect(0, 0, size, size)
     ctx.strokeStyle = random(palette)
-    ctx.lineWidth = 2
-    ctx.strokeRect(0, 0, size, size)
+}
+
+const addBlur = () => {
+    let pointsCount = random([1, 2, 3, 4])
+    let points: [number, number][] = []
+    for (let i = 0; i < pointsCount; i++) {
+        points.push([Math.floor(random(-10, 10)), Math.floor(random(-10, 10))])
+    }
+    blur = new Blur({
+        direction: oppositeDirections[smudge.direction],
+        width: size,
+        height: size,
+        pixelDensity,
+        blurDirections: points,
+    })
+    blur.init()
+    btnBlur.disabled = true
+
+    infoBlur.innerHTML = points.reduce(
+        (content, [x, y], i) => `${content}[${x}, ${y}]${i === points.length - 1 ? '' : ', '}`,
+        '<strong>blur points: </strong><br/>'
+    )
 }
 
 let timeLast = 0
@@ -76,14 +144,23 @@ const draw = (t: number) => {
     timeLast = t
     if (!lines.done) {
         lines.update(ctx, dt)
-    } else if (!smear.done) {
-        smear.update(ctx, dt)
+        infoLines.innerHTML = `${lines.linesDrawn} of ${lines.maxLines}`
+    } else if (!smudge.done) {
+        smudge.update(ctx, dt)
+        if (!blur) {
+            btnBlur.disabled = false
+        }
+    } else if (blur && !blur.done) {
+        blur.update(ctx, dt)
     }
 }
+
+btnRestart = pane.addButton({ title: 'restart' }).on('click', setup)
+btnBlur = pane.addButton({ title: 'add blur' }).on('click', addBlur)
 
 setup()
 loop(draw)
 
-document.body.addEventListener('click', () => {
-    setup()
-})
+// document.body.addEventListener('click', () => {
+//     setup()
+// })

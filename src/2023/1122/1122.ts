@@ -301,6 +301,7 @@ const normalizeTime = (cur: number, start: number, dur: number) => {
 function setupPane() {
     const pane = new Pane()
     let folder = pane.addFolder({ title: 'controls' })
+    folder.addInput(params, 'animate')
 }
 
 window.addEventListener('resize', () => {
