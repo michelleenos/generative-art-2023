@@ -2,65 +2,119 @@ import '~/style.css'
 import p5 from 'p5'
 import { Grid } from './Grid'
 import { Line } from './Line'
+import { Pane } from 'tweakpane'
 
-let paletteHex = ['#f4d35e', '#f95738', '#550527', '#083d77', '#5adbff']
+let paletteHex = ['#ff0000', '#00ff00', '#0000ff']
 
 new p5((p: p5) => {
+    const C = {
+        showGravity: false,
+        showCells: true,
+        lines: 3,
+        background: 'rgba(0,0,0, 1)',
+        cellsColor: 'rgba(255,255,255, 1)',
+        symmetry: 'reflect',
+        blendMode: p.EXCLUSION,
+    }
+
     let m: number
-    let palette: p5.Color[]
     let grid: Grid
-    let line: Line
+    let lines: Line[] = []
+    let pane = new Pane()
 
     function doSetup() {
-        m = p.min(p.width, p.height) * 0.9
-        palette = paletteHex.map((c) => p.color(c))
+        m = p.min(p.width, p.height) * 0.7
 
-        grid = new Grid(m, m, 10, 10)
-        line = new Line(grid, paletteHex[0])
+        grid = new Grid(m, m, 12, 12)
+
+        for (let i = 0; i < C.lines; i++) {
+            lines.push(
+                new Line(grid, {
+                    color: paletteHex[i % paletteHex.length],
+                    thickness: grid.cellSize.x * 0.7,
+                    maxPoints: 15,
+                })
+            )
+        }
+
+        setupPane()
     }
 
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
-        p.strokeCap(p.ROUND)
-        p.strokeJoin(p.ROUND)
+        p.strokeCap(p.PROJECT)
         p.rectMode(p.CENTER)
 
         doSetup()
     }
 
-    let lastStep = 0
     p.draw = function () {
         let time = p.millis()
-        // let delta = time - lastStep
-        show(time)
 
-        p.fill(255)
-        p.text(p.frameRate().toFixed(2), 11, 11)
+        show(time)
     }
 
     function show(time: number) {
-        p.background('#e8d7ff')
-        p.push()
-        p.noStroke()
+        p.background(C.background)
 
+        p.push()
+        p.blendMode(C.blendMode)
+
+        p.noStroke()
         p.translate(p.width / 2, p.height / 2)
 
-        grid.cells.forEach((row) => {
-            row.forEach((cell) => {
-                p.push()
-                p.translate(cell.posx, cell.posy)
-                p.fill(palette[1])
-                p.rect(0, 0, grid.cellSize.x * 0.9)
+        if (C.showCells) {
+            grid.cells.forEach((row) => {
+                row.forEach((cell) => {
+                    p.push()
+                    p.translate(cell.posx, cell.posy)
+                    let c = p.color(C.cellsColor)
 
-                p.fill(0)
-                p.text(cell.weight, 0, 0)
-                p.pop()
+                    p.fill(c)
+                    p.rect(0, 0, grid.cellSize.x * 0.7)
+
+                    p.pop()
+                })
             })
-        })
+        }
 
-        p.strokeWeight(7)
-        line.update(p, time)
+        // p.strokeWeight(grid.cellSize.x * 0.3)
+        lines.forEach((line) => line.update(p, time))
 
         p.pop()
+    }
+
+    function setupPane() {
+        let f = pane.addFolder({ title: 'settings' })
+        // f.addInput(C, 'showGravity', { label: 'show gravity' })
+        // f.addInput(C, 'showCells', { label: 'show cells' })
+        // f.addInput(C, 'symmetry', { options: ['reflect', 'rotate'] })
+        f.addInput(C, 'symmetry', {
+            options: { reflect: 'reflect', rotate: 'rotate', none: 'none' },
+        }).on('change', (e) =>
+            lines.forEach((l) => (l.symmetry = e.value as 'reflect' | 'rotate' | 'none'))
+        )
+
+        f.addInput(lines[0], 'color', { label: 'line1' })
+        f.addInput(lines[1], 'color', { label: 'line2' })
+        f.addInput(lines[2], 'color', { label: 'line3' })
+
+        // f.addInput(C, 'blendMode', {
+        //     options: {
+        //         multiply: p.MULTIPLY,
+        //         normal: p.BLEND,
+        //         screen: p.SCREEN,
+        //         overlay: p.OVERLAY,
+        //         hardLight: p.HARD_LIGHT,
+        //         difference: p.DIFFERENCE,
+        //         exclusion: p.EXCLUSION,
+        //         lightest: p.LIGHTEST,
+        //         darkest: p.DARKEST,
+        //         dodge: p.DODGE,
+        //         burn: p.BURN,
+        //     },
+        // })
+
+        f.addButton({ title: 'clear' }).on('click', () => p.clear())
     }
 }, document.getElementById('sketch') ?? undefined)

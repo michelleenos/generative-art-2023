@@ -6,7 +6,9 @@ export type Cell = {
     x: number
     y: number
     weight: number
+    gravity: number
     neighbors: Cell[]
+    neighbors90: Cell[]
 }
 
 export class Grid {
@@ -24,8 +26,6 @@ export class Grid {
 
         this.setCells()
         this.setCellNeighbors()
-
-        console.log(this.cells)
     }
 
     setCells = () => {
@@ -44,6 +44,8 @@ export class Grid {
                     y,
                     weight,
                     neighbors: [],
+                    neighbors90: [],
+                    gravity: 1,
                 })
             }
             this.cells.push(row)
@@ -59,20 +61,25 @@ export class Grid {
                 let down = y < this.count.y - 1 ? y + 1 : null
 
                 let cell = this.cells[x][y]
-                let neighbors = [
+                let neighbors90 = [
                     left !== null && this.cells[left][y],
                     up !== null && this.cells[x][up],
                     right !== null && this.cells[right][y],
                     down !== null && this.cells[x][down],
+                ]
 
+                let neighborsAll = [
+                    ...neighbors90,
                     left !== null && up !== null && this.cells[left][up],
                     left !== null && down !== null && this.cells[left][down],
                     right !== null && up !== null && this.cells[right][up],
                     right !== null && down !== null && this.cells[right][down],
                 ]
 
-                cell.neighbors.push(...(neighbors.filter((n) => n) as Cell[]))
-                cell.weight = cell.neighbors.length
+                cell.neighbors90.push(...(neighbors90.filter((n) => n) as Cell[]))
+                cell.neighbors.push(...(neighborsAll.filter((n) => n) as Cell[]))
+                cell.weight = 1
+                cell.gravity = cell.neighbors.length + 1
             }
         }
     }
@@ -81,30 +88,44 @@ export class Grid {
     weighLess(x: number, y: number): void
     weighLess(xOrCell: number | Cell, y?: number) {
         let cell = typeof xOrCell === 'number' ? this.cells[xOrCell][y!] : xOrCell
-        cell.weight = Math.max(1, cell.weight - 4)
-        cell.neighbors.forEach((ncell) => {
-            ncell.weight = Math.max(1, ncell.weight - 1)
-        })
-        // for (let ix = -1; ix <= 1; ix++) {
-        //     for (let iy = -1; iy <= 1; iy++) {
-        //         let cx = x + ix
-        //         let cy = y + iy
-        //         if (this.cells[cx] && this.cells[cx][cy]) {
-        //             let weight = this.cells[cx][cy].weight
-        //             this.cells[cx][cy].weight = Math.max(1, weight - 1)
-        //         }
-        //     }
-        // }
+        let prevWeight = cell.weight
+        cell.weight = Math.max(0, prevWeight - 1)
+        // cell.neighbors.forEach((n) => (n.gravity = Math.max(n.gravity - prevWeight, 1)))
+        cell.neighbors90.forEach((n) => n.gravity--)
     }
 
     weighMore(cell: Cell): void
     weighMore(x: number, y: number): void
     weighMore(xOrCell: number | Cell, y?: number) {
         let cell = typeof xOrCell === 'number' ? this.cells[xOrCell][y!] : xOrCell
-        cell.weight = Math.min(8, cell.weight + 1)
-        cell.neighbors.forEach((ncell) => {
-            ncell.weight = Math.min(8, ncell.weight + 1)
+        let prevWeight = cell.weight
+        cell.weight = Math.min(2, prevWeight + 1)
+        cell.neighbors90.forEach(
+            // (n) => (n.gravity = Math.min(n.gravity + (cell.weight - prevWeight), 8))
+            (n) => n.gravity++
+        )
+    }
+
+    updateGravity(cell: Cell): void
+    updateGravity(x: number, y: number): void
+    updateGravity(xOrCell: number | Cell, y?: number) {
+        let cell = typeof xOrCell === 'number' ? this.cells[xOrCell][y!] : xOrCell
+        cell.gravity = cell.neighbors.reduce((gravity, neighbor) => gravity + neighbor.weight, 1)
+    }
+
+    getNext(cell: Cell): Cell
+    getNext(x: number, y: number): Cell
+    getNext(xOrCell: number | Cell, y?: number) {
+        let cell = typeof xOrCell === 'number' ? this.cells[xOrCell][y!] : xOrCell
+        let options: Cell[] = []
+        cell.neighbors90.forEach((neighbor) => {
+            options.push(neighbor)
         })
+        if (options.length === 0) {
+            console.log('no options', cell)
+            return
+        }
+        return random(options)
     }
 
     getNextWeighted(cell: Cell): Cell
@@ -112,11 +133,18 @@ export class Grid {
     getNextWeighted(xOrCell: number | Cell, y?: number) {
         let cell = typeof xOrCell === 'number' ? this.cells[xOrCell][y!] : xOrCell
         let options: Cell[] = []
-        cell.neighbors.forEach((ncell) => {
-            for (let i = 0; i < ncell.weight; i++) {
-                options.push(ncell)
+
+        cell.neighbors90.forEach((neighbor) => {
+            if (neighbor.weight > 0) {
+                for (let i = 0; i < neighbor.gravity; i++) {
+                    options.push(neighbor)
+                }
             }
         })
+        if (options.length === 0) {
+            console.log('no options', cell)
+            return
+        }
 
         return random(options)
     }
