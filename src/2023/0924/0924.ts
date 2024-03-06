@@ -46,26 +46,15 @@ function setPane() {
             random: 'random',
         },
     })
+
     folder.addInput(props, 'minSize', { min: -1, max: 300, step: 1 })
-    let colorBtn = folder.addButton({
-        title: 'new palette+redraw',
-    })
-    colorBtn.on('click', () => {
+    folder.addButton({ title: 'new palette+redraw' }).on('click', () => {
         colors = [...random(palettes.darks), ...random(palettes.lights)]
         draw()
     })
 
-    let redrawBtn = folder
-        .addButton({
-            title: 'redraw',
-        })
-        .on('click', () => {
-            draw()
-        })
-
-    pane.on('change', () => {
-        draw()
-    })
+    folder.addButton({ title: 'redraw' }).on('click', draw)
+    pane.on('change', draw)
 }
 
 const getCheckerboard = (w: number, h: number) => {
@@ -196,6 +185,7 @@ function patterns(cx: number, cy: number, w: number, h: number) {
             ctx.fill('evenodd')
         }
     } else if (n === 4) {
+        // burst
         burst(ctx, {
             cx,
             cy,
@@ -207,6 +197,7 @@ function patterns(cx: number, cy: number, w: number, h: number) {
         ctx.fillStyle = cols[1]
         ctx.fill()
     } else if (n === 5) {
+        // rounded rects
         let num = h > 80 ? Math.floor(random(2, 5)) : random([1, 2])
         let rectWidth = w * 0.8
         let stepHeight = (h * 0.9) / num
@@ -221,6 +212,7 @@ function patterns(cx: number, cy: number, w: number, h: number) {
         ctx.fillStyle = cols[1]
         ctx.fill()
     } else if (n === 6) {
+        // zigzags
         ctx.beginPath()
         rectCenter(ctx, { cx, cy, w, h })
         ctx.fillStyle = cols[1]
@@ -242,6 +234,7 @@ function patterns(cx: number, cy: number, w: number, h: number) {
             dir: random() < 0.5 ? 'horizontal' : 'vertical',
         })
     } else if (n === 7) {
+        // checker
         ctx.clip()
         let [nx, ny, chX, chY] = getCheckerboard(w, h)
         let xx = x
@@ -257,6 +250,7 @@ function patterns(cx: number, cy: number, w: number, h: number) {
             }
         }
     } else if (n === 8) {
+        // diamonds
         let stepx = w / Math.floor(random(2, 9))
         let stepy = h / Math.floor(random(3, 9))
         let square = Math.min(stepx, stepy) / 3
