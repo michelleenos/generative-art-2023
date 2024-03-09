@@ -69,7 +69,9 @@ let gap = 3
 let rects = tile2({
     iterations: 3,
     minSize: 10,
-    rects: [[{ x: 0, y: 0, size: width, progress: 0, color: palette[0], level: 0 }]],
+    rects: [
+        [{ x: 0, y: 0, size: Math.min(width, height), progress: 0, color: palette[0], level: 0 }],
+    ],
     tileChance: 1,
     // tileChanceMin: 0.7,
 })
@@ -81,7 +83,7 @@ let speed = 10 // fps
 let levelFinishedAdding = false
 let levelFinishedGrowing = false
 let allDone = false
-let borderRadius = width * 0.003
+let borderRadius = Math.min(width, height) * 0.003
 let growing: Rect[] = []
 
 const draw = (t: number) => {
