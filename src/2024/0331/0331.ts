@@ -19,6 +19,31 @@ let palettes = [
     ['#87425d', '#3c2e6b', '#0081af', '#a7d6c3', '#285943', '#8a8fbd', '#9a79b8', '#fcee49'],
 ]
 
+const halfCircle = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+    dir: 'vertical' | 'horizontal'
+) => {
+    ctx.beginPath()
+    if (dir === 'vertical') {
+        if (random() < 0.5) {
+            ctx.arc(x + size, y + size, size, Math.PI / 2, Math.PI * 1.5)
+        } else {
+            ctx.arc(x, y + size, size, Math.PI * 1.5, Math.PI * 0.5)
+        }
+    } else {
+        if (random() < 0.5) {
+            ctx.arc(x + size, y, size, 0, Math.PI)
+        } else {
+            ctx.arc(x + size, y + size, size, Math.PI, 0)
+        }
+    }
+    ctx.closePath()
+    ctx.fill()
+}
+
 const quarterCircle = (
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -61,6 +86,26 @@ const triangle = (ctx: CanvasRenderingContext2D, x: number, y: number, size: num
     ctx.fill()
 }
 
+const lines = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
+    let dir = random([1, 2])
+    ctx.save()
+    ctx.clip()
+    ctx.lineWidth = size / 20
+    ctx.beginPath()
+    for (let i = 0; i < 10; i++) {
+        let step = size * (i / 5)
+        if (dir === 1) {
+            ctx.moveTo(x + step, y)
+            ctx.lineTo(x, y + step)
+        } else {
+            ctx.moveTo(x, y + size - step)
+            ctx.lineTo(x + step, y + size)
+        }
+    }
+    ctx.stroke()
+    ctx.restore()
+}
+
 class Pattern {
     size: number
     sides: number
@@ -84,7 +129,7 @@ class Pattern {
             let nx = ind % this.sides
             let ny = Math.floor(ind / this.sides)
 
-            let choices = ['square']
+            let choices = ['square', 'square']
             if (ny < this.sides - 1) choices.push('vertical')
             if (nx < this.sides - 1 && key[ind + 1] !== 1) choices.push('horizontal')
             let style = random(choices)
@@ -123,16 +168,25 @@ class Pattern {
             ctx.fillStyle = random(palettes[0])
             ctx.rect(x, y, w, h)
             ctx.fill()
-            // ctx.stroke()
 
             if (cell.w === 1 && cell.h === 1) {
-                let style = random(['quarterCircle', 'triangle'])
+                let style = random(['quarterCircle', 'triangle', 'triangle', 'lines'])
                 ctx.fillStyle = random(palettes[1])
                 if (style === 'quarterCircle') {
-                    quarterCircle(ctx, x, y, w, h, cellSize * 0.95)
-                } else {
+                    quarterCircle(ctx, x, y, w, h, cellSize)
+                } else if (style === 'triangle') {
                     triangle(ctx, x, y, cellSize)
+                } else if (style === 'lines') {
+                    ctx.strokeStyle = random(palettes[1])
+                    let extend = cellSize * 0.1
+                    lines(ctx, x - extend, y - extend, cellSize + extend * 2)
                 }
+            } else if (cell.w === 1 && cell.h === 2) {
+                ctx.fillStyle = random(palettes[1])
+                halfCircle(ctx, x, y, cellSize, 'vertical')
+            } else if (cell.h === 1 && cell.w === 2) {
+                ctx.fillStyle = random(palettes[1])
+                halfCircle(ctx, x, y, cellSize, 'horizontal')
             }
         })
     }
