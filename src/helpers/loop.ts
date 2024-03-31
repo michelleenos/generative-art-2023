@@ -1,5 +1,6 @@
-export default function loop(cb: FrameRequestCallback): { stop: () => void } {
+export default function loop(cb: FrameRequestCallback) {
     let id: number
+    let isStopped: boolean = false
     function animation(t: DOMHighResTimeStamp) {
         id = requestAnimationFrame(animation)
         cb(t)
@@ -7,6 +8,10 @@ export default function loop(cb: FrameRequestCallback): { stop: () => void } {
     id = requestAnimationFrame(animation)
 
     return {
-        stop: () => cancelAnimationFrame(id),
+        stop: () => {
+            cancelAnimationFrame(id)
+            isStopped = true
+        },
+        isStopped: () => isStopped,
     }
 }
