@@ -21,6 +21,21 @@ function random<T>(numOrArray?: number | T[], max?: number) {
     return Math.random() * (max - numOrArray) + numOrArray
 }
 
+function weightedRandom<T>(array: T[], weights: number[]): T {
+    const totalWeight = weights.reduce((acc, weight) => acc + weight, 0)
+    const randomNum = Math.random() * totalWeight
+    let weightSum = 0
+
+    for (let i = 0; i < array.length; i++) {
+        weightSum += weights[i]
+        if (randomNum <= weightSum) {
+            return array[i]
+        }
+    }
+
+    return array[array.length - 1]
+}
+
 const shuffle = (array: any[]) => {
     let currentIndex = array.length
     let randomIndex
@@ -63,4 +78,4 @@ const throttle = (fn: Function, wait: number = 300) => {
     }
 }
 
-export { lerp, map, random, shuffle, constrain, clamp, mouseAngle, round, throttle }
+export { lerp, map, random, weightedRandom, shuffle, constrain, clamp, mouseAngle, round, throttle }

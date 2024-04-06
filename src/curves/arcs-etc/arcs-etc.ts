@@ -8,18 +8,39 @@ let height = 800
 
 let { ctx } = createCanvas(width, height)
 
-function sector(cx, cy, r, start, end, counterclockwise = false) {
+function sector(
+    cx: number,
+    cy: number,
+    r: number,
+    start: number,
+    end: number,
+    counterclockwise = false
+) {
     arc(cx, cy, r, start, end, counterclockwise)
     ctx.lineTo(cx, cy)
     ctx.closePath()
 }
 
-function segment(cx, cy, r, start, end, counterclockwise = false) {
+function segment(
+    cx: number,
+    cy: number,
+    r: number,
+    start: number,
+    end: number,
+    counterclockwise = false
+) {
     arc(cx, cy, r, start, end, counterclockwise)
     ctx.closePath()
 }
 
-function arc(cx, cy, r, start, end, counterclockwise = false) {
+function arc(
+    cx: number,
+    cy: number,
+    r: number,
+    start: number,
+    end: number,
+    counterclockwise = false
+) {
     let res = 4 / r
     if (counterclockwise) [start, end] = [end, start]
 
@@ -32,19 +53,16 @@ function arc(cx, cy, r, start, end, counterclockwise = false) {
     }
 }
 
-function polygon(cx, cy, r, sides, rotation = 0) {
+function polygon(cx: number, cy: number, r: number, sides: number, rotation = 0) {
     let step = (Math.PI * 2) / sides
     ctx.beginPath()
     for (let i = 0; i < sides; i++) {
-        ctx.lineTo(
-            cx + Math.cos(i * step + rotation) * r,
-            cy + Math.sin(i * step + rotation) * r
-        )
+        ctx.lineTo(cx + Math.cos(i * step + rotation) * r, cy + Math.sin(i * step + rotation) * r)
     }
     ctx.closePath()
 }
 
-function ellipse(cx, cy, rx, ry) {
+function ellipse(cx: number, cy: number, rx: number, ry: number) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
     ctx.beginPath()
 
@@ -55,37 +73,47 @@ function ellipse(cx, cy, rx, ry) {
 }
 
 ctx.strokeStyle = '#fff'
+ctx.fillStyle = '#fff'
 ctx.translate(width / 2, height / 2)
-arc(-300, -300, 50, 0, 4)
+arc(-300, -300, 50, 0, Math.PI * 1.5)
 ctx.stroke()
+ctx.fillText('arc', -330, -360)
+
 segment(-150, -300, 50, -1, 2)
 ctx.stroke()
+ctx.fillText('segment', -170, -350)
+
 sector(0, -300, 50, 3, 5)
 ctx.stroke()
+ctx.fillText('sector', -20, -360)
 
-polygon(-250, -150, 80, 5)
+ctx.fillText('polygons', -300, -190)
+
+polygon(-250, -120, 80, 5)
 ctx.stroke()
 
-polygon(-70, -150, 80, 6)
+polygon(-70, -120, 80, 6)
 ctx.stroke()
 
-polygon(140, -150, 80, 7, 1)
+ctx.fillText('polygon with rotation', 100, -210)
+polygon(140, -120, 80, 7, 1)
 ctx.stroke()
 
-polygon(-250, 0, 50, 5)
+polygon(-250, 30, 50, 5)
 ctx.stroke()
 
-polygon(-150, 0, 50, 5, 0.1)
+polygon(-150, 30, 50, 5, 0.1)
 ctx.stroke()
 
-polygon(-50, 0, 50, 5, 0.2)
+polygon(-50, 30, 50, 5, 0.2)
 ctx.stroke()
 
-polygon(50, 0, 50, 5, 0.3)
+polygon(50, 30, 50, 5, 0.3)
 ctx.stroke()
 
-ellipse(-250, 150, 50, 80)
+ctx.fillText('ellipses', -310, 120)
+ellipse(-250, 200, 50, 80)
 ctx.stroke()
 
-ellipse(-250, 150, 80, 50)
+ellipse(-250, 200, 80, 50)
 ctx.stroke()

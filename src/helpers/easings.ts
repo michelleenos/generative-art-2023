@@ -28,6 +28,7 @@ const easings = {
             : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2,
     outSquareRoot: (x: number) => Math.sqrt(x),
     inSquareRoot: (x: number) => 1 - Math.sqrt(1 - x),
+    linear: (x: number) => x,
 }
 
 export type Easing = keyof typeof easings

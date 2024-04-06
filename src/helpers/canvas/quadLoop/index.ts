@@ -1,4 +1,7 @@
-export default function quadLoop(ctx, points) {
+export default function quadLoop(
+    ctx: CanvasRenderingContext2D,
+    points: { x: number; y: number }[]
+) {
     ctx.beginPath()
     let midX0 = (points[0].x + points[1].x) / 2
     let midY0 = (points[0].y + points[1].y) / 2

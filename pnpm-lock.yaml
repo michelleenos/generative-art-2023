@@ -29,6 +29,9 @@ dependencies:
   simplex-noise:
     specifier: ^4.0.1
     version: 4.0.1
+  stats.js:
+    specifier: ^0.17.0
+    version: 0.17.0
   tone:
     specifier: ^14.7.77
     version: 14.7.77
@@ -46,6 +49,9 @@ devDependencies:
   '@tweakpane/core':
     specifier: ^1.1.6
     version: 1.1.6
+  '@types/stats.js':
+    specifier: ^0.17.3
+    version: 0.17.3
   typescript:
     specifier: ^4.9.5
     version: 4.9.5
@@ -306,6 +312,10 @@ packages:
   /@types/p5@1.7.6:
     resolution: {integrity: sha512-6pLTOo0V3N5jZb5nTwjiv3lPHLK3Z/TjbhQUj8CTWXocUk1Z/f6OHTp3Pcwi1BhWnf5gqKUcyEb1gP0KIJuQgw==}
     dev: false
+
+  /@types/stats.js@0.17.3:
+    resolution: {integrity: sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==}
+    dev: true
 
   /automation-events@6.0.10:
     resolution: {integrity: sha512-nP2k70tZ4+GrDUeW+77c/ZOJD3KMXZlW5A07YHNw6+RcggdHwXPIdhYT3Nhzufbfon4UHY8CvYuQllD3Em2rtQ==}
@@ -758,6 +768,10 @@ packages:
       '@babel/runtime': 7.23.2
       automation-events: 6.0.10
       tslib: 2.6.2
+    dev: false
+
+  /stats.js@0.17.0:
+    resolution: {integrity: sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==}
     dev: false
 
   /string_decoder@1.1.1:
