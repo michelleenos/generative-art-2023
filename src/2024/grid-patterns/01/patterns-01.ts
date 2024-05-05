@@ -5,8 +5,9 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import loop from '~/helpers/loop'
 import { random } from '~/helpers/utils'
-import { type PatternCell } from '../pattern-cell'
-import { Pattern } from '../pattern-grid'
+import { type PatternCell } from '../cells/pattern-cell'
+import { AnimatedPattern } from '../pattern-grid-animated'
+import { GUI } from 'lil-gui'
 
 const stats = new Stats()
 document.body.appendChild(stats.dom)
@@ -32,8 +33,7 @@ class Sizes {
 }
 
 const sizes = new Sizes(window.innerWidth, window.innerHeight)
-const { ctx, canvas, resizeCanvas } = createCanvas(sizes.width, sizes.height)
-let looping: ReturnType<typeof loop>
+const { ctx, resizeCanvas } = createCanvas(sizes.width, sizes.height)
 
 let palettes = [
     // https://coolors.co/dc5132-a46589-7a82b8-8ad0a6-c4f0a8-a0bb07-ffcf33-ec9f05
@@ -46,32 +46,27 @@ let palettes = [
     ['#87425d', '#3c2e6b', '#0081af', '#a7d6c3', '#285943', '#8a8fbd', '#9a79b8', '#fcee49'],
 ]
 
-const setPane = (pane: Pane, pattern: Pattern) => {
-    let f = pane.addFolder({ title: 'pattern' })
-    f.expanded = false
-    f.addInput(pattern, 'addPerSecond', { min: 1, max: 20, step: 1 })
-    f.addInput(pattern, 'cellDuration', { min: 100, max: 2000, step: 100 })
-    f.addInput(pattern, 'cellEase', {
-        options: Object.keys(easings).reduce((opts, cur) => {
-            return {
-                ...opts,
-                [cur]: cur,
-            }
-        }, {}),
-    })
-    f.addButton({ title: 'new palette' }).on('click', () => {
-        pattern.setColors(random(palettes))
-    })
-    f.addButton({ title: 'new pattern' }).on('click', () => {
-        pattern.setColors(random(palettes))
-        pattern.reset()
-        pattern.create()
-        pattern.shuffle()
-    })
+const setGui = (gui: GUI, pattern: AnimatedPattern) => {
+    let easeOpts = Object.keys(easings)
+    gui.close()
+    gui.add(pattern, 'addPerSecond', 1, 20, 1)
+    gui.add(pattern, 'cellDuration', 100, 2000, 100)
+    gui.add(pattern, 'cellEase', easeOpts)
+    gui.add(pattern, 'addEase', easeOpts)
 
-    f.addButton({ title: 'restart' }).on('click', () => {
-        pattern.reset()
-    })
+    const btns = {
+        newPalette: () => {
+            pattern.setColors(random(palettes))
+        },
+        newPattern: () => {
+            pattern.setColors(random(palettes))
+            pattern.reset()
+            pattern.create()
+        },
+        restart: () => {
+            pattern.reset()
+        },
+    }
 
     let squareOpts: Partial<Record<PatternCell['style'], number>> = {
         triangle: 2,
@@ -85,19 +80,19 @@ const setPane = (pane: Pane, pattern: Pattern) => {
         quarterCircle: 1,
     }
 
-    let likely = pane.addFolder({ title: 'shape likelihood' })
-    likely.expanded = false
-    likely.addInput(pattern, 'rectChance', { min: 0, max: 1, step: 0.1 })
-    let likelySq = likely.addFolder({ title: 'square' })
+    let likely = gui.addFolder('shape likelihood')
+    likely.close()
+    likely.add(pattern, 'rectChance', 0, 1, 0.1)
+    let likelySq = likely.addFolder('square')
     for (let key in squareOpts) {
-        likelySq.addInput(squareOpts, key as keyof typeof squareOpts, { min: 0, max: 5, step: 1 })
+        likelySq.add(squareOpts, key as keyof typeof squareOpts, 0, 5, 1)
     }
-    let likelyRect = likely.addFolder({ title: 'rectangle' })
+    let likelyRect = likely.addFolder('rectangle')
     for (let key in rectOpts) {
-        likelyRect.addInput(rectOpts, key as keyof typeof rectOpts, { min: 0, max: 5, step: 1 })
+        likelyRect.add(rectOpts, key as keyof typeof rectOpts, 0, 5, 1)
     }
 
-    likely.on('change', () => {
+    likely.onChange(() => {
         pattern.squareOptions = []
         let entries = Object.entries(squareOpts)
         entries.forEach(([key, value]) => {
@@ -112,23 +107,30 @@ const setPane = (pane: Pane, pattern: Pattern) => {
             }
         })
     })
+
+    gui.add(btns, 'newPalette')
+    gui.add(btns, 'newPattern')
+    gui.add(btns, 'restart')
 }
 
-let pattern = new Pattern({
+let pattern = new AnimatedPattern({
     size: sizes.grid,
     palette: random(palettes),
-    rectOptions: ['halfCircle', 'quarterCircle'],
-    squareOptions: ['triangle', 'triangle', 'lines', 'quarterCircle', 'circle', 'leaf'],
-    addPerSecond: 50,
-    cellDuration: 1000,
-    sides: 10,
+    rectOptions: ['halfCircle'],
+    squareOptions: ['leaf', 'quarterCircle'],
+    addPerSecond: 10,
+    cellDuration: 500,
+    sides: 8,
+    rectChance: 0.5,
+    cornerPattern: 'circle',
+    inOutWait: 500,
+    animation: 'loop',
 })
 
 pattern.create()
-pattern.shuffle()
 
-const pane = new Pane()
-setPane(pane, pattern)
+const gui = new GUI({ title: 'pattern controls' })
+setGui(gui, pattern)
 
 window.addEventListener('resize', () => {
     sizes.setSizes(window.innerWidth, window.innerHeight)
@@ -136,12 +138,16 @@ window.addEventListener('resize', () => {
     pattern.size = sizes.grid
 })
 
+let looping: ReturnType<typeof loop>
+let lastTime = 0
 const draw = (t: number) => {
     stats.begin()
+
     ctx.save()
     ctx.translate(sizes.tx, sizes.ty)
-    let done = pattern.draw(ctx, t)
-    // testDraw(ctx, width, height, t)
+    let delta = t - lastTime
+    lastTime = t
+    pattern.draw(ctx, delta)
 
     ctx.restore()
 

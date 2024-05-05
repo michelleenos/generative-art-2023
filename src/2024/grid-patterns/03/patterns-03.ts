@@ -4,10 +4,10 @@ import { GUI } from 'lil-gui'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import loop from '~/helpers/loop'
-import { AnimatedPattern } from '../pattern-grid-animated'
-import makeImages from '~/helpers/canvas-images'
+import { AnimatedPattern, AnimatedPatternRandom } from '../pattern-grid-animated'
 import { random } from '~/helpers/utils'
-import { PatternDataView } from '../pattern-grid-animated-data'
+import { DataView } from '~/helpers/debug/data-view'
+import { createElement } from '~/helpers/dom'
 
 const stats = new Stats()
 let looper: ReturnType<typeof loop>
@@ -49,9 +49,9 @@ let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
 const sizes = new Sizes(size, size, 1)
 const { ctx, canvas, resizeCanvas } = createCanvas(sizes.width, sizes.height, true, false)
 document.getElementById('sketch')?.appendChild(canvas)
-const { getImage, downloadZip } = makeImages(canvas)
+// const { getImage, downloadZip } = makeImages(canvas)
 
-const setGui = (gui: GUI, pattern: AnimatedPattern) => {
+const setGui = (gui: GUI, pattern: AnimatedPatternRandom | AnimatedPattern) => {
     let easingOpts = Object.keys(easings).reduce((opts, cur) => {
         return {
             ...opts,
@@ -60,54 +60,86 @@ const setGui = (gui: GUI, pattern: AnimatedPattern) => {
     }, {})
     let f = gui.addFolder('pattern')
     f.close()
-    f.add(pattern, 'addPerSecond', 1, 100, 1)
+    // f.add(pattern, 'addPerSecond', 1, 100, 1)
     f.add(pattern, 'cellDuration', 100, 4000, 10)
-    f.add(pattern, 'rectChance', 0, 1, 0.01)
     f.add(pattern, 'cellDurationLines', 100, 4000, 10)
     f.add(pattern, 'cellEase', { options: easingOpts })
     f.add(pattern, 'addEase', { options: easingOpts })
     f.add(pattern, 'sides', 3, 30, 1)
-    f.add(pattern, 'inOutWait', 0, 5000, 10)
-    f.add(pattern, 'cornerPattern', ['wave', 'circle', false])
+    // f.add(pattern, 'switchInterval', 20, 1000, 1)
+    // f.add(pattern, 'inOutWait', 0, 5000, 10)
+    f.add(pattern, 'cornerPattern', { wave: 'wave', circle: 'circle', none: false })
     f.add(pattern, 'order', ['circle', 'random', 'linear-x', 'linear-y', 'diag-tl', 'diag-tr'])
+    f.add(pattern, 'debug')
 
     const btnsObj = {
         newPattern: () => {
             pattern.reset()
             pattern.create()
         },
-        makeImages: () => {
-            if (looper.isLooping()) looper.stop()
-            pattern.reset()
-            startImagesLoop()
-        },
     }
     f.add(btnsObj, 'newPattern')
-    f.add(btnsObj, 'makeImages')
 }
 
 let pattern = new AnimatedPattern({
     size: sizes.grid,
-    sides: 8,
-    rectOptions: ['quarterCircleLines', 'quarterCircleFill'],
-    squareOptions: ['quarterCircleFill', 'triangle', 'triangle'],
-    cellDuration: 500,
-    cellEase: 'inOutQuad',
-    addEase: 'outSine',
-    addPerSecond: 24,
-    inOutWait: 50,
+    sides: 40,
+    rectOptions: ['halfCircle'],
+    squareOptions: [
+        // 'quarterCircleFill',
+        // 'quarterCircleLines',
+        'leaf',
+        // 'lines',
+        'triangle',
+        'circle',
+    ],
+    cellDuration: 300,
+    cellEase: 'outQuint',
+    addEase: 'inSine',
+    addPerSecond: 500,
+    inOutWait: 500,
     rectChance: 0,
-    cornerPattern: 'wave',
     animation: 'loop',
-    order: 'circle',
+    order: 'linear-y',
+    noisePattern: true,
     palette: random(palettes),
 })
+
+let dataView = new DataView()
+let s1 = dataView.createSection()
+s1.add(pattern, 'count')
+pattern.styleOpts = {
+    quarterCircleFill: { innerRatio: 0, outerRatio: 1 },
+    quarterCircleLines: { innerRatio: 0, outerRatio: 1, lineWidth: 0.1 },
+    lines: { lineWidth: 0.05, each: 100, diagSteps: 8, steps: 5, dirOptions: ['d1', 'd2'] },
+}
+
+pattern.debug = false
 pattern.create()
+
+let mapCells: HTMLElement[] = []
+for (let i = 0; i < pattern.map.length; i++) {
+    let el = createElement('div', { class: 'dataview__map-cell' })
+    mapCells.push(el as HTMLElement)
+}
+let mapEl = createElement('div', { class: 'dataview__map' }, mapCells) as HTMLElement
+mapEl.style.setProperty('--sides', pattern.sides.toString())
+
+const onUpdateMap = () => {
+    let map = pattern.map
+    for (let i = 0; i < map.length; i++) {
+        let cell = map[i]
+        let el = mapCells[i]
+        el.innerHTML = `${cell}`
+    }
+}
+
+// let dataCustom = dataView.createCustomSection(mapEl as HTMLElement, onUpdateMap, 'map')
 
 const gui = new GUI()
 setGui(gui, pattern)
 
-const dataView = new PatternDataView(pattern)
+// const dataView = new PatternDataView(pattern)
 
 window.addEventListener('resize', () => {
     let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
@@ -133,36 +165,4 @@ const draw = (t: number) => {
     stats.end()
 }
 
-// ffmpeg -f image2 -r 60 -i image-%d.png -filter_complex "fps=60,scale=320:-1:flags=lanczos,"
-
-const startImagesLoop = () => {
-    pattern.reset()
-    let t = 0
-
-    const step = (t: number) => {
-        ctx.save()
-        ctx.clearRect(0, 0, sizes.width, sizes.height)
-        ctx.translate(sizes.tx, sizes.ty)
-
-        pattern.draw(ctx, t)
-        dataView.update()
-        ctx.restore()
-
-        getImage().then(() => {
-            t += 1000 / 60
-            console.log(t)
-            if (t >= pattern.addDuration * 2 + pattern.inOutWait * 2 + 500) {
-                downloadZip()
-            } else {
-                step(t)
-            }
-        })
-    }
-
-    step(t)
-}
-
 looper = loop(draw)
-
-// @ts-ignore
-window.pattern = pattern

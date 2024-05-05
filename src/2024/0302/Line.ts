@@ -1,5 +1,4 @@
 import { Grid, type Cell } from './Grid'
-import { createNanoEvents, Emitter } from 'nanoevents'
 import p5 from 'p5'
 import { random } from '~/helpers/utils'
 
@@ -10,10 +9,6 @@ type LineProps = {
     symmetry?: 'rotate' | 'reflect' | 'none'
     color: string
     useWeights?: boolean
-}
-
-interface LineEvents {
-    restart: (line: Line) => void
 }
 
 export class Line {
@@ -30,7 +25,6 @@ export class Line {
     shrinking: boolean = false
     symmetry: 'rotate' | 'reflect' | 'none'
     alphaLen: number = 3
-    emitter: Emitter<LineEvents>
 
     constructor(
         grid: Grid,
@@ -54,8 +48,6 @@ export class Line {
         for (let i = 0; i < random(2, this.maxPoints); i++) {
             this.addPoint()
         }
-
-        this.emitter = createNanoEvents<LineEvents>()
     }
 
     addPoint = () => {
@@ -159,7 +151,6 @@ export class Line {
                         let removed = this.points.pop()
                         if (this.useWeights) this.grid.weighMore(removed!)
                     }
-                    this.emitter.emit('restart', this)
                     this.addPoint()
                 }
             } else {

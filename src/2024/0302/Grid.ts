@@ -66,7 +66,6 @@ export class Grid {
             row.forEach((cell) => {
                 p.push()
                 p.translate(cell.posx, cell.posy)
-                // let alpha = p.map(cell.gravity, 1, 9, 0, 150)
                 p.fill(255, 20)
                 p.rect(0, 0, p.min(this._divSize, this._divSize) * 0.8)
 

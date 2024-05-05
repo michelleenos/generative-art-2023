@@ -16,14 +16,18 @@ import JSZip from 'jszip'
 // -pix_fmt --> pixel format (needed for quicktime etc to work)
 // -vf or -filter:v --> video filter (optional)
 
-function makeImages(canvas) {
+function makeImages(canvas: HTMLCanvasElement) {
     let zip = new JSZip()
     let count = 0
 
     const getImage = () => {
         count++
-        return new Promise((resolve, _reject) => {
+        return new Promise((resolve, reject) => {
             canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject('no blob')
+                    return
+                }
                 zip.file(`image-${count}.png`, blob)
                 resolve(blob)
             })

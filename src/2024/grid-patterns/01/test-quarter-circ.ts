@@ -1,4 +1,4 @@
-import { PatternCellQuarterCircle } from '../pattern-cell'
+import { PatternCellQuarterCircle } from '../cells/pattern-cell'
 
 let palettes = [
     // https://coolors.co/dc5132-a46589-7a82b8-8ad0a6-c4f0a8-a0bb07-ffcf33-ec9f05

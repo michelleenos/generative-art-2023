@@ -5,7 +5,7 @@ import { map, lerp, random } from '~/helpers/utils'
 import loop from '~/helpers/loop'
 
 const PARAMS = {
-    scale: 20,
+    scale: 10,
 }
 
 let red = '#f24333' // 4
@@ -35,7 +35,7 @@ class FlowField {
         this.cols = cols
         this.rows = rows
         // this.a = random(1.5, 10)
-        this.a = 12
+        this.a = 10
         // this.b = random(1.5, 10)
         this.b = 6.5
     }
@@ -110,10 +110,8 @@ function setup() {
 }
 
 function draw(t: number) {
-    // ctx.clearRect(0, 0, width, height)
-    // flowField.clear()
-    // flowField.update(t * 0.1, drawfield)
-    // drawfield = false
+    ctx.clearRect(0, 0, width, height)
+    flowField.drawField()
 
     for (let i = 0; i < particles.length; i++) {
         let particle = particles[i]
@@ -121,7 +119,7 @@ function draw(t: number) {
         let y = Math.floor(particle.y / PARAMS.scale)
 
         let vel = flowField.field[x + y * flowField.cols]
-        particle.vel = lerp(particle.vel, vel, 0.5)
+        particle.vel = lerp(particle.vel, vel, 0.1)
 
         particle.x += Math.cos(particle.vel) * 4
         particle.y += Math.sin(particle.vel) * 4

@@ -22,12 +22,13 @@ let palettes = [
 
 let size = Math.min(width, height) * 0.9
 let grid = new TilesEven({
-    iterations: 3,
+    iterations: 4,
+    speedAdd: 20,
     minSize: 5,
     size,
+    method: 'stack',
     palette: shuffle(random(palettes)),
 })
-grid.method = 'queue'
 
 ctx.translate((width - size) / 2, (height - size) / 2)
 const draw = (t: number) => {

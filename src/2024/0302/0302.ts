@@ -119,12 +119,6 @@ class Drawing {
                         symmetry: this._symmetry,
                     })
                     lines.push(line)
-
-                    // line.emitter.on('restart', (line) => {
-                    //     let savedLine = line
-                    //     lines.splice(lines.indexOf(line), 1)
-                    //     lines.push(savedLine)
-                    // })
                 }
                 this.items.push({
                     grid,

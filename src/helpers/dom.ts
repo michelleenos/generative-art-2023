@@ -56,8 +56,6 @@ export function createElement(
         atts(el, attributes)
     }
 
-    console.log({ attributes, content })
-
     if (content) {
         if (Array.isArray(content)) {
             content.forEach((c) => append(el, c))

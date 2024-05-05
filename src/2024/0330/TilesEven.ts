@@ -1,3 +1,5 @@
+import { random } from '~/helpers/utils'
+
 export type Tile = {
     x: number
     y: number
@@ -10,7 +12,14 @@ export type Tile = {
     parent: Tile | null
 }
 
-type TileProps = { iterations: number; minSize: number; size: number; palette: string[] }
+type TileProps = {
+    iterations: number
+    minSize: number
+    size: number
+    speedAdd?: number
+    palette: string[]
+    method?: 'stack' | 'queue' | 'stack-rev' | 'queue-rev'
+}
 export class TilesEven {
     iterations: number
     minSize: number
@@ -23,16 +32,19 @@ export class TilesEven {
     lastAdd: number | null = null
     currentLevel = 1
     speedAdd = 10
-    speedBase = 1.5
     animating: Tile[] = []
     stackQueue: Tile[] = []
     method: 'stack' | 'queue' | 'stack-rev' | 'queue-rev' = 'stack'
+    tileDuration: number
 
-    constructor({ iterations = 3, minSize = 20, size, palette }: TileProps) {
+    constructor({ iterations = 3, minSize = 20, size, palette, speedAdd, method }: TileProps) {
         this.iterations = iterations
         this.minSize = minSize
         this.size = size
         this.palette = palette
+        this.speedAdd = speedAdd || this.speedAdd
+        this.tileDuration = 500
+        this.method = method || this.method
 
         this.root = {
             x: 0,
@@ -140,8 +152,10 @@ export class TilesEven {
             }
         }
 
-        this.animating = this.animating.filter((tile) => {
-            tile.progress += delta / (1000 / (this.speedBase + tile.level - 1))
+        let animating: Tile[] = []
+        this.animating.forEach((tile) => {
+            // tile.progress += delta / (1000 / (this.speedBase + tile.level))
+            tile.progress += delta / this.tileDuration
             this.drawTile(ctx, tile)
             if (tile.progress >= 1) {
                 tile.progress = 0
@@ -150,11 +164,11 @@ export class TilesEven {
                 } else {
                     this.stackQueue.push(...tile.inner)
                 }
-                return false
             } else {
-                return true
+                animating.push(tile)
             }
         })
+        this.animating = animating
 
         if (!this.stackQueue.length && !this.animating.length) {
             this.resetAnimation()

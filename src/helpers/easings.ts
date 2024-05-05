@@ -2,7 +2,7 @@
 // https://github.com/Michaelangel007/easing#tldr-shut-up-and-show-me-the-code
 // easings.net
 
-const easings = {
+export const easing = {
     inSine: (x: number) => 1 - Math.cos((x * Math.PI) / 2),
     outSine: (x: number) => Math.sin((x * Math.PI) / 2),
     inOutSine: (x: number) => -0.5 * (Math.cos(Math.PI * x) - 1),
@@ -31,6 +31,6 @@ const easings = {
     linear: (x: number) => x,
 }
 
-export type Easing = keyof typeof easings
+export type Easing = keyof typeof easing
 
-export default easings
+export default easing
