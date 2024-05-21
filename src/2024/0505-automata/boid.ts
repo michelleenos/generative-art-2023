@@ -1,137 +1,59 @@
 import p5 from 'p5'
-import { QuadTree } from './quadtree'
-import { Circle, Vec2, Rectangle } from './shapes'
+import { Flock } from './flock'
+import { Circle, Rectangle, Vec2 } from './shapes'
+import { map } from '~/helpers/utils'
 
-export class Flock {
-    boids: Boid[] = []
-    defaultPerception?: number
-    quadTree: QuadTree
-    boidsMaxSpeed = 3
-    boidsMaxForce = 0.15
-    boidsMass = 1
-    mults: {
-        separate: number
-        cohere: number
-        align: number
-        bounds: number
-    } = {
-        separate: 1,
-        cohere: 1,
-        align: 1,
-        bounds: 1,
-    }
-
-    constructor(bounds: Rectangle, qtreeCapacity: number, perception?: number) {
-        this.defaultPerception = perception
-        this.quadTree = new QuadTree(bounds, qtreeCapacity)
-    }
-
-    setBoidsPerception(perception: number) {
-        this.defaultPerception = perception
-        this.boids.forEach((boid) => (boid.perception = perception))
-    }
-
-    add(boid?: Boid) {
-        if (boid) {
-            boid.flock = this
-            this.boids.push(boid)
-        } else {
-            this.boids.push(
-                new Boid(
-                    Math.random() * this.quadTree.bounds.width,
-                    Math.random() * this.quadTree.bounds.height,
-                    this,
-                    {
-                        perception: this.defaultPerception,
-                    }
-                )
-            )
-        }
-    }
-
-    update() {
-        this.quadTree.clear()
-        this.boids.forEach((boid) => {
-            this.quadTree.insert(boid)
-        })
-    }
-
-    flock(p: p5) {
-        this.boids.forEach((boid) => {
-            let neighbors = this.quadTree.query(new Circle(boid.x, boid.y, boid.perception))
-
-            boid.flockWith(neighbors, this.quadTree.bounds, this.mults)
-
-            boid.update()
-            boid.draw(p, true)
-        })
-    }
-}
-
-export class Boid extends Vec2 {
-    velocity: p5.Vector
+export class Boid extends Circle {
+    velocity: Vec2
     acceleration: Vec2
-    // maxSpeed = 3
-    // maxForce = 0.15
-    // mass = 1
-    highlighted = false
-    highlightedNeighbor = false
-    circle: Circle
     flock: Flock
-    _perception = 25
 
-    constructor(x: number, y: number, flock: Flock, opts?: { perception?: number }) {
-        super(x, y)
+    constructor(x: number, y: number, flock: Flock, opts: { perception?: number } = {}) {
+        super(x, y, opts.perception ?? 25)
+        this.x = x
+        this.y = y
         this.flock = flock
-        this.velocity = new p5.Vector()
+        this.velocity = new Vec2()
         this.acceleration = new Vec2()
-
-        if (opts?.perception) this._perception = opts.perception
-
-        this.circle = new Circle(x, y, this._perception)
     }
 
     get perception() {
-        return this.circle.radius
+        return this._r
     }
 
     set perception(value: number) {
-        this.circle.radius = value
-    }
-
-    setHighlight(value: boolean) {
-        this.highlighted = value
+        this.radius = value
     }
 
     update() {
-        this.velocity.add(new p5.Vector(this.acceleration.x, this.acceleration.y))
-        this.velocity.limit(this.flock.boidsMaxSpeed)
-        this.x += this.velocity.x
-        this.y += this.velocity.y
+        let newVel = this.velocity.copy().add(this.acceleration)
+        // this.velocity.add(this.acceleration)
+        this.velocity.lerp(newVel, 0.5).limit(this.flock.boidsMaxSpeed)
+        this.add(this.velocity)
         this.acceleration.mult(0)
     }
 
-    applyForce(force: p5.Vector) {
+    applyForce(force: Vec2) {
         let f = force.copy().div(this.flock.boidsMass)
         this.acceleration.add(f)
     }
 
-    draw(p: p5, perception = false) {
-        let angle = this.velocity.heading()
+    draw(p: p5, drawPerception = false, color: [number, number, number] = [0, 0, 0]) {
+        // if (!color) {
+        //     color = [
+        //         this.velocity.x * 255,
+        //         (1 - this.velocity.y) * 100 + 100,
+        //         this.velocity.y * 250,
+        //     ]
+        // }
+        // let angle = this.velocity.heading()
+        let angle = Math.atan2(this.velocity.y, this.velocity.x)
         p.push()
         p.translate(this.x, this.y)
         p.rotate(angle)
         p.strokeWeight(2)
-        if (this.highlighted) {
-            p.fill(255, 0, 0, 100)
-            p.stroke(255, 0, 10)
-        } else if (this.highlightedNeighbor) {
-            p.fill(255, 255, 0, 50)
-            p.stroke(255, 255, 0)
-        } else {
-            p.stroke(0)
-            p.fill(50, 100)
-        }
+        p.fill(...color, 100)
+        p.stroke(...color)
 
         p.beginShape()
         p.vertex(10, 0)
@@ -139,121 +61,114 @@ export class Boid extends Vec2 {
         p.vertex(-10, 5)
         p.endShape(p.CLOSE)
 
-        if (perception) {
+        if (drawPerception) {
             p.noFill()
-            if (this.highlighted) {
-                p.stroke(255, 0, 10, 100)
-            } else {
-                p.stroke(0, 50)
-            }
+            p.stroke(...color, 50)
             p.circle(0, 0, this.perception * 2)
         }
 
-        this.highlightedNeighbor = false
         p.pop()
     }
 
-    checkEdges(width: number, height: number, offset = 5) {
-        if (this.x > width - offset) {
-            if (this.velocity.x > 0) this.velocity.mult(-1)
-        } else if (this.x < offset) {
-            if (this.velocity.x < 0) this.velocity.mult(-1)
-        }
-        if (this.y > height - offset) {
-            if (this.velocity.y > 0) this.velocity.mult(-1)
-        } else if (this.y < offset) {
-            if (this.velocity.y < 0) this.velocity.mult(-1)
-        }
-    }
-
-    checkBounds(bounds: Rectangle, offset = this.perception / 2) {
-        let desiredVel: null | p5.Vector = null
+    edgesBounce(bounds: Rectangle, offset = this.perception / 2) {
+        let desiredVel: null | Vec2 = null
 
         if (this.x < offset) {
-            desiredVel = new p5.Vector(this.flock.boidsMaxSpeed, this.velocity.y)
+            desiredVel = new Vec2(this.flock.boidsMaxSpeed, this.velocity.y)
         } else if (this.x > bounds.width - offset) {
-            desiredVel = new p5.Vector(-this.flock.boidsMaxSpeed, this.velocity.y)
+            desiredVel = new Vec2(-this.flock.boidsMaxSpeed, this.velocity.y)
         }
 
         if (this.y < offset) {
-            desiredVel = new p5.Vector(this.velocity.x, this.flock.boidsMaxSpeed)
+            desiredVel = new Vec2(this.velocity.x, this.flock.boidsMaxSpeed)
         } else if (this.y > bounds.height - offset) {
-            desiredVel = new p5.Vector(this.velocity.x, -this.flock.boidsMaxSpeed)
+            desiredVel = new Vec2(this.velocity.x, -this.flock.boidsMaxSpeed)
         }
 
         if (desiredVel) {
             desiredVel.setMag(this.flock.boidsMaxSpeed)
-            let steer = p5.Vector.sub(desiredVel, this.velocity)
+            let steer = desiredVel.sub(this.velocity)
             steer.limit(this.flock.boidsMaxForce)
             return steer
         } else {
-            return new p5.Vector()
+            return new Vec2()
+        }
+    }
+
+    edgesTeleport(bounds: Rectangle, offset = this.perception) {
+        if (this.x < -offset) {
+            this.x = bounds.width + offset
+        } else if (this.x > bounds.width + offset) {
+            this.x = -offset
+        }
+
+        if (this.y < -offset) {
+            this.y = bounds.height + offset
+        } else if (this.y > bounds.height + offset) {
+            this.y = -offset
         }
     }
 
     separation(boids: Boid[]) {
-        let sum = new p5.Vector(0)
+        let steer = new Vec2(0)
         let count = 0
 
         for (let boid of boids) {
             if (boid === this) continue
-            // let d = p5.Vector.dist(new p5.Vector(this.x, this.y), new p5.Vector(boid.x, boid.y))
+            let diff = new Vec2(this.x - boid.x, this.y - boid.y)
+            let dSq = diff.copy().magSq()
+            if (dSq > this.rSquared) continue
 
-            if (d > this.perception) continue
+            diff.normalize().div(Math.sqrt(dSq))
 
-            // let diff = new p5.Vector(this.x, this.y).sub(new p5.Vector(boid.x, boid.y))
-            let diff = new p5.Vector(this.x - boid.x, this.y - boid.y)
-            diff.setMag(1 / d)
-            sum.add(diff)
+            // let d = Math.sqrt(dSq)
+            // diff.setMag(1 / d)
+            steer.add(diff)
             count++
         }
 
-        if (count === 0) return sum
+        if (count === 0) return steer
 
         // reynold's steering formula: steering force = desired velocity - current velocity
         // vehicle desires to move towards the direction at maximum possible speed
         // https://natureofcode.com/autonomous-agents/#vehicles-and-steering
-        sum.setMag(this.flock.boidsMaxSpeed)
-        let steer = p5.Vector.sub(sum, this.velocity)
+        steer.div(count)
+        steer.setMag(this.flock.boidsMaxSpeed)
+        steer.sub(this.velocity)
         steer.limit(this.flock.boidsMaxForce)
         return steer
     }
 
     alignment(boids: Boid[]) {
-        let otherVels = new p5.Vector()
+        let otherVels = new Vec2()
         let count = 0
 
         for (let boid of boids) {
             if (boid === this) continue
-            let d = p5.Vector.dist(new p5.Vector(this.x, this.y), new p5.Vector(boid.x, boid.y))
-            if (d > this.perception) continue
+            let dSq = this.copy().sub(boid).magSq() // magSq == distance squared. use against rSq for performance (avoids square root)
+            if (dSq > this.rSquared) continue
 
-            let boidVel = boid.velocity.copy()
-            boidVel.setMag(1 / d)
-            otherVels.add(boidVel)
+            otherVels.add(boid.velocity)
             count++
         }
 
         if (count === 0) return otherVels
-        // otherVels.div(count)
+        otherVels.div(count)
         otherVels.setMag(this.flock.boidsMaxSpeed)
-        let steer = p5.Vector.sub(otherVels, this.velocity)
+        let steer = otherVels.copy().sub(this.velocity)
         steer.limit(this.flock.boidsMaxForce)
         return steer
     }
 
     cohesion(boids: Boid[]) {
-        let center = new p5.Vector()
+        let center = new Vec2()
         let count = 0
 
         for (let boid of boids) {
             if (boid === this) continue
-            // let d = this.position.dist(boid.position)
-            let d = p5.Vector.dist(new p5.Vector(this.x, this.y), new p5.Vector(boid.x, boid.y))
-            if (d > this.perception) continue
-
-            center.x += boid.x
-            center.y += boid.y
+            let dSq = this.copy().sub(boid).magSq()
+            if (dSq > this.rSquared) continue
+            center.add(boid)
             count++
         }
 
@@ -262,18 +177,28 @@ export class Boid extends Vec2 {
         return this.seek(center)
     }
 
-    seek(target: p5.Vector) {
-        // let desired = p5.Vector.sub(target, this.position)
-        let desired = p5.Vector.sub(target, new p5.Vector(this.x, this.y))
-        desired.setMag(this.flock.boidsMaxSpeed)
-        let steer = p5.Vector.sub(desired, this.velocity)
-        steer.limit(this.flock.boidsMaxForce)
+    seek(circle: Circle, strength?: number): Vec2
+    seek(target: Vec2, strength?: number): Vec2
+    seek(target: Vec2 | Circle, strength = 1) {
+        let desiredVel = target.copy().sub(this)
+        let dist = desiredVel.mag()
+        if (target instanceof Circle) {
+            dist -= target.radius
+        }
+        if (dist < 100) {
+            let m = map(dist, 0, 100, 0, this.flock.boidsMaxSpeed)
+            desiredVel.setMag(m)
+        } else {
+            desiredVel.setMag(this.flock.boidsMaxSpeed)
+        }
+        let steer = desiredVel.sub(this.velocity).mult(strength).limit(this.flock.boidsMaxForce)
         return steer
     }
 
     flockWith(
         boids: Boid[],
         bounds: Rectangle,
+        edgeMode: 'bounce' | 'teleport' = 'bounce',
         mults: { separate: number; cohere: number; align: number; bounds: number } = {
             separate: 1,
             cohere: 1,
@@ -284,12 +209,15 @@ export class Boid extends Vec2 {
         let separate = this.separation(boids).mult(mults.separate) // 1.4
         let cohere = this.cohesion(boids).mult(mults.cohere) // 0.8
         let align = this.alignment(boids).mult(mults.align)
-        let boundary = this.checkBounds(bounds).mult(mults.bounds) // 1.3
-        if (this.highlighted) boids.forEach((boid) => (boid.highlightedNeighbor = true))
 
         this.applyForce(separate)
         this.applyForce(cohere)
         this.applyForce(align)
-        this.applyForce(boundary)
+        if (edgeMode === 'bounce') {
+            let boundary = this.edgesBounce(bounds).mult(mults.bounds)
+            this.applyForce(boundary)
+        } else {
+            this.edgesTeleport(bounds)
+        }
     }
 }

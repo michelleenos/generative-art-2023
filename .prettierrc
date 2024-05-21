@@ -13,7 +13,7 @@
             }
         },
         {
-            "files": "1025.ts, 1122.ts",
+            "files": "1025.ts, 1122.ts, 05backgrounds.ts",
             "options": {
                 "printWidth": 120
             }

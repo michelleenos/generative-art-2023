@@ -153,6 +153,7 @@ function spiral() {
 
 function sunflower() {
     let count = PARAMS.sunflower.count
+
     for (let i = 0; i < count; i++) {
         let percent = i / count
         let size = PARAMS.sunflower.maxSize * percent

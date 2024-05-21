@@ -2,16 +2,6 @@ import p5 from 'p5'
 import { Boid } from './boid'
 import { Circle, Rectangle } from './shapes'
 
-export class Point {
-    x: number
-    y: number
-
-    constructor(x: number, y: number) {
-        this.x = x
-        this.y = y
-    }
-}
-
 export class QuadTree {
     bounds: Rectangle
     capacity: number
@@ -88,16 +78,11 @@ export class QuadTree {
         if (this.sw) this.sw.show(p)
     }
 
-    query(range: Rectangle | Circle, p?: p5) {
+    query(range: Rectangle | Circle) {
         if (!this.bounds.intersects(range)) {
             return []
         }
 
-        if (p) {
-            p.stroke(255, 255, 0)
-            p.strokeWeight(3)
-            p.rect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height)
-        }
         let found: Boid[] = []
         this.boids.forEach((boid) => {
             if (range.contains(boid.x, boid.y)) {
@@ -105,10 +90,26 @@ export class QuadTree {
             }
         })
 
-        if (this.ne) found = found.concat(this.ne.query(range, p))
-        if (this.nw) found = found.concat(this.nw.query(range, p))
-        if (this.se) found = found.concat(this.se.query(range, p))
-        if (this.sw) found = found.concat(this.sw.query(range, p))
+        if (this.ne) found = found.concat(this.ne.query(range))
+        if (this.nw) found = found.concat(this.nw.query(range))
+        if (this.se) found = found.concat(this.se.query(range))
+        if (this.sw) found = found.concat(this.sw.query(range))
+
+        return found
+    }
+
+    queryForSubdivisions(range: Rectangle | Circle) {
+        if (!this.bounds.intersects(range)) {
+            return []
+        }
+
+        let found: QuadTree[] = []
+        if (this.depth > 0) found.push(this)
+
+        if (this.ne) found = found.concat(this.ne.queryForSubdivisions(range))
+        if (this.nw) found = found.concat(this.nw.queryForSubdivisions(range))
+        if (this.se) found = found.concat(this.se.queryForSubdivisions(range))
+        if (this.sw) found = found.concat(this.sw.queryForSubdivisions(range))
 
         return found
     }

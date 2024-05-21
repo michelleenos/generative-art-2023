@@ -31,6 +31,7 @@ interface DataViewItem {
     object: { [key: string | number]: any }
     key: string | number
     decimals?: number
+    nested?: boolean
 }
 
 class DataViewSection {
@@ -50,6 +51,38 @@ class DataViewSection {
             this.el.appendChild(titleEl)
         }
         this.el.appendChild(this.dataEl)
+    }
+
+    addNested<O extends { [key: string]: any }>(
+        parentObj: O,
+        key: string,
+        name?: string,
+        decimals = 2
+    ) {
+        let keySep = key.split('.')
+        try {
+            let value = keySep.reduce((acc, k) => acc[k], parentObj)
+            // let value = parentObj[key]
+            if (!isDataViewValue(value)) {
+                console.error('invalid value', value)
+                return
+            }
+            let titleEl = createElement('div', { class: 'dataview__value-title' }, name ?? key)
+            let valueEl = createElement('div', { class: 'dataview__value' }) as HTMLElement
+            this.dataEl.append(titleEl, valueEl)
+            this.values.push({
+                el: valueEl,
+                titleEl,
+                object: parentObj,
+                key,
+                nested: true,
+                decimals,
+            })
+            let index = this.values.length - 1
+            return index
+        } catch (err) {
+            console.error('error adding nested', key, err)
+        }
     }
 
     add<O extends { [key: string]: any }, K extends keyof O & string>(
@@ -91,6 +124,12 @@ class DataViewSection {
 
     update = () => {
         this.values.forEach((v) => {
+            if (v.nested) {
+                let keySep = String(v.key).split('.')
+                let value = keySep.reduce((acc, k) => acc[k], v.object) as DataViewValue
+                v.el.innerHTML = writeValue(value, v.decimals)
+                return
+            }
             v.el.innerHTML = writeValue(v.object[v.key], v.decimals)
         })
     }

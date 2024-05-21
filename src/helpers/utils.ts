@@ -21,6 +21,15 @@ function random<T>(numOrArray?: number | T[], max?: number) {
     return Math.random() * (max - numOrArray) + numOrArray
 }
 
+function step(edge: number, value: number) {
+    return value < edge ? 0 : 1
+}
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+    const x = Math.max(0, Math.min(1, (value - edge0) / (edge1 - edge0)))
+    return x * x * (3 - 2 * x)
+}
+
 function weightedRandom<T>(array: T[], weights: number[]): T {
     const totalWeight = weights.reduce((acc, weight) => acc + weight, 0)
     const randomNum = Math.random() * totalWeight
@@ -78,4 +87,17 @@ const throttle = (fn: Function, wait: number = 300) => {
     }
 }
 
-export { lerp, map, random, weightedRandom, shuffle, constrain, clamp, mouseAngle, round, throttle }
+export {
+    lerp,
+    map,
+    random,
+    weightedRandom,
+    shuffle,
+    constrain,
+    clamp,
+    mouseAngle,
+    round,
+    throttle,
+    step,
+    smoothstep,
+}

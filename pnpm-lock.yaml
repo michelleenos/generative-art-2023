@@ -8,12 +8,18 @@ dependencies:
   '@rollup/plugin-inject':
     specifier: ^5.0.3
     version: 5.0.3
+  '@types/chroma-js':
+    specifier: ^2.4.4
+    version: 2.4.4
   '@types/node':
     specifier: ^18.15.11
     version: 18.15.11
   '@types/p5':
     specifier: ^1.7.6
     version: 1.7.6
+  chroma-js:
+    specifier: ^2.4.2
+    version: 2.4.2
   jszip:
     specifier: ^3.10.1
     version: 3.10.1
@@ -24,8 +30,8 @@ dependencies:
     specifier: ^9.0.0
     version: 9.0.0
   p5:
-    specifier: ^1.9.0
-    version: 1.9.0
+    specifier: ^1.9.3
+    version: 1.9.3
   pure-rand:
     specifier: ^6.0.4
     version: 6.0.4
@@ -305,6 +311,10 @@ packages:
     resolution: {integrity: sha512-/pDdbdXHI1xv2763K/45sVJ2IrwUDZ5rklbfgb70EZ4wjnAMrWNoYJ20Z3QDS6N13IEkde50FKokFre35rSW1Q==}
     dev: true
 
+  /@types/chroma-js@2.4.4:
+    resolution: {integrity: sha512-/DTccpHTaKomqussrn+ciEvfW4k6NAHzNzs/sts1TCqg333qNxOhy8TNIoQCmbGG3Tl8KdEhkGAssb1n3mTXiQ==}
+    dev: false
+
   /@types/estree@1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: false
@@ -349,6 +359,10 @@ packages:
 
   /chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
+    dev: false
+
+  /chroma-js@2.4.2:
+    resolution: {integrity: sha512-U9eDw6+wt7V8z5NncY2jJfZa+hUH8XEj8FQHgFJTrUFnJfXYf4Ml4adI2vXZOjqRDpFWtYVWypDfZwnJ+HIR4A==}
     dev: false
 
   /color-convert@2.0.1:
@@ -591,8 +605,8 @@ packages:
       wrappy: 1.0.2
     dev: false
 
-  /p5@1.9.0:
-    resolution: {integrity: sha512-+5/hz0ZokCDf7BMMAeemE7FIo7gFZK7ImL62acHLXZwerGjqj+171bnaAWj4aCFCx6fwysAr2U7/AKuPyPhehA==}
+  /p5@1.9.3:
+    resolution: {integrity: sha512-RnLMqejKJ9ZmBlUpCnVLYF1UnV/NnC13MfOSZdvJXTRH1eQkBQkUVCw5rkyRWE6chI4t5KvIJsZZnFzmGJEgag==}
     dev: false
 
   /pako@1.0.11:

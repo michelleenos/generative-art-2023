@@ -1,4 +1,4 @@
-function canvasToVideo(canvas) {
+function canvasToVideo(canvas: HTMLCanvasElement) {
     const chunks: Blob[] = []
     const stream = canvas.captureStream(30) // fps
 

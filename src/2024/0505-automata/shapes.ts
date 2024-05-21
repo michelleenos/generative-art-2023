@@ -9,13 +9,27 @@ export class Vec2 {
         this.y = y
     }
 
-    add(point: Vec2 | p5.Vector) {
+    add(n: number): this
+    add(point: Vec2 | p5.Vector): this
+    add(point: Vec2 | p5.Vector | number) {
+        if (typeof point === 'number') {
+            this.x += point
+            this.y += point
+            return this
+        }
         this.x += point.x
         this.y += point.y
         return this
     }
 
-    sub(point: Vec2 | p5.Vector) {
+    sub(n: number): this
+    sub(point: Vec2 | p5.Vector): this
+    sub(point: Vec2 | p5.Vector | number) {
+        if (typeof point === 'number') {
+            this.x -= point
+            this.y -= point
+            return this
+        }
         this.x -= point.x
         this.y -= point.y
         return this
@@ -34,10 +48,12 @@ export class Vec2 {
 
     div(n: number | Vec2 | p5.Vector) {
         if (n instanceof Vec2 || n instanceof p5.Vector) {
+            if (n.x === 0 || n.y === 0) return this
             this.x /= n.x
             this.y /= n.y
             return this
         }
+        if (n === 0) return this
         this.x /= n
         this.y /= n
         return this
@@ -55,18 +71,33 @@ export class Vec2 {
         return new Vec2(this.x, this.y)
     }
 
-    distance(point: Vec2) {
-        return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
+    setMag(mag: number) {
+        this.normalize().mult(mag)
+        return this
     }
 
-    // limit(n: number) {
-    //     // let mSq = this.x * this.x + this.y * this.y
-    //     // if (mSq > n * n) {
-    //     //     let m = Math.sqrt(mSq)
-    //     //     this.x = (this.x / m) * n
-    //     //     this.y = (this.y / m) * n
-    //     // }
-    // }
+    normalize() {
+        let m = this.mag()
+        if (m !== 0) this.mult(1 / m)
+        return this
+    }
+
+    limit(n: number) {
+        let mSq = this.magSq()
+        if (mSq > n * n) {
+            let m = Math.sqrt(mSq)
+            this.div(m).mult(n)
+            // this.x = (this.x / m) * n
+            // this.y = (this.y / m) * n
+        }
+        return this
+    }
+
+    lerp(target: Vec2, amount: number) {
+        this.x += (target.x - this.x) * amount
+        this.y += (target.y - this.y) * amount
+        return this
+    }
 }
 
 export class Rectangle {
@@ -90,17 +121,14 @@ export class Rectangle {
     }
 }
 
-export class Circle {
-    cx: number
-    cy: number
+export class Circle extends Vec2 {
     _r: number
-    _rSquared: number
+    rSquared: number
 
-    constructor(cx: number, cy: number, r: number) {
-        this.cx = cx
-        this.cy = cy
+    constructor(x: number, y: number, r: number) {
+        super(x, y)
         this._r = r
-        this._rSquared = r * r
+        this.rSquared = r * r
     }
 
     get radius() {
@@ -109,28 +137,28 @@ export class Circle {
 
     set radius(value: number) {
         this._r = value
-        this._rSquared = value * value
+        this.rSquared = value * value
     }
 
-    contains(vec: Vec2): boolean
-    contains(x: number, y: number): boolean
-    contains(...args: [Vec2] | [number, number]) {
-        if (args[0] instanceof Vec2) {
-            return this.contains(args[0].x, args[0].y)
-        } else {
-            let distance = Math.pow(this.cx - args[0], 2) + Math.pow(this.cy - args[1], 2)
-            return distance <= this._rSquared
-        }
+    contains(x: number, y: number) {
+        let distSq = Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2)
+        return distSq <= this.rSquared
     }
 
     // one implementation here: https://editor.p5js.org/codingtrain/sketches/CDMjU0GIK
     // another option is find the closest corner to the center, then use contains() method with that corner
-    intersectsRect(range: Rectangle) {
-        let xDist = Math.abs(range.x - this.cx)
-        let yDist = Math.abs(range.y - this.cy)
-        if (xDist > this._r + range.width || yDist > this._r + range.height) return false
-        if (xDist <= range.width || yDist <= range.height) return true
-        let cornerDistance = Math.pow(xDist - range.width, 2) + Math.pow(yDist - range.height, 2)
-        return cornerDistance <= this._rSquared
+    intersectsRect(rect: Rectangle) {
+        let xDist = Math.abs(this.x - rect.x - rect.width / 2)
+        let yDist = Math.abs(this.y - rect.y - rect.height / 2)
+
+        if (xDist > rect.width / 2 + this._r) return false
+        if (yDist > rect.height / 2 + this._r) return false
+
+        if (xDist <= rect.width / 2) return true
+        if (yDist <= rect.height / 2) return true
+
+        let dx = xDist - rect.width / 2
+        let dy = yDist - rect.height / 2
+        return dx * dx + dy * dy <= this.rSquared
     }
 }
