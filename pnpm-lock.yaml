@@ -44,6 +44,9 @@ dependencies:
   tone:
     specifier: ^14.7.77
     version: 14.7.77
+  tseep:
+    specifier: ^1.2.1
+    version: 1.2.1
   tweakpane:
     specifier: ^3.1.7
     version: 3.1.7
@@ -836,6 +839,10 @@ packages:
     dependencies:
       standardized-audio-context: 25.3.57
       tslib: 2.6.2
+    dev: false
+
+  /tseep@1.2.1:
+    resolution: {integrity: sha512-VFnsNcPGC4qFJ1nxbIPSjTmtRZOhlqLmtwRqtLVos8mbRHki8HO9cy9Z1e89EiWyxFmq6LBviI9TQjijxw/mEw==}
     dev: false
 
   /tslib@2.6.2:

@@ -1,11 +1,10 @@
 import chroma from 'chroma-js'
 import p5 from 'p5'
 import easing from '~/helpers/easings'
-import { map, random } from '~/helpers/utils'
-import { sortPalette } from './sort-colors'
+import { random } from '~/helpers/utils'
+import { sortPalette } from '../sort-colors'
 import { Rectangle } from '~/helpers/trig-shapes'
-import { pixelIndex, randomAngle, randomInCircle, randomInSquare, setShadow } from './utils'
-import { getLinePoints } from './lines-fns'
+import { pixelIndex, randomAngle, randomInCircle, randomInSquare, setShadow } from '../utils'
 
 function distSq(p1: [number, number], p2: [number, number]) {
     return Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)
@@ -17,18 +16,20 @@ type LinesOptions = {
 }
 
 type LinesState = {
-    _currentLineLengths: number[]
-    _currentLines: [number, number][][]
+    _currentLineLength: number
+    _currentLine: [number, number][]
     linesDrawn: number
-    lineLookPoint: [number, number][]
+    lineLookPoint: [number, number]
+    lastPoint: [number, number] | null
     longLines: [number, number][][]
     angle: number
+    lineAngle: number
     redrawnCount: number
     redrawing: boolean
     longLinesSaved: [number, number][][]
     done: boolean
     doneAdding: boolean
-    colorIndex: number[]
+    colorIndex: number
     failsCount: number
     currentMinLen: number
 }
@@ -39,15 +40,16 @@ const linesStateDefaults = (): Omit<
 > => ({
     done: false,
     doneAdding: false,
-    colorIndex: [],
+    colorIndex: 0,
     linesDrawn: 0,
     longLines: [],
     failsCount: 0,
+    lastPoint: null,
     longLinesSaved: [],
     redrawing: false,
     redrawnCount: 0,
-    _currentLines: [],
-    _currentLineLengths: [],
+    _currentLine: [],
+    _currentLineLength: 0,
 })
 
 export class Lines {
@@ -66,8 +68,6 @@ export class Lines {
     lineWidth = 3
     newPixelRadius = 50
     newPixelMethod: 'circle' | 'rect' | 'random' = 'random'
-    parallel = 1
-    lookPointShare = false
 
     len = {
         minStart: 20,
@@ -89,12 +89,12 @@ export class Lines {
         betweenLine: 0.05,
         nLines: 100,
         max: 0,
-        dir: undefined as 1 | -1 | undefined,
+        dir: undefined as undefined | 1 | -1,
     }
     failsUntil = {
         stop: 1000,
-        moveLook: 150,
-        forceMoveLook: 300,
+        moveLook: 15,
+        forceMoveLook: 100,
         reduceMinLen: 200,
     }
     tries = {
@@ -113,18 +113,20 @@ export class Lines {
     }
 
     state: LinesState = {
-        _currentLineLengths: [],
-        _currentLines: [],
+        _currentLineLength: 0,
+        _currentLine: [],
         linesDrawn: 0,
-        lineLookPoint: [],
+        lineLookPoint: [0, 0],
+        lastPoint: null,
         longLines: [],
         angle: 0,
+        lineAngle: 0,
         redrawnCount: 0,
         redrawing: false,
         longLinesSaved: [],
         done: false,
         doneAdding: false,
-        colorIndex: [],
+        colorIndex: 0,
         failsCount: 0,
         currentMinLen: this.len.minStart,
     }
@@ -139,28 +141,18 @@ export class Lines {
         this.loadPixels()
 
         this.state.angle = Math.random() * Math.PI * 2
-        this.state.lineLookPoint = []
-        for (let i = 0; i < this.parallel; i++) {
-            this.state.lineLookPoint[i] = [
-                Math.floor(random(this.width)),
-                Math.floor(random(this.height)),
-            ]
-        }
+        this.state.lineAngle = this.state.angle
+        this.state.lineLookPoint = [Math.floor(random(this.width)), Math.floor(random(this.height))]
 
         this.palette = opts.palette
         this.sortColors()
-
-        for (let i = 0; i < this.parallel; i++) {
-            this.state._currentLines.push([])
-            this.state._currentLineLengths.push(0)
-        }
     }
 
     get done() {
         return this.state.done
     }
 
-    setLine(index: number, line: [number, number][] = [], isBeingRedrawn = false) {
+    setLine(line: [number, number][] = [], isBeingRedrawn = false) {
         if (!isBeingRedrawn && line.length > 2) {
             if (distSq(line[0], line[line.length - 1]) > (this.width * this.longLineRatio) ** 2) {
                 this.state.longLines.push([...line])
@@ -168,8 +160,9 @@ export class Lines {
                 this.state.longLinesSaved.push([...line])
             }
         }
-        this.state._currentLines[index] = [...line]
-        this.state._currentLineLengths[index] = line.length
+        this.state.lastPoint = null
+        this.state._currentLine = [...line]
+        this.state._currentLineLength = this.state._currentLine.length
         this.state.failsCount = 0
     }
 
@@ -185,16 +178,8 @@ export class Lines {
         )
     }
 
-    maybeGetNewPixel(index: number) {
-        let x: number, y: number
-        if (this.lookPointShare) {
-            ;[x, y] = this.state.lineLookPoint[0]
-        } else {
-            if (!this.state.lineLookPoint[index]) {
-                this.state.lineLookPoint[index] = this.rect.getRandom()
-            }
-            ;[x, y] = this.state.lineLookPoint[index]
-        }
+    maybeGetNewPixel() {
+        let [x, y] = this.state.lineLookPoint
         let tries = 0
         while (tries < this.tries.pixel) {
             let [nx, ny] =
@@ -203,7 +188,7 @@ export class Lines {
                     : this.newPixelMethod === 'rect'
                     ? randomInSquare(x, y, this.newPixelRadius)
                     : this.rect.getRandom()
-            if (this.isBlankIshPx(nx, ny)) {
+            if (this.rect.contains(nx, ny) && this.isBlankIshPx(nx, ny)) {
                 return [nx, ny]
             }
             tries++
@@ -217,43 +202,52 @@ export class Lines {
     }
 
     getLinePoints(x: number, y: number) {
-        return getLinePoints({
-            x,
-            y,
-            angle: this.state.angle,
-            wiggle: this.wiggle.withinLine,
-            wiggleMax: this.wiggle.max ?? undefined,
-            lenMax: this.len.max,
-            lenMin: this.state.currentMinLen,
-            mult: this.stepMult,
-            maxTries: this.tries.linePoint,
-            checkPoint: (x, y) => {
-                if (!this.rect.contains(x, y)) {
-                    return { valid: false, stop: true }
-                } else if (!this.isBlankIshPx(x, y)) {
-                    return { valid: false, stop: false }
+        let curX = x
+        let curY = y
+        let points: [number, number][] = []
+        let tries = 0
+
+        while (points.length < this.len.max && tries < this.tries.linePoint) {
+            let nextX = curX + Math.cos(this.state.lineAngle) * this.stepMult
+            let nextY = curY + Math.sin(this.state.lineAngle) * this.stepMult
+
+            if (nextX < 0 || nextX >= this.width || nextY < 0 || nextY >= this.height) {
+                break
+            } else if (!this.isBlankIshPx(nextX, nextY)) {
+                this.state.lineAngle += randomAngle(this.wiggle.onLinePointFail)
+                tries++
+            } else {
+                points.push([curX, curY])
+                curX = nextX
+                curY = nextY
+                let angleDiff = this.state.lineAngle - this.state.angle
+
+                if (this.wiggle.max > 0 && Math.abs(angleDiff) > this.wiggle.max) {
+                    this.state.lineAngle +=
+                        random(this.wiggle.withinLine) * (angleDiff > 0 ? -1 : 1)
+                } else {
+                    this.state.lineAngle += randomAngle(this.wiggle.withinLine)
                 }
-                return { valid: true, stop: false }
-            },
-        })
+
+                tries = 0
+            }
+        }
+
+        if (points.length < this.state.currentMinLen) {
+            return false
+        }
+
+        return points
     }
 
-    addFail(index: number) {
+    addFail() {
         let state = this.state
         state.failsCount++
         if (state.failsCount > this.failsUntil.moveLook && state.longLines.length) {
             let longLine = state.longLines.shift()!
-            if (this.lookPointShare) {
-                state.lineLookPoint[0] = longLine[Math.floor(longLine.length / 2)]
-            } else {
-                state.lineLookPoint[index] = longLine[Math.floor(longLine.length / 2)]
-            }
+            state.lineLookPoint = longLine[Math.floor(longLine.length / 2)]
         } else if (state.failsCount > this.failsUntil.forceMoveLook) {
-            if (this.lookPointShare) {
-                state.lineLookPoint[0] = this.rect.getRandom()
-            } else {
-                state.lineLookPoint[index] = this.rect.getRandom()
-            }
+            state.lineLookPoint = this.rect.getRandom()
         }
 
         if (state.failsCount > this.failsUntil.reduceMinLen) {
@@ -268,15 +262,14 @@ export class Lines {
             this.state.currentMinLen === this.len.minEnd
         ) {
             state.doneAdding = true
-            state.done = true
             state.longLinesSaved.sort((a, b) => b.length - a.length)
             state.redrawnCount = 0
         }
     }
 
-    maybeGetNewLine(index: number) {
+    maybeGetNewLine() {
         while (true) {
-            let pixel = this.maybeGetNewPixel(index)
+            let pixel = this.maybeGetNewPixel()
             if (!pixel) break
 
             let [x1, y1] = pixel
@@ -284,20 +277,21 @@ export class Lines {
 
             if (!points) break
 
-            this.setLine(index, points)
+            this.setLine(points)
             return true
         }
-        this.addFail(index)
+        this.addFail()
         return false
     }
 
-    finishLine(index: number) {
+    finishLine() {
         this.state.linesDrawn++
         this.loadPixels()
-        this.setLine(index)
+        this.setLine()
         if (this.state.linesDrawn % this.wiggle.nLines === 0) {
             this.getNewAngle()
         }
+        this.state.lineAngle = this.state.angle
 
         if (
             this.redraw &&
@@ -305,7 +299,7 @@ export class Lines {
             this.state.linesDrawn % this.redraw.rate === 0 &&
             this.state.redrawnCount < this.state.longLinesSaved.length * this.redraw.maxMult
         ) {
-            this.doRedraw(index)
+            this.doRedraw()
         }
     }
 
@@ -313,39 +307,36 @@ export class Lines {
         this.state.angle += randomAngle(this.wiggle.betweenLine, this.wiggle.dir)
     }
 
-    doRedraw(index: number) {
+    doRedraw() {
         this.state.redrawing = true
         this.state.redrawnCount++
         this.setLine(
-            index,
             this.state.longLinesSaved[this.state.redrawnCount % this.state.longLinesSaved.length],
             true
         )
     }
 
-    // doEndRedraw() {
-    //     if (this.redraw && this.state.redrawnCount < this.state.longLinesSaved.length) {
-    //         this.doRedraw()
-    //     } else {
-    //         this.state.done = true
-    //     }
-    // }
-
-    setColor(index: number) {
-        let color: chroma.Color
-        let colorIndexes = this.state.colorIndex
-        if (this.colors.pattern === 'step') {
-            if (colorIndexes[index] === undefined) colorIndexes[index] = 0
-            colorIndexes[index] += this.colors.move
-            if (colorIndexes[index] >= this.currentPalette.length) {
-                colorIndexes[index] = 0
-            }
-            let c1 = this.currentPalette[Math.floor(colorIndexes[index])]
-            let c2 = this.currentPalette[Math.ceil(colorIndexes[index])]
-            if (!c2) c2 = this.currentPalette[0]
-            color = chroma.mix(c1, c2, colorIndexes[index] % 1, this.colors.mixSpace)
+    doEndRedraw() {
+        if (this.redraw && this.state.redrawnCount < this.state.longLinesSaved.length) {
+            this.doRedraw()
         } else {
-            let len = this.state._currentLineLengths[index]
+            this.state.done = true
+        }
+    }
+
+    setColor() {
+        let color: chroma.Color
+        if (this.colors.pattern === 'step') {
+            this.state.colorIndex += this.colors.move
+            if (this.state.colorIndex >= this.currentPalette.length) {
+                this.state.colorIndex = 0
+            }
+            let c1 = this.currentPalette[Math.floor(this.state.colorIndex)]
+            let c2 = this.currentPalette[Math.ceil(this.state.colorIndex)]
+            if (!c2) c2 = this.currentPalette[0]
+            color = chroma.mix(c1, c2, this.state.colorIndex % 1, this.colors.mixSpace)
+        } else {
+            let len = this.state._currentLineLength
             let max = Math.min(this.len.maxForColor, this.len.max)
             let mix = (len - this.len.minEnd) / (max - this.len.minEnd)
             mix = easing.outQuart(mix)
@@ -365,37 +356,36 @@ export class Lines {
         this.g.strokeWeight(this.lineWidth)
     }
 
-    lineStep(i: number) {
-        let line = this.state._currentLines[i]
-        if (line.length < 2) return
-        let [x1, y1] = line[0]
-        this.setColor(i)
-        let [x2, y2] = line[1]
+    lineStep() {
+        if (this.state._currentLine.length < 2) return
+        let [x1, y1] = this.state.lastPoint ?? this.state._currentLine[0]
+        this.setColor()
+        let [x2, y2] = this.state._currentLine[1]
 
         this.g.line(x1, y1, x2, y2)
-        line.shift()
-        if (line.length < 2) {
-            this.finishLine(i)
+        this.state.lastPoint = [x2, y2]
+        this.state._currentLine.shift()
+        if (this.state._currentLine.length < 2) {
+            this.finishLine()
         }
     }
 
     update(delta: number) {
         let steps = Math.round((delta / 1000) * this.stepRate)
         while (steps > 0 && !this.state.done) {
-            let i = 0
-            while (i < this.parallel && !this.state.done) {
-                let line = this.state._currentLines[i]
-                if (line && line.length >= 2) {
-                    this.lineStep(i)
-                    i++
-                } else {
-                    this.maybeGetNewLine(i)
-                }
+            if (this.state._currentLine.length >= 2) {
+                this.lineStep()
+                steps--
+                continue
             }
-            steps--
+            if (this.state.doneAdding) {
+                this.doEndRedraw()
+            } else {
+                this.maybeGetNewLine()
+            }
+
             if (this.state.done) break
         }
-
         return this.state.done
     }
 
@@ -403,20 +393,18 @@ export class Lines {
         this.g.loadPixels()
     }
 
-    reset(angle?: number) {
+    reset(angle?: number, lookPoint?: [number, number]) {
         this.g.clear()
         this.loadPixels()
         this.sortColors()
 
         let newangle = angle || Math.random() * Math.PI * 2
-        let points = [...this.state.lineLookPoint]
-        for (let i = 0; i < this.parallel; i++) {
-            points[i] = this.rect.getRandom()
-        }
+        let newPoint = lookPoint || this.rect.getRandom()
         this.state = {
             ...linesStateDefaults(),
             angle: newangle,
-            lineLookPoint: points,
+            lineAngle: newangle,
+            lineLookPoint: newPoint,
             currentMinLen: this.len.minStart,
         }
     }

@@ -14,6 +14,7 @@ export const linesDebug = (lines: Lines, gui: GUI, dataView: DataView, onReset?:
     mf.add(lines, 'longLineRatio', 0, 3, 0.01)
     mf.add(lines, 'newPixelRadius', 5, 2000, 1)
     mf.add(lines, 'newPixelMethod', ['random', 'rect', 'circle'])
+    mf.add(lines, 'parallel', 1, 100, 1)
 
     let debug = {
         doRedraw: lines.redraw === false ? false : true,
@@ -78,7 +79,7 @@ export const linesDebug = (lines: Lines, gui: GUI, dataView: DataView, onReset?:
     wf.add(lines.wiggle, 'withinLine', 0, 5, 0.001)
     wf.add(lines.wiggle, 'onLinePointFail', 0, 5, 0.001)
     wf.add(lines.wiggle, 'betweenLine', 0, 5, 0.001)
-    wf.add(lines.wiggle, 'dir', ['+', '-', 'random'])
+    wf.add(lines.wiggle, 'dir', [1, -1, undefined])
     wf.add(lines.wiggle, 'nLines', 0, 1000, 1)
     wf.add(lines.wiggle, 'max', 0, 5, 0.01)
 
@@ -98,9 +99,8 @@ export const linesDebug = (lines: Lines, gui: GUI, dataView: DataView, onReset?:
     ds.addNested(lines.state, 'linesDrawn')
     ds.addNested(lines.state, 'failsCount')
     ds.addNested(lines.state, 'angle')
-    ds.addNested(lines.state, 'lineAngle')
     ds.addNested(lines.state, 'longLines.length', 'longLines len', 0)
-    ds.add(lines.state, 'lineLookPoint')
+    // ds.add(lines.state, 'lineLookPoint')
     ds.add(lines.state, 'currentMinLen', 1, 'length min current')
     ds.add(lines.state, 'redrawnCount', 0)
     ds.addNested(lines, 'state.longLinesSaved.length', 'longLines saved', 0)

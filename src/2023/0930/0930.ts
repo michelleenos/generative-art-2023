@@ -1,7 +1,7 @@
 import '../../style.css'
 import { random, shuffle, clamp, map, round } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import { burst, crazyTiles } from '~/helpers/canvas/shapes'
+import { burst, crazyTiles } from '~/helpers/shapes'
 import loop from '~/helpers/loop'
 
 let palettes = {

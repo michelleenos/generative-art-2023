@@ -1,13 +1,13 @@
 import '~/style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import loop from '~/helpers/loop'
-import { TilesEven, TilesDraw, type Tile } from './TilesEven'
+import { TilesEven, TilesDraw } from './TilesEven'
 import { random, shuffle } from '~/helpers/utils'
 
 // const width = window.innerWidth
 const width = 1200
 const height = window.innerHeight
-const { ctx, canvas } = createCanvas(width, height)
+const { ctx } = createCanvas(width, height)
 let looping: ReturnType<typeof loop>
 
 let palettes = [

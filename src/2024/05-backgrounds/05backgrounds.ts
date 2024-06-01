@@ -187,6 +187,36 @@ export const bgFluffy2 = (size: number, v1 = 350, v2 = 90) => {
     return canvas
 }
 
+export const noisyLines = (size: number, c1 = '#fcfcfc', c2 = '#000', alpha = 0.015, amp = 5) => {
+    let { ctx, canvas } = createCanvas(size, size, true, false)
+    ctx.fillStyle = c1
+    ctx.fillRect(0, 0, size, size)
+    ctx.fillStyle = c2
+    ctx.globalAlpha = alpha
+    let x = -5
+    while (x < size) {
+        let y = -size * 0.1
+        ctx.beginPath()
+        let vertices: [number, number][] = []
+        while (y < size * 1.1) {
+            let amt = noise2d(x, y) * amp
+            vertices.push([x + amt, y])
+            if (vertices.length === 3) {
+                let cp1 = vertices[0]
+                let cp2 = vertices[1]
+                let end = vertices[2]
+                ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], end[0], end[1])
+                vertices = []
+            }
+            y += random(size * 0.01, size * 0.04)
+        }
+        ctx.closePath()
+        ctx.fill()
+        x += Math.abs(noise2d(random(20, 30), 30)) * 20 + 5
+    }
+    return canvas
+}
+
 // function draw() {
 //     ctx.clearRect(0, 0, SIZE, SIZE)
 

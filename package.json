@@ -30,6 +30,7 @@
         "simplex-noise": "^4.0.1",
         "stats.js": "^0.17.0",
         "tone": "^14.7.77",
+        "tseep": "^1.2.1",
         "tweakpane": "^3.1.7",
         "vite-plugin-favicons-inject": "^2.2.0",
         "voronoi": "^1.0.0"

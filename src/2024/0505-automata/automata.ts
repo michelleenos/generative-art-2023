@@ -3,7 +3,7 @@ import p5 from 'p5'
 import '~/style.css'
 import { Boid } from './boid'
 import { Flock } from './flock'
-import { Rectangle, Vec2 } from './shapes'
+import { Rectangle, Vec2 } from '../../helpers/trig-shapes'
 
 new p5((p: p5) => {
     let fr: number | string

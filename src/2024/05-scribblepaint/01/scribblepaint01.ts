@@ -1,11 +1,9 @@
 import { GUI } from 'lil-gui'
 import p5 from 'p5'
 import { DataView } from '~/helpers/debug/data-view'
-import '../../style.css'
-import { Lines } from './random-lines-p5'
-import { Recorder } from './recorder'
-import { linesDebug } from './lines-debug'
-import { bgFluffy2 } from '../05-backgrounds/05backgrounds'
+import { Lines } from './lines-v1'
+import { Recorder } from '../recorder'
+import { bgFluffy2 } from '~/2024/05-backgrounds/05backgrounds'
 
 let palette =
     // ['#f398c3', '#cf3895', '#a0d28d', '#06b4b0', '#fed000', '#FF8552']
@@ -78,8 +76,8 @@ new p5((p: p5) => {
             pd,
             palette,
         })
-        lines.stepRate = 4700
-        lines.stepMult = 2
+        lines.stepRate = 5000
+        lines.stepMult = 1
         lines.colors.pattern = 'step'
         lines.alphaThreshold = 245
         lines.lineWidth = 4
@@ -98,19 +96,21 @@ new p5((p: p5) => {
         lines.colors.shadowAmt = 2
         lines.colors.shadowAlpha = 0.5
         lines.colors.pattern = 'length'
-        lines.redraw = {
-            rate: 10,
-            maxMult: 5,
-            after: 100,
-        }
+        lines.redraw = false
+        // lines.redraw = {
+        //     rate: 10,
+        //     maxMult: 5,
+        //     after: 100,
+        // }
         lines.newPixelMethod = 'circle'
         lines.newPixelRadius = 100
         lines.wiggle.withinLine = 0.1
         lines.wiggle.onLinePointFail = 0.15
         lines.wiggle.betweenLine = 0.01
         lines.wiggle.nLines = 400
-        lines.wiggle.dir = '+'
+        // lines.wiggle.dir = '+'
         lines.wiggle.max = 3
+        // lines.parallel = 10
 
         lines.failsUntil.moveLook = 15
         lines.failsUntil.reduceMinLen = 1500
@@ -119,7 +119,7 @@ new p5((p: p5) => {
         lines.tries.linePoint = 55
         lines.reset()
 
-        linesDebug(lines, gui, dataView)
+        // linesDebug(lines, gui, dataView)
         p.noLoop()
     }
 }, document.getElementById('sketch') ?? undefined)

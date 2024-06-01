@@ -23,8 +23,10 @@ export const isPixelBlank = (pixels: Uint8ClampedArray, index: number, alphaThre
     return pixels[index + 3] < alphaThreshold
 }
 
-export const randomAngle = (range: number, onlyPositive = false) => {
-    if (onlyPositive) return random(0, range)
+export const randomAngle = (range: number, sign?: -1 | 1) => {
+    if (sign) {
+        return random(0, range) * sign
+    }
     return random(-range * 0.5, range * 0.5)
 }
 
@@ -38,27 +40,4 @@ export const setShadow = (
     g.drawingContext.shadowBlur = blur
     g.drawingContext.shadowOffsetX = offset[0]
     g.drawingContext.shadowOffsetY = offset[1]
-}
-
-export class Rectangle {
-    constructor(public x: number, public y: number, public w: number, public h: number) {}
-
-    contains(x: number, y: number) {
-        return x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h
-    }
-
-    intersects(range: Rectangle) {
-        return !(
-            range.x > this.x + this.w ||
-            range.x + range.w < this.x ||
-            range.y > this.y + this.h ||
-            range.y + range.h < this.y
-        )
-    }
-
-    getRandom(integer = true): [number, number] {
-        let x = random(this.x, this.x + this.w)
-        let y = random(this.y, this.y + this.h)
-        return integer ? [Math.floor(x), Math.floor(y)] : [x, y]
-    }
 }

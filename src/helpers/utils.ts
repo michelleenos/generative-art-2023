@@ -87,6 +87,13 @@ const throttle = (fn: Function, wait: number = 300) => {
     }
 }
 
+// https://github.com/georgedoescode/generative-utils/blob/master/src/randomBias.js
+const randomBias = (min: number, max: number, bias: number, influence = 0.5) => {
+    const base = random(min, max)
+    const mix = random(0, 1) * influence
+    return base * (1 - mix) + bias * mix
+}
+
 export {
     lerp,
     map,
@@ -100,4 +107,5 @@ export {
     throttle,
     step,
     smoothstep,
+    randomBias,
 }

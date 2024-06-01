@@ -1,6 +1,6 @@
 import p5 from 'p5'
 import { Flock } from './flock'
-import { Circle, Rectangle, Vec2 } from './shapes'
+import { Circle, Rectangle, Vec2 } from '../../helpers/trig-shapes'
 import { map } from '~/helpers/utils'
 
 export class Boid extends Circle {

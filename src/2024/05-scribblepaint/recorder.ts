@@ -21,6 +21,7 @@ export class Recorder {
     gui: GUI
     guiBtnRecord: Controller
     guiBtnLoop: Controller
+    guiBtnReset: Controller
     looping = true
     lastTime: number | null = null
     zipsDownloaded = 0
@@ -49,8 +50,16 @@ export class Recorder {
         this.gui.add(this, 'maxFrames', 10, 1500, 1).name('max frames')
         this.guiBtnRecord = this.gui.add(this, 'toggleRecord').name('startRecording')
         this.guiBtnLoop = this.gui.add(this, 'toggleLoop').name('noLoop')
+        this.guiBtnReset = this.gui.add(this, 'reset').name('reset')
 
         this.rafId = requestAnimationFrame(this.raf)
+    }
+
+    reset = () => {
+        if (this.fns.reset) this.fns.reset()
+        this.framesCount = 0
+        this.lastTime = null
+        this.needsFreshZip = true
     }
 
     rafRecord = () => {

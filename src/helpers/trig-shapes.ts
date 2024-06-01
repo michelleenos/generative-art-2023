@@ -9,12 +9,12 @@ export class Vec2 {
         this.y = y
     }
 
-    add(n: number): this
+    add(n: number, n2?: number): this
     add(point: Vec2 | p5.Vector): this
-    add(point: Vec2 | p5.Vector | number) {
+    add(point: Vec2 | p5.Vector | number, n2?: number) {
         if (typeof point === 'number') {
             this.x += point
-            this.y += point
+            this.y += typeof n2 === 'number' ? n2 : point
             return this
         }
         this.x += point.x
@@ -22,12 +22,12 @@ export class Vec2 {
         return this
     }
 
-    sub(n: number): this
+    sub(n: number, n2?: number): this
     sub(point: Vec2 | p5.Vector): this
-    sub(point: Vec2 | p5.Vector | number) {
+    sub(point: Vec2 | p5.Vector | number, n2?: number) {
         if (typeof point === 'number') {
             this.x -= point
-            this.y -= point
+            this.y -= typeof n2 === 'number' ? n2 : point
             return this
         }
         this.x -= point.x
@@ -103,8 +103,24 @@ export class Vec2 {
 export class Rectangle {
     constructor(public x: number, public y: number, public width: number, public height: number) {}
 
-    contains(x: number, y: number) {
-        return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height
+    contains(x: number, y: number): boolean
+    contains(point: Vec2 | [number, number]): boolean
+    contains(param1: number | Vec2 | [number, number], y?: number) {
+        if (param1 instanceof Vec2) {
+            return this.contains(param1.x, param1.y)
+        } else if (Array.isArray(param1)) {
+            let [x, y] = param1
+            return (
+                x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height
+            )
+        } else if (typeof y === 'number' && typeof param1 === 'number') {
+            let x = param1
+            return (
+                x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height
+            )
+        }
+        console.warn('Invalid arguments to Rectangle.contains()')
+        return false
     }
 
     intersects(range: Rectangle | Circle) {
@@ -118,6 +134,12 @@ export class Rectangle {
         }
 
         return range.intersectsRect(this)
+    }
+
+    getRandom(integer = true): [number, number] {
+        let x = Math.random() * (this.width - this.x) + this.x
+        let y = Math.random() * (this.height - this.y) + this.y
+        return integer ? [Math.floor(x), Math.floor(y)] : [x, y]
     }
 }
 
@@ -140,6 +162,11 @@ export class Circle extends Vec2 {
         this.rSquared = value * value
     }
 
+    distanceFromEdge(x: number, y: number) {
+        let magsq = this.copy().sub(x, y).magSq()
+        return magsq > this.rSquared ? Math.sqrt(magsq) - this._r : 0
+    }
+
     contains(x: number, y: number) {
         let distSq = Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2)
         return distSq <= this.rSquared
@@ -160,5 +187,13 @@ export class Circle extends Vec2 {
         let dx = xDist - rect.width / 2
         let dy = yDist - rect.height / 2
         return dx * dx + dy * dy <= this.rSquared
+    }
+
+    getRandom() {
+        let angle = Math.random() * Math.PI * 2
+        let radius = Math.random() * this._r
+        let x = this.x + Math.cos(angle) * radius
+        let y = this.y + Math.sin(angle) * radius
+        return [x, y]
     }
 }

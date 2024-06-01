@@ -1,7 +1,7 @@
 import '../../style.css'
 import { random, shuffle } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import { polygon, burst, zigzag, rectCenter, crazyTiles } from '~/helpers/canvas/shapes'
+import { polygon, burst, zigzag, rectCenter, crazyTiles } from '~/helpers/shapes'
 import { Pane } from 'tweakpane'
 
 let palettes = {

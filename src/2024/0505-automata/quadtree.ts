@@ -1,6 +1,6 @@
 import p5 from 'p5'
 import { Boid } from './boid'
-import { Circle, Rectangle } from './shapes'
+import { Circle, Rectangle } from '../../helpers/trig-shapes'
 
 export class QuadTree {
     bounds: Rectangle
