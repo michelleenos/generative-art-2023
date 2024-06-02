@@ -49,7 +49,7 @@ let palettes = [
 const setGui = (gui: GUI, pattern: AnimatedPattern) => {
     let easeOpts = Object.keys(easings)
     gui.close()
-    gui.add(pattern, 'addPerSecond', 1, 20, 1)
+    gui.add(pattern, 'addPerSecond', 1, 40, 1)
     gui.add(pattern, 'cellDuration', 100, 2000, 100)
     gui.add(pattern, 'cellEase', easeOpts)
     gui.add(pattern, 'addEase', easeOpts)
@@ -82,7 +82,7 @@ const setGui = (gui: GUI, pattern: AnimatedPattern) => {
 
     let likely = gui.addFolder('shape likelihood')
     likely.close()
-    likely.add(pattern, 'rectChance', 0, 1, 0.1)
+    likely.add(pattern, 'rectChance', 0, 5, 0.1)
     let likelySq = likely.addFolder('square')
     for (let key in squareOpts) {
         likelySq.add(squareOpts, key as keyof typeof squareOpts, 0, 5, 1)
@@ -118,7 +118,7 @@ let pattern = new AnimatedPattern({
     palette: random(palettes),
     rectOptions: ['halfCircle'],
     squareOptions: ['leaf', 'quarterCircle'],
-    addPerSecond: 10,
+    addPerSecond: 20,
     cellDuration: 500,
     sides: 8,
     rectChance: 0.5,

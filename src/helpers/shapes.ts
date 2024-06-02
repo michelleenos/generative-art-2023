@@ -18,37 +18,6 @@ export function polygon(
     ctx.closePath()
 }
 
-export function diagTriangle(
-    ctx: CanvasRenderingContext2D,
-    {
-        x,
-        y,
-        w,
-        h,
-        corner = 'tl',
-    }: { x: number; y: number; w: number; h: number; corner?: 'tl' | 'tr' | 'bl' | 'br' }
-) {
-    ctx.beginPath()
-    if (corner === 'tl') {
-        ctx.moveTo(x, y)
-        ctx.lineTo(x, y + h)
-        ctx.lineTo(x + w, y)
-    } else if (corner === 'tr') {
-        ctx.moveTo(x + w, y)
-        ctx.lineTo(x, y + h)
-        ctx.lineTo(x + w, y + h)
-    } else if (corner === 'bl') {
-        ctx.moveTo(x, y)
-        ctx.lineTo(x + w, y + h)
-        ctx.lineTo(x + w, y)
-    } else if (corner === 'br') {
-        ctx.moveTo(x, y + h)
-        ctx.lineTo(x + w, y)
-        ctx.lineTo(x, y)
-    }
-    ctx.closePath()
-}
-
 export function burst(
     ctx: CanvasRenderingContext2D,
     {

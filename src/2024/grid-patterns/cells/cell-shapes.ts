@@ -1,6 +1,7 @@
 import { PCell, type PatternCellProps } from './cells-base'
 import { random } from '~/helpers/utils'
 import { type Direction, type Corner } from '../grid-stuff'
+import { diagTriangle, halfCircleInRect, leaf } from '~/helpers/shapes-more'
 
 export class PatternCellTriangle extends PCell {
     style: 'triangle' = 'triangle'
@@ -14,24 +15,7 @@ export class PatternCellTriangle extends PCell {
     draw = (ctx: CanvasRenderingContext2D, unitSize: number, progress = this.timer.progress) => {
         let { x, y, w, h } = this.getSizes(unitSize)
         ctx.fillStyle = this.color
-        ctx.beginPath()
-        if (this.corner === 'bl') {
-            ctx.moveTo(x, y + h)
-            ctx.lineTo(x, y + h - h * progress)
-            ctx.lineTo(x + w * progress, y + h)
-        } else if (this.corner === 'br') {
-            ctx.moveTo(x + w, y + h)
-            ctx.lineTo(x + w - w * progress, y + h)
-            ctx.lineTo(x + w, y + h - h * progress)
-        } else if (this.corner === 'tr') {
-            ctx.moveTo(x + w, y)
-            ctx.lineTo(x + w - w * progress, y)
-            ctx.lineTo(x + w, y + h * progress)
-        } else if (this.corner === 'tl') {
-            ctx.moveTo(x, y)
-            ctx.lineTo(x, y + h * progress)
-            ctx.lineTo(x + w * progress, y)
-        }
+        diagTriangle(ctx, { x, y, w, h, corner: this.corner, progress })
         ctx.fill()
     }
 }
@@ -52,20 +36,8 @@ export class PatternCellHalfCircle extends PCell {
 
     draw = (ctx: CanvasRenderingContext2D, unitSize: number, progress = this.timer.progress) => {
         let { x, y, w, h } = this.getSizes(unitSize)
-        let radius = ((w > h ? w : h) / 2) * progress
-
         ctx.fillStyle = this.color
-        ctx.beginPath()
-        if (this.dir === 'up') {
-            ctx.arc(x + w / 2, y + h, radius, Math.PI, 0)
-        } else if (this.dir === 'down') {
-            ctx.arc(x + w / 2, y, radius, 0, Math.PI)
-        } else if (this.dir === 'left') {
-            ctx.arc(x + w, y + h / 2, radius, Math.PI * 0.5, Math.PI * 1.5)
-        } else if (this.dir === 'right') {
-            ctx.arc(x, y + h / 2, radius, Math.PI * 1.5, Math.PI * 0.5)
-        }
-
+        halfCircleInRect(ctx, { x, y, w, h, dir: this.dir, progress })
         ctx.fill()
     }
 }
@@ -174,33 +146,9 @@ export class PatternCellLeaf extends PCell {
 
     draw(ctx: CanvasRenderingContext2D, unitSize: number, progress = this.timer.progress) {
         let { x, y, w, h, m } = this.getSizes(unitSize)
-        let radius = m * 0.5
-        let startX = this.corner === 'bl' || this.corner === 'tl' ? x + w : x
-        let startY = this.corner === 'tr' || this.corner === 'tl' ? y + h : y
-        let cx = x + m / 2
-        let cy = y + m / 2
-        let toCX = cx - startX
-        let toCY = cy - startY
-        let arcStart =
-            this.corner === 'tl' ? 0.5 : this.corner === 'tr' ? 1 : this.corner === 'br' ? 1.5 : 0
-
-        ctx.save()
-        ctx.beginPath()
-        ctx.rect(x, y, w, h)
-        ctx.clip()
-
         ctx.fillStyle = this.color
-        ctx.beginPath()
-        ctx.arc(
-            startX + toCX * progress,
-            startY + toCY * progress,
-            radius * progress,
-            Math.PI * arcStart,
-            Math.PI * (arcStart + 1.5)
-        )
-        ctx.lineTo(startX, startY)
+        leaf(ctx, { x, y, w, h, corner: this.corner, progress })
         ctx.fill()
-        ctx.restore()
     }
 }
 
