@@ -9,7 +9,39 @@ import easing from '~/helpers/easings'
 import { noisyLines } from '../../05-backgrounds/05backgrounds'
 
 // let palette = ['#f398c3', '#cf3895', '#a0d28d', '#06b4b0', '#fed000', '#FF8552']
-let palette = ['#f9c80e', '#fa9161', '#ee5968', '#73d2de', '#e9d2f4', '#a160dd']
+let palettes = {
+    bright: ['#f9c80e', '#fa9161', '#ee5968', '#73d2de', '#e9d2f4', '#a160dd'],
+    blues: ['#99dfff', '#60ebca', '#c4f5ed', '#b8ccfc', '#04996d', '#4467ab'],
+    candy: ['#f398c3', '#cf3895', '#a0d28d', '#06b4b0', '#fed000', '#FF8552'],
+    blumagenta: ['#f4bfdb', '#87425d', '#3c2e6b', '#1e588d', '#0081af'],
+    autumn: [
+        '#dc5132',
+        '#a46589',
+        '#7a82b8',
+        '#8ad0a6',
+        '#c4f0a8',
+        '#a0bb07',
+        '#ffcf33',
+        '#ec9f05',
+    ],
+    rainbow: [
+        '#533a71',
+        '#454a96',
+        '#6184d8',
+        '#50c5b7',
+        '#9cec5b',
+        '#f0f465',
+        '#ff4a1c',
+        '#ed254e',
+    ],
+    gems: ['#87425d', '#3c2e6b', '#0081af', '#a7d6c3', '#285943', '#8a8fbd', '#9a79b8', '#fcee49'],
+}
+let params = {
+    camShiftZ: 200,
+    camShiftY: 0,
+    upShiftX: 0.4,
+}
+let palette = palettes.blues
 
 let vert = /* glsl */ `
 ${snoise}
@@ -75,6 +107,202 @@ void main() {
 let dataView = new DataView()
 let gui = new GUI()
 
+const one = (lines: Lines) => {
+    lines.stepRate = 320
+    lines.stepMult = 3
+    lines.alphaThreshold = 54
+    lines.lineWidth = 5
+    lines.longLineRatio = 0.05
+    lines.newPixelRadius = 136
+    lines.newPixelMethod = 'circle'
+    lines.parallel = 20
+    lines.lookPointShare = true
+    lines.redraw = false
+    lines.len.minStart = 217
+    lines.len.minEnd = 30
+    lines.len.minReduceBy = 1
+    lines.len.max = 500
+    lines.len.maxForColor = 500
+    lines.colors.mixSpace = 'rgb'
+    lines.colors.pattern = 'step'
+    lines.colors.move = 0.00414
+    lines.colors.sort = 'lightness-saturation'
+    lines.colors.sortDir = '+'
+    lines.colors.shadowAmt = 0
+    lines.colors.shadowAlpha = 0
+    lines.colors.shadowOffset[0] = 0
+    lines.colors.shadowOffset[1] = 0
+    lines.wiggle.withinLine = 0.95
+    lines.wiggle.onLinePointFail = 0.95
+    lines.wiggle.betweenLine = 1.5
+    lines.wiggle.dir = -1
+    lines.wiggle.nLines = 15
+    lines.wiggle.max = 2
+    lines.failsUntil.stop = 1000
+    lines.failsUntil.moveLook = 100
+    lines.failsUntil.forceMoveLook = 300
+    lines.failsUntil.reduceMinLen = 200
+    lines.tries.pixel = 10
+    lines.tries.linePoint = 10
+    lines.reset()
+}
+
+const two = (lines: Lines) => {
+    lines.lineWidth = 4
+    lines.len.minEnd = 30
+    lines.len.minStart = 217
+    lines.len.max = 500
+    lines.len.minReduceBy = 1
+    lines.longLineRatio = 0.05
+    lines.alphaThreshold = 120
+    lines.stepMult = 3
+    lines.lineWidth = 5
+    lines.stepRate = 4500
+    lines.newPixelMethod = 'circle'
+    // lines.lookPointShare = true
+    lines.newPixelRadius = 150
+    lines.parallel = 22
+
+    lines.colors.sort = 'lightness'
+    // lines.colors.move = 0.0005
+    lines.colors.move = 0.002
+    lines.colors.sortDir = '+'
+    lines.colors.pattern = 'step'
+    lines.colors.mixSpace = 'rgb'
+
+    lines.wiggle.max = 2
+    lines.wiggle.withinLine = 0.95
+    lines.wiggle.onLinePointFail = 0.95
+    lines.wiggle.betweenLine = 1.5
+    lines.wiggle.nLines = 15
+    lines.wiggle.dir = -1
+
+    lines.failsUntil.moveLook = 100
+    lines.failsUntil.forceMoveLook = 300
+    // lines.failsUntil.reduceMinLen = 400
+    lines.parallel = 10
+    lines.reset()
+}
+
+const three = (lines: Lines) => {
+    lines.stepRate = 320
+    lines.stepMult = 3
+    lines.alphaThreshold = 54
+    lines.lineWidth = 5
+    lines.longLineRatio = 0.05
+    lines.newPixelRadius = 136
+    lines.newPixelMethod = 'circle'
+    lines.parallel = 20
+    lines.lookPointShare = true
+    lines.redraw = false
+    lines.len.minStart = 217
+    lines.len.minEnd = 30
+    lines.len.minReduceBy = 1
+    lines.len.max = 500
+    lines.len.maxForColor = 500
+    lines.colors.mixSpace = 'lab'
+    lines.colors.pattern = 'step'
+    lines.colors.move = 0.00414
+    lines.colors.sort = 'hue'
+    lines.colors.sortDir = '+'
+    lines.colors.shadowAmt = 0
+    lines.colors.shadowAlpha = 0
+    lines.colors.shadowOffset[0] = 0
+    lines.colors.shadowOffset[1] = 0
+    lines.wiggle.withinLine = 0.95
+    lines.wiggle.onLinePointFail = 0.95
+    lines.wiggle.betweenLine = 1.5
+    lines.wiggle.dir = -1
+    lines.wiggle.nLines = 15
+    lines.wiggle.max = 2
+    lines.failsUntil.stop = 1000
+    lines.failsUntil.moveLook = 100
+    lines.failsUntil.forceMoveLook = 300
+    lines.failsUntil.reduceMinLen = 200
+    lines.tries.pixel = 10
+    lines.tries.linePoint = 10
+    lines.palette = palettes.blumagenta
+}
+
+const four = (lines: Lines) => {
+    lines.stepRate = 320
+    lines.stepMult = 3
+    lines.alphaThreshold = 25
+    lines.lineWidth = 5
+    lines.longLineRatio = 0.05
+    lines.newPixelRadius = 332
+    lines.newPixelMethod = 'circle'
+    lines.parallel = 20
+    lines.lookPointShare = true
+    lines.redraw = false
+    lines.len.minStart = 220
+    lines.len.minEnd = 30
+    lines.len.minReduceBy = 1
+    lines.len.max = 389
+    lines.len.maxForColor = 500
+    lines.colors.mixSpace = 'lab'
+    lines.colors.pattern = 'step'
+    lines.colors.move = 0.00414
+    lines.colors.sort = 'hue'
+    lines.colors.sortDir = '+'
+    lines.colors.shadowAmt = 0
+    lines.colors.shadowAlpha = 0
+    lines.colors.shadowOffset[0] = 0
+    lines.colors.shadowOffset[1] = 0
+    lines.wiggle.withinLine = 0.053
+    lines.wiggle.onLinePointFail = 1.189
+    lines.wiggle.betweenLine = 0.206
+    lines.wiggle.dir = -1
+    lines.wiggle.nLines = 78
+    lines.wiggle.max = 1
+    lines.failsUntil.stop = 1643
+    lines.failsUntil.moveLook = 904
+    lines.failsUntil.forceMoveLook = 300
+    lines.failsUntil.reduceMinLen = 200
+    lines.tries.pixel = 10
+    lines.tries.linePoint = 10
+}
+
+const five = (lines: Lines) => {
+    lines.stepRate = 320
+    lines.stepMult = 3
+    lines.alphaThreshold = 54
+    lines.lineWidth = 5
+    lines.longLineRatio = 0.05
+    lines.newPixelRadius = 136
+    lines.newPixelMethod = 'circle'
+    lines.parallel = 20
+    lines.lookPointShare = true
+    lines.redraw = false
+    lines.len.minStart = 217
+    lines.len.minEnd = 30
+    lines.len.minReduceBy = 1
+    lines.len.max = 500
+    lines.len.maxForColor = 500
+    lines.colors.mixSpace = 'hsv'
+    lines.colors.pattern = 'step'
+    lines.colors.move = 0.00414
+    lines.colors.sort = 'hue'
+    lines.colors.sortDir = '+'
+    lines.colors.shadowAmt = 0
+    lines.colors.shadowAlpha = 0
+    lines.colors.shadowOffset[0] = 0
+    lines.colors.shadowOffset[1] = 0
+    lines.wiggle.withinLine = 0.95
+    lines.wiggle.onLinePointFail = 0.95
+    lines.wiggle.betweenLine = 1.5
+    lines.wiggle.dir = -1
+    lines.wiggle.nLines = 15
+    lines.wiggle.max = 2
+    lines.failsUntil.stop = 1000
+    lines.failsUntil.moveLook = 100
+    lines.failsUntil.forceMoveLook = 300
+    lines.failsUntil.reduceMinLen = 200
+    lines.tries.pixel = 10
+    lines.tries.linePoint = 10
+    lines.palette = palettes.blumagenta
+}
+
 new p5((p: p5) => {
     let theShader: p5.Shader
     let g: p5.Graphics
@@ -116,38 +344,6 @@ new p5((p: p5) => {
 
         lines = new Lines(g, { palette, pd: p.pixelDensity() })
 
-        lines.lineWidth = 4
-        lines.len.minEnd = 30
-        lines.len.minStart = 217
-        lines.len.max = 500
-        lines.len.minReduceBy = 1
-
-        lines.longLineRatio = 0.05
-        lines.stepMult = 1
-        lines.stepRate = 1000
-        lines.newPixelMethod = 'circle'
-        lines.lookPointShare = true
-        lines.newPixelRadius = 80
-
-        lines.colors.sort = 'saturation'
-        lines.colors.move = 0.0005
-        lines.colors.sortDir = '-'
-        lines.colors.pattern = 'step'
-
-        lines.alphaThreshold = 20
-        lines.wiggle.max = 1
-        lines.wiggle.withinLine = 0.4
-        lines.wiggle.onLinePointFail = 0.5
-        lines.wiggle.betweenLine = 0.5
-        lines.wiggle.nLines = 15
-        lines.wiggle.dir = 1
-
-        lines.failsUntil.moveLook = 100
-        lines.failsUntil.forceMoveLook = 300
-        // lines.failsUntil.reduceMinLen = 400
-        lines.parallel = 10
-        lines.reset()
-
         theShader = p.createShader(vert, frag)
         theShader.setUniform('uTime', 0)
         theShader.setUniform('uTex', g)
@@ -165,6 +361,12 @@ new p5((p: p5) => {
 
         makeBg()
 
+        gui.add(lines, 'palette', palettes)
+        gui.add(params, 'camShiftZ', -500, 500)
+        gui.add(params, 'camShiftY', -500, 500)
+        gui.add(params, 'upShiftX', -1, 1)
+        five(lines)
+        lines.reset()
         linesDebug(lines, gui, dataView, reset)
     }
 
@@ -197,10 +399,11 @@ new p5((p: p5) => {
         p.circle(0, 0, rSize)
 
         let cx = easing.outSine(Math.min(timeCircle, 1))
-        let camZ = 850 + cx * 200
-        let upX = cx * 0.4
+        let camZ = 850 + cx * params.camShiftZ
+        let camY = 0 + cx * params.camShiftY
+        let upX = cx * params.upShiftX
 
-        p.camera(0, 0, camZ, 0, 0, 0, upX, 1, 0)
+        p.camera(0, camY, camZ, 0, 0, 0, upX, 1, 0)
         dataView.update()
 
         if (lines.done && timeCircle >= 1) {

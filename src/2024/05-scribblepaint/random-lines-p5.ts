@@ -102,7 +102,7 @@ export class Lines {
         linePoint: 10,
     }
     colors = {
-        sort: 'none' as 'luminance' | 'lightness' | 'saturation' | 'hue' | 'none',
+        sort: 'none' as Parameters<typeof sortPalette>[1] | 'none',
         pattern: 'step' as 'step' | 'length',
         move: 0.0001,
         mixSpace: 'hsl' as chroma.InterpolationMode,
