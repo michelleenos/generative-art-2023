@@ -1,12 +1,6 @@
-import { random } from '~/helpers/utils'
+import { random, shuffle } from '~/helpers/utils'
 import { type PatternCell } from './cells/pattern-cell'
-import {
-    PatternStyleOpts,
-    createPattern,
-    createPatternRefMap,
-    getPaletteColors,
-    type CornersPattern,
-} from './grid-stuff'
+import { PatternStyleOpts, createPattern, type CornersPattern } from './grid-stuff'
 
 export type BasePatternOpts = {
     size: number
@@ -71,9 +65,21 @@ export class BasePattern {
     }
 
     setColors(palette: string[], newBg?: string) {
-        let { bg, fg } = getPaletteColors(palette, newBg)
-        if (bg) this.bg = bg
-        if (fg) this.fg = fg
+        // let colors: { bg?: string; fg?: string[] } = {}
+        if (palette.length === 0 && newBg) {
+            this.bg = newBg
+        } else if (palette.length === 1) {
+            if (newBg) {
+                this.bg = newBg
+                this.fg = palette
+            } else {
+                this.bg = palette[0]
+            }
+        } else {
+            this.fg = shuffle(palette)
+            this.bg = newBg || this.fg.shift()!
+        }
+
         this.setCellColors()
     }
 
@@ -82,7 +88,7 @@ export class BasePattern {
     }
 
     create(opts: Partial<Parameters<typeof createPattern>[1]> = {}) {
-        let { map, cells } = createPatternRefMap(this.sides, {
+        let { map, cells } = createPattern(this.sides, {
             rectChance: this.rectChance,
             cornersPattern: this.cornerPattern,
             squareOptions: this.squareOptions,

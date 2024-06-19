@@ -1,6 +1,5 @@
 import '~/style.css'
 import Stats from 'stats.js'
-import { Pane } from 'tweakpane'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import loop from '~/helpers/loop'
@@ -8,32 +7,23 @@ import { random } from '~/helpers/utils'
 import { type PatternCell } from '../cells/pattern-cell'
 import { AnimatedPattern } from '../pattern-grid-animated'
 import { GUI } from 'lil-gui'
+import { Sizes } from '~/helpers/sizes'
 
-const stats = new Stats()
-document.body.appendChild(stats.dom)
-
-class Sizes {
-    width!: number
-    height!: number
-    grid!: number
-    tx!: number
-    ty!: number
-
-    constructor(width: number, height: number) {
-        this.setSizes(width, height)
-    }
-
-    setSizes = (width: number, height: number) => {
-        this.width = width
-        this.height = height
-        this.grid = Math.min(width, height) * 0.85
-        this.tx = (width - this.grid) / 2
-        this.ty = (height - this.grid) / 2
+const getGridSizes = (sizes: Sizes) => {
+    let grid = Math.min(sizes.width, sizes.height) * 0.85
+    return {
+        grid,
+        tx: (sizes.width - grid) / 2,
+        ty: (sizes.height - grid) / 2,
     }
 }
 
-const sizes = new Sizes(window.innerWidth, window.innerHeight)
+const sizes = new Sizes()
+let gridSizes = getGridSizes(sizes)
 const { ctx, resizeCanvas } = createCanvas(sizes.width, sizes.height)
+
+const stats = new Stats()
+document.body.appendChild(stats.dom)
 
 let palettes = [
     // https://coolors.co/dc5132-a46589-7a82b8-8ad0a6-c4f0a8-a0bb07-ffcf33-ec9f05
@@ -114,7 +104,7 @@ const setGui = (gui: GUI, pattern: AnimatedPattern) => {
 }
 
 let pattern = new AnimatedPattern({
-    size: sizes.grid,
+    size: gridSizes.grid,
     palette: random(palettes),
     rectOptions: ['halfCircle'],
     squareOptions: ['leaf', 'quarterCircle'],
@@ -133,9 +123,9 @@ const gui = new GUI({ title: 'pattern controls' })
 setGui(gui, pattern)
 
 window.addEventListener('resize', () => {
-    sizes.setSizes(window.innerWidth, window.innerHeight)
+    gridSizes = getGridSizes(sizes)
     resizeCanvas(sizes.width, sizes.height)
-    pattern.size = sizes.grid
+    pattern.size = gridSizes.grid
 })
 
 let looping: ReturnType<typeof loop>
@@ -144,7 +134,7 @@ const draw = (t: number) => {
     stats.begin()
 
     ctx.save()
-    ctx.translate(sizes.tx, sizes.ty)
+    ctx.translate(gridSizes.tx, gridSizes.ty)
     let delta = t - lastTime
     lastTime = t
     pattern.draw(ctx, delta)

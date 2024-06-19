@@ -2,7 +2,7 @@ import '~/style.css'
 import Stats from 'stats.js'
 import { GUI } from 'lil-gui'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import easings from '~/helpers/easings'
+import easings, { easing } from '~/helpers/easings'
 import loop from '~/helpers/loop'
 import { AnimatedPattern } from '../pattern-grid-animated'
 import makeImages from '~/helpers/canvas-images'
@@ -64,8 +64,8 @@ const setGui = (gui: GUI, pattern: AnimatedPattern) => {
     f.add(pattern, 'cellDuration', 100, 4000, 10)
     f.add(pattern, 'rectChance', 0, 1, 0.01)
     f.add(pattern, 'cellDurationLines', 100, 4000, 10)
-    f.add(pattern, 'cellEase', { options: easingOpts })
-    f.add(pattern, 'addEase', { options: easingOpts })
+    f.add(pattern, 'cellEase', easingOpts)
+    f.add(pattern, 'addEase', easingOpts)
     f.add(pattern, 'sides', 3, 30, 1)
     f.add(pattern, 'inOutWait', 0, 5000, 10)
     f.add(pattern, 'cornerPattern', ['wave', 'circle', false])

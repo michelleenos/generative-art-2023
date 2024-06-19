@@ -18,6 +18,35 @@ export type CornersPattern = 'wave' | 'circle' | false
 export type Corner = 'tl' | 'tr' | 'bl' | 'br'
 export type Direction = 'up' | 'down' | 'left' | 'right'
 export type CellsOrder = 'linear-x' | 'linear-y' | 'diag-tl' | 'diag-tr' | 'random' | 'circle'
+export type PatternStyleOpts = {
+    quarterCircleFill?: { innerRatio?: number; outerRatio?: number }
+    quarterCircleLines?: {
+        innerRatio?: number
+        outerRatio?: number
+        steps?: number
+        each?: number
+        lineWidth?: number
+    }
+    lines?: {
+        steps?: number
+        diagSteps?: number
+        each?: number
+        lineWidth?: number
+        dirOptions?: ('h' | 'v' | 'd1' | 'd2')[]
+    }
+}
+
+type PatternCreateOptions = {
+    squareOptions?: PatternCell['style'][]
+    rectOptions?: PatternCell['style'][]
+    easing?: Easing
+    duration?: number
+    colors?: string[]
+    styleOpts?: PatternStyleOpts
+    rectChance?: number
+    cornersPattern?: CornersPattern
+    noisePattern?: boolean
+}
 
 let noise2d = createNoise2D()
 
@@ -71,19 +100,18 @@ const getDirection = (
 }
 
 const styleHasCorner = (style: PatternCell['style']) => {
-    let styles: PatternCell['style'][] = [
+    return [
         'quarterCircle',
         'triangle',
         'quarterCircleFill',
         'quarterCircleLines',
         'leaf',
-    ]
-    return styles.includes(style)
+    ].includes(style)
 }
 
 const styleHasDirection = (style: PatternCell['style']) => {
-    let styles: PatternCell['style'][] = ['halfCircle']
-    return styles.includes(style)
+    // let styles: PatternCell['style'][] = ['halfCircle']
+    return ['halfCircle'].includes(style)
 }
 
 const getCell = (opts: PatternCellProps, style: PatternCell['style']) => {
@@ -107,25 +135,7 @@ const getCell = (opts: PatternCellProps, style: PatternCell['style']) => {
     }
 }
 
-export type PatternStyleOpts = {
-    quarterCircleFill?: { innerRatio?: number; outerRatio?: number }
-    quarterCircleLines?: {
-        innerRatio?: number
-        outerRatio?: number
-        steps?: number
-        each?: number
-        lineWidth?: number
-    }
-    lines?: {
-        steps?: number
-        diagSteps?: number
-        each?: number
-        lineWidth?: number
-        dirOptions?: ('h' | 'v' | 'd1' | 'd2')[]
-    }
-}
-
-export const createPatternRefMap = (sides: number, opts: PatternCreateOptions) => {
+export const createPattern = (sides: number, opts: PatternCreateOptions) => {
     const map: (PatternCell | null)[] = Array.from({ length: sides * sides }, () => null)
     let ind = 0
     const cells: PatternCell[] = []
@@ -154,35 +164,6 @@ export const createPatternRefMap = (sides: number, opts: PatternCreateOptions) =
     return { cells, map }
 }
 
-export const createPattern = (sides: number, opts: PatternCreateOptions) => {
-    const map = Array.from({ length: sides * sides }, () => -1)
-    let ind = 0
-    const cells: PatternCell[] = []
-
-    while (ind < map.length) {
-        if (map[ind] > -1) {
-            ind++
-            continue
-        }
-        let point = indexToPoint(ind, sides)
-        if (point.x < 0 || point.y < 0) break
-        let { x, y } = point
-
-        let canRectX = x < sides - 1 && map[ind + 1] === -1
-        let canRectY = y < sides - 1 && map[ind + sides] === -1
-
-        let cell = createPatternCell(x, y, { ...opts, canRectX, canRectY })
-
-        cells.push(cell)
-
-        map[ind] = cells.length - 1
-        if (cell.w > cell.h) map[ind + 1] = cells.length - 1
-        if (cell.h > cell.w) map[ind + sides] = cells.length - 1
-    }
-
-    return { cells, map }
-}
-
 const defaultSquareOptions: PatternCell['style'][] = [
     'triangle',
     'lines',
@@ -192,18 +173,6 @@ const defaultSquareOptions: PatternCell['style'][] = [
 ]
 
 const defaultRectOptions: PatternCell['style'][] = ['halfCircle', 'quarterCircle']
-
-type PatternCreateOptions = {
-    squareOptions?: PatternCell['style'][]
-    rectOptions?: PatternCell['style'][]
-    easing?: Easing
-    duration?: number
-    colors?: string[]
-    styleOpts?: PatternStyleOpts
-    rectChance?: number
-    cornersPattern?: CornersPattern
-    noisePattern?: boolean
-}
 
 export const createPatternCell = (
     nx: number,
@@ -243,11 +212,7 @@ export const createPatternCell = (
 
     let style: PatternCell['style']
     if (opts.noisePattern) {
-        if (shape === 'square') {
-            style = getCellStyleNoise(nx, ny, squareOptions)
-        } else {
-            style = getCellStyleNoise(nx, ny, rectOptions)
-        }
+        style = getCellStyleNoise(nx, ny, shape === 'square' ? squareOptions : rectOptions)
     } else {
         style = shape === 'square' ? random(squareOptions) : random(rectOptions)
     }
@@ -332,23 +297,4 @@ export const orderCells = (cells: PatternCell[], order: CellsOrder, sides: numbe
     })
 
     return { cells, map }
-}
-
-export const getPaletteColors = (newPalette: string[], newBg?: string) => {
-    let colors: { bg?: string; fg?: string[] } = {}
-    if (newPalette.length === 0) return colors
-    if (newPalette.length === 1) {
-        if (newBg) {
-            colors.bg = newBg
-            colors.fg = newPalette
-        } else {
-            colors.bg = newPalette[0]
-        }
-    } else {
-        let pal = shuffle(newPalette)
-        colors.bg = newBg || pal.shift()
-        colors.fg = pal
-    }
-
-    return colors
 }
