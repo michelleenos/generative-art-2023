@@ -1,5 +1,3 @@
-import { random } from './utils'
-
 export function polygon(
     ctx: CanvasRenderingContext2D,
     {
@@ -124,77 +122,110 @@ export function rectCenter(
     }
 }
 
-export type CrazyTilesProps = {
-    x: number
-    y: number
-    w: number
-    h: number
-    iterations?: number
-    fn: (x: number, y: number, w: number, h: number) => void
-    minSize?: number
-    divisions?: '2s' | '2s-3s' | 'random'
+/**
+ * A triangle that is half the size of the square. The corner param is the 90 degree corner of the triangle.
+ * Optional progress param is for animating triangle enter/leave, from 0 to 1.
+ * @param ctx
+ * @param props
+ */
+export function diagTriangle(
+    ctx: CanvasRenderingContext2D,
+    { x = 0, y = 0, w = 100, h = 100, corner = 'tl' as 'tl' | 'tr' | 'bl' | 'br', progress = 1 }
+) {
+    ctx.beginPath()
+    if (corner === 'tl') {
+        ctx.moveTo(x, y)
+        ctx.lineTo(x, y + h * progress)
+        ctx.lineTo(x + w * progress, y)
+    } else if (corner === 'tr') {
+        ctx.moveTo(x + w, y)
+        ctx.lineTo(x + w - w * progress, y)
+        ctx.lineTo(x + w, y + h * progress)
+    } else if (corner === 'bl') {
+        ctx.moveTo(x, y + h)
+        ctx.lineTo(x, y + h - h * progress)
+        ctx.lineTo(x + w * progress, y + h)
+    } else if (corner === 'br') {
+        ctx.moveTo(x + w, y + h)
+        ctx.lineTo(x + w - w * progress, y + h)
+        ctx.lineTo(x + w, y + h - h * progress)
+    }
 }
 
-export function crazyTiles({
-    x,
-    y,
-    w,
-    h,
-    iterations = 6,
-    fn,
-    minSize = -1,
-    divisions = '2s',
-}: CrazyTilesProps) {
-    iterations--
-
-    if (iterations === 0 || w < minSize || h < minSize) {
-        fn(x, y, w, h)
-        return
+/**
+ * Draw a half circle inside a square/rectangle. The radius will be the half of the longest side of the square.
+ * The dir param is where the rounded side will point.
+ * Optional progress param is for animating the circle enter/leave, from 0 to 1.
+ * @param ctx
+ * @param props
+ */
+export function halfCircleInRect(
+    ctx: CanvasRenderingContext2D,
+    { x = 0, y = 0, w = 100, h = 100, dir = 'up' as 'up' | 'down' | 'left' | 'right', progress = 1 }
+) {
+    let radius = ((w > h ? w : h) / 2) * progress
+    ctx.beginPath()
+    if (dir === 'up') {
+        ctx.arc(x + w / 2, y + h, radius, Math.PI, 0)
+    } else if (dir === 'down') {
+        ctx.arc(x + w / 2, y, radius, 0, Math.PI)
+    } else if (dir === 'left') {
+        ctx.arc(x + w, y + h / 2, radius, Math.PI * 0.5, Math.PI * 1.5)
+    } else if (dir === 'right') {
+        ctx.arc(x, y + h / 2, radius, Math.PI * 1.5, Math.PI * 0.5)
     }
+}
 
-    if (w > h) {
-        let w1, w2
+/**
+ * A rounded leaf kinda shape with a pointed corner
+ * @param ctx
+ * @param props
+ */
+export function leaf(
+    ctx: CanvasRenderingContext2D,
+    { x = 0, y = 0, w = 100, h = 100, progress = 1, corner = 'tl' as 'tl' | 'tr' | 'bl' | 'br' }
+) {
+    let m = Math.min(w, h)
+    let radius = m * 0.5
 
-        if (divisions === '2s') {
-            w1 = w / random([2, 4])
-        } else if (divisions === '2s-3s') {
-            w1 = w / random([2, 3, 4])
-        } else {
-            w1 = w * random(0.2, 0.8)
-        }
+    let startX = corner === 'bl' || corner === 'tl' ? x + w : x
+    let startY = corner === 'tr' || corner === 'tl' ? y + h : y
+    let cx = x + m / 2
+    let cy = y + m / 2
+    let toCX = cx - startX
+    let toCY = cy - startY
+    let arcStart = corner === 'tl' ? 0.5 : corner === 'tr' ? 1 : corner === 'br' ? 1.5 : 0
 
-        if (random() < 0.5) {
-            w2 = w - w1
-        } else {
-            w2 = w1
-            w1 = w - w2
-        }
+    ctx.beginPath()
+    ctx.arc(
+        startX + toCX * progress,
+        startY + toCY * progress,
+        radius * progress,
+        Math.PI * arcStart,
+        Math.PI * (arcStart + 1.5)
+    )
+    ctx.lineTo(startX, startY)
+}
 
-        let x1 = x - w / 2 + w1 / 2
-        let x2 = x + w / 2 - w2 / 2
+export function quarterCircle(
+    ctx: CanvasRenderingContext2D,
+    { x = 0, y = 0, w = 100, h = 100, corner = 'tl' as 'tl' | 'tr' | 'bl' | 'br', progress = 1 }
+) {
+    let m = Math.min(w, h)
+    let radius = m * progress
 
-        crazyTiles({ x: x1, y, w: w1, h, iterations, fn, minSize, divisions })
-        crazyTiles({ x: x2, y, w: w2, h, iterations, fn, minSize, divisions })
-    } else {
-        let h1, h2
-        if (divisions === '2s') {
-            h1 = h / random([2, 4])
-        } else if (divisions === '2s-3s') {
-            h1 = h / random([2, 3, 4])
-        } else {
-            h1 = h * random(0.2, 0.8)
-        }
-
-        if (random() < 0.5) {
-            h2 = h - h1
-        } else {
-            h2 = h1
-            h1 = h - h2
-        }
-        let y1 = y - h / 2 + h1 / 2
-        let y2 = y + h / 2 - h2 / 2
-
-        crazyTiles({ x, y: y1, w, h: h1, iterations, fn, minSize, divisions })
-        crazyTiles({ x, y: y2, w, h: h2, iterations, fn, minSize, divisions })
+    ctx.beginPath()
+    if (corner === 'tl') {
+        ctx.arc(x + w, y + h, radius, Math.PI, Math.PI * 1.5)
+        ctx.lineTo(x + w, y + h)
+    } else if (corner === 'tr') {
+        ctx.arc(x, y + h, radius, Math.PI * 1.5, 0)
+        ctx.lineTo(x, y + h)
+    } else if (corner === 'bl') {
+        ctx.arc(x + w, y, radius, Math.PI * 0.5, Math.PI)
+        ctx.lineTo(x + w, y)
+    } else if (corner === 'br') {
+        ctx.arc(x, y, radius, 0, Math.PI * 0.5)
+        ctx.lineTo(x, y)
     }
 }

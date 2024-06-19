@@ -1,7 +1,7 @@
 import { PCell, type PatternCellProps } from './cells-base'
 import { random } from '~/helpers/utils'
 import { type Direction, type Corner } from '../grid-stuff'
-import { diagTriangle, halfCircleInRect, leaf } from '~/helpers/shapes-more'
+import { diagTriangle, halfCircleInRect, leaf } from '~/helpers/shapes'
 
 export class PatternCellTriangle extends PCell {
     style: 'triangle' = 'triangle'
