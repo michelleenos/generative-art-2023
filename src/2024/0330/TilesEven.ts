@@ -1,5 +1,3 @@
-import { random } from '~/helpers/utils'
-
 export type Tile = {
     x: number
     y: number

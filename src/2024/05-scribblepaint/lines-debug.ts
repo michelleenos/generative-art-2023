@@ -80,7 +80,7 @@ export const linesDebug = (lines: Lines, gui: GUI, dataView: DataView, onReset?:
     rf.add(debug.redraw, 'rate', 0, 1000, 1)
     rf.add(debug.redraw, 'maxMult', 1, 10, 0.1)
     rf.add(debug.redraw, 'after', 0, 1000, 1)
-    rf.onChange(({ object, property, value, controller }) => {
+    rf.onChange(({ value, controller }) => {
         if (controller === doRedrawControl) {
             if (value) {
                 lines.redraw = debug.redraw

@@ -1,5 +1,5 @@
 import '../../style.css'
-import { random, shuffle, clamp, map, round } from '~/helpers/utils'
+import { random, shuffle, map } from '~/helpers/utils'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import { burst } from '~/helpers/shapes'
 import { crazyTiles } from '~/helpers/crazy-tiles'
@@ -256,7 +256,7 @@ function draw(t: number) {
     ctx.fillStyle = '#fff'
     ctx.fillRect(0, 0, width, height)
 
-    patterns.forEach((pattern, i) => {
+    patterns.forEach((pattern) => {
         ctx.save()
         pattern.drawBg()
         let p = pattern.getProgress(progress)

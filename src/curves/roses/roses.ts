@@ -87,13 +87,10 @@ function setSpecial() {
 
 function checkSpecial() {
     let special = 'none'
-    if (PARAMS.numerator === 1 && PARAMS.denominator === 3)
-        special = 'trisectrix'
+    if (PARAMS.numerator === 1 && PARAMS.denominator === 3) special = 'trisectrix'
     if (PARAMS.numerator === 1 && PARAMS.denominator === 2) special = 'durer'
-    if (PARAMS.numerator === 2 && PARAMS.denominator === 1)
-        special = 'quadrifolium'
-    if (PARAMS.numerator === 3 && PARAMS.denominator === 1)
-        special = 'trifolium'
+    if (PARAMS.numerator === 2 && PARAMS.denominator === 1) special = 'quadrifolium'
+    if (PARAMS.numerator === 3 && PARAMS.denominator === 1) special = 'trifolium'
     PARAMS.special = special
     rc.refresh()
 }
@@ -119,19 +116,12 @@ function draw() {
             PARAMS.iterations
         )
     } else {
-        rose(
-            0,
-            0,
-            PARAMS.size,
-            PARAMS.numerator,
-            PARAMS.denominator,
-            PARAMS.res
-        )
+        rose(0, 0, PARAMS.size, PARAMS.numerator, PARAMS.denominator, PARAMS.res)
     }
     ctx.stroke()
 }
 
-function rose(x, y, size, nNum, nDenom, res = 0.01) {
+function rose(x: number, y: number, size: number, nNum: number, nDenom: number, res = 0.01) {
     ctx.beginPath()
 
     let m = (nDenom * nNum) % 2 === 0 ? 2 : 1
@@ -146,7 +136,15 @@ function rose(x, y, size, nNum, nDenom, res = 0.01) {
 }
 
 // traditional num of iterations is 360
-function maurer(x, y, size, nNum, nDenom, step = 49, iterations = 360) {
+function maurer(
+    x: number,
+    y: number,
+    size: number,
+    nNum: number,
+    nDenom: number,
+    step = 49,
+    iterations = 360
+) {
     ctx.beginPath()
     for (let i = 0; i < iterations; i++) {
         let degrees = i * step

@@ -1,7 +1,7 @@
-import '../../style.css'
-import createCanvas from '../../helpers/canvas/createCanvas'
-import { getFaces, getPoints } from './lines-points'
 import { GUI } from 'lil-gui'
+import createCanvas from '../../helpers/canvas/createCanvas'
+import '../../style.css'
+import { getPoints } from './lines-points'
 
 // let palette = ['#a935bb', '#f7b32b', '#f72c25', '#1c77c3']
 
@@ -154,7 +154,7 @@ function draw() {
     let padding = blockStep * P.padding
     let blockSize = blockStep - padding * 2
 
-    points.forEach(({ points: pointsArr, edges }, i) => {
+    points.forEach(({ points: pointsArr }, i) => {
         let x = i % P.tiles
         let y = Math.floor(i / P.tiles)
         ctx.save()

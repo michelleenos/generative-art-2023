@@ -1,19 +1,18 @@
-import '../../style.css'
 import createCanvas from '~/helpers/canvas/createCanvas'
-import { createNoise2D, createNoise3D } from 'simplex-noise'
-import { map, lerp, random } from '~/helpers/utils'
+import '../../style.css'
 import loop from '~/helpers/loop'
+import { lerp, random } from '~/helpers/utils'
 
 const PARAMS = {
     scale: 10,
 }
 
-let red = '#f24333' // 4
-let orange = '#ff8019' // 3
-let yellow = '#f6b02c' // 2
-let blue = '#2ec2ea' // 0
-let green = '#3bed73' // 1
-let pink = '#fc6c9c' // 5
+// let red = '#f24333' // 4
+// let orange = '#ff8019' // 3
+// let yellow = '#f6b02c' // 2
+// let blue = '#2ec2ea' // 0
+// let green = '#3bed73' // 1
+// let pink = '#fc6c9c' // 5
 
 let width = Math.min(window.innerWidth, 500)
 let height = Math.min(window.innerHeight, 500)
@@ -21,8 +20,6 @@ let height = Math.min(window.innerHeight, 500)
 let { ctx, resizeCanvas } = createCanvas(width, height)
 
 type Particle = { x: number; y: number; vel: number }
-const noise3D = createNoise3D()
-const noise2D = createNoise2D()
 
 class FlowField {
     cols: number
@@ -109,7 +106,7 @@ function setup() {
     flowField.drawField()
 }
 
-function draw(t: number) {
+function draw(_t: number) {
     ctx.clearRect(0, 0, width, height)
     flowField.drawField()
 

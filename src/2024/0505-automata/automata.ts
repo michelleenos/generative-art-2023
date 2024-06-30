@@ -53,7 +53,7 @@ new p5((p: p5) => {
         img = p.createGraphics(p.width * 0.8, p.height * 0.8)
     }
 
-    const beforeUpdateBoid = (boid: Boid, i: number) => {
+    const beforeUpdateBoid = (boid: Boid) => {
         let force = boid.seek(attractor)
         boid.applyForce(force)
         let angle = Math.atan2(boid.velocity.y, boid.velocity.x)

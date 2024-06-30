@@ -41,7 +41,6 @@ function getLineSegments(coords: number[][], p: p5) {
 new p5((p: p5) => {
     let coords: Coords
     let segments: p5.Vector[][]
-    let palette
     let done = false
     function setup() {
         coords = mountains

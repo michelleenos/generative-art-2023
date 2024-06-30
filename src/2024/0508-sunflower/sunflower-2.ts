@@ -9,7 +9,7 @@ const width = window.innerWidth
 const height = window.innerHeight
 const { ctx } = createCanvas(width, height)
 
-let goldenAngleDegrees = 360 * (2 - PHI)
+// let goldenAngleDegrees = 360 * (2 - PHI)
 let goldenAngleRadians = Math.PI * 2 * (2 - PHI)
 
 interface SunflowerDrawOptions {

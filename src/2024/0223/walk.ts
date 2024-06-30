@@ -1,4 +1,3 @@
-import easings from '~/helpers/easings'
 import { random } from '~/helpers/utils'
 
 type WalkGridOpts = {

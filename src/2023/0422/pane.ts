@@ -1,6 +1,13 @@
 import { Pane } from 'tweakpane'
+import p5 from 'p5'
 
-function setPane(PARAMS, p, initVelOpts, makeParticles, setup: () => void) {
+function setPane(
+    PARAMS: { [key: string]: any },
+    p: p5,
+    initVelOpts: { [key: string]: string },
+    makeParticles: (n: number, reset: boolean) => void,
+    setup: () => void
+) {
     let pane = new Pane()
     const restart = () => {
         setup()
@@ -99,11 +106,8 @@ function setPane(PARAMS, p, initVelOpts, makeParticles, setup: () => void) {
     a1.on('change', restart)
     a2.on('change', restart)
 
-    pane.addButton({ title: 'add 5 random particles' }).on('click', () =>
-        makeParticles(5, false)
-    )
+    pane.addButton({ title: 'add 5 random particles' }).on('click', () => makeParticles(5, false))
     pane.addButton({ title: 'restart' }).on('click', restart)
-    // pane.addButton({ title: 'save canvas' }).on('click', p.saveCanvas)
 
     setDisabled()
     return pane

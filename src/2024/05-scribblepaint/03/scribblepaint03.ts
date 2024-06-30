@@ -1,12 +1,11 @@
-import p5 from 'p5'
-import { Lines } from '../random-lines-p5'
-import { DataView } from '~/helpers/debug/data-view'
 import { GUI } from 'lil-gui'
+import p5 from 'p5'
+import { DataView } from '~/helpers/debug/data-view'
+import { noisyLines } from '../../05-backgrounds/05backgrounds'
 import { snoise } from '../glsl-snoise'
 import { linesDebug } from '../lines-debug'
+import { Lines } from '../random-lines-p5'
 import { Recorder } from '../recorder'
-import easing from '~/helpers/easings'
-import { noisyLines } from '../../05-backgrounds/05backgrounds'
 
 // let palette = ['#f398c3', '#cf3895', '#a0d28d', '#06b4b0', '#fed000', '#FF8552']
 let palette = ['#f9c80e', '#fa9161', '#ee5968', '#73d2de', '#e9d2f4', '#a160dd']
@@ -173,9 +172,7 @@ new p5((p: p5) => {
 
         theShader.setUniform('uTime', uTime / 1000)
         theShader.setUniform('uTex', g)
-        let cx = easing.outSine(Math.min(timeCircle, 1))
         theShader.setUniform('uProgress', Math.min(timeCircle, 1))
-        // console.log(timeCircle1)
 
         p.noStroke()
         p.shader(theShader)

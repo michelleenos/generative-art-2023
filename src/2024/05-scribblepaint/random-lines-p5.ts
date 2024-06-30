@@ -1,11 +1,11 @@
 import chroma from 'chroma-js'
 import p5 from 'p5'
 import easing from '~/helpers/easings'
-import { map, random } from '~/helpers/utils'
-import { sortPalette } from './sort-colors'
 import { Rectangle } from '~/helpers/trig-shapes'
-import { pixelIndex, randomAngle, randomInCircle, randomInSquare, setShadow } from './utils'
+import { random } from '~/helpers/utils'
 import { getLinePoints } from './lines-fns'
+import { sortPalette } from './sort-colors'
+import { pixelIndex, randomAngle, randomInCircle, randomInSquare, setShadow } from './utils'
 
 function distSq(p1: [number, number], p2: [number, number]) {
     return Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)

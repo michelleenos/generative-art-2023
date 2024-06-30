@@ -8,7 +8,6 @@ import { Recorder } from '../recorder'
 import easing from '~/helpers/easings'
 import { noisyLines } from '../../05-backgrounds/05backgrounds'
 
-// let palette = ['#f398c3', '#cf3895', '#a0d28d', '#06b4b0', '#fed000', '#FF8552']
 let palettes = {
     bright: ['#f9c80e', '#fa9161', '#ee5968', '#73d2de', '#e9d2f4', '#a160dd'],
     blues: ['#99dfff', '#60ebca', '#c4f5ed', '#b8ccfc', '#04996d', '#4467ab'],

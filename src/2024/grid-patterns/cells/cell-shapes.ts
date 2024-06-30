@@ -145,7 +145,7 @@ export class PatternCellLeaf extends PCell {
     }
 
     draw(ctx: CanvasRenderingContext2D, unitSize: number, progress = this.timer.progress) {
-        let { x, y, w, h, m } = this.getSizes(unitSize)
+        let { x, y, w, h } = this.getSizes(unitSize)
         ctx.fillStyle = this.color
         leaf(ctx, { x, y, w, h, corner: this.corner, progress })
         ctx.fill()

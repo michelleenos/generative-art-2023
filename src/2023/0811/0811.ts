@@ -84,7 +84,7 @@ function setPane() {
 const numSitesSpan = document.getElementById('numSites') as HTMLSpanElement
 
 new p5((p: p5) => {
-    let canvas: p5.Renderer
+    // let canvas: p5.Renderer
     function recolor() {
         for (let i = 0; i < sites.length; i++) {
             sites[i].color = palette[i % palette.length]
@@ -115,7 +115,7 @@ new p5((p: p5) => {
 
     p.setup = () => {
         setSizes()
-        canvas = p.createCanvas(props.width, props.height)
+        p.createCanvas(props.width, props.height)
 
         palette = [...p.random(palettes)]
         palette = p.shuffle(palette)
@@ -170,7 +170,7 @@ new p5((p: p5) => {
 
         p.noStroke()
 
-        diagram.cells.forEach((cell, i) => {
+        diagram.cells.forEach((cell) => {
             // @ts-ignore
             if (cell.site.color) p.fill(cell.site.color)
             drawCell(cell)

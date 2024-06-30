@@ -1,6 +1,6 @@
 import p5 from 'p5'
 
-function gcf(x, y) {
+function gcf(x: number, y: number) {
     let result = Math.min(x, y)
     while (result > 0) {
         if (x % result === 0 && y % result === 0) {
@@ -11,7 +11,7 @@ function gcf(x, y) {
     return result
 }
 
-function simplify(num, denom) {
+function simplify(num: number, denom: number) {
     let factor = gcf(num, denom)
     return { num: num / factor, denom: denom / factor }
 }

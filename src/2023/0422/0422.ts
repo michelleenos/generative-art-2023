@@ -52,7 +52,7 @@ new p5((p: p5) => {
     let attractors: Particle[] = []
     let STOPANDSAVEIMG = false
     let translate = new p5.Vector(0, 0)
-    let recorder
+    let recorder: ReturnType<typeof makeImages>
 
     let initVelFunctions: { [key: string]: (i?: any, n?: any) => number } = {
         '-1': () => -1,
@@ -124,7 +124,7 @@ new p5((p: p5) => {
         }
     }
 
-    function isHighlighted(x, y) {
+    function isHighlighted(x: number, y: number) {
         let vals = [2, 2]
         return (x === vals[0] && y === vals[1]) || (x === vals[1] && y === vals[0])
     }

@@ -1,9 +1,18 @@
 import { round } from '../../helpers/utils.js'
 
-export function debugBubbles(PARAMS, ctx) {
+type Params = {
+    bubblesMult: number
+    mouseMass: number
+    mouseDiffMult: number
+    viscosity: number
+    bubbleRadius: number
+    mouseRadius: number
+}
+
+export function debugBubbles(PARAMS: Params, ctx: CanvasRenderingContext2D) {
     let stored = JSON.parse(window.localStorage.getItem('locparams') ?? '{}')
-    let paramNames = Object.keys(PARAMS)
-    paramNames.forEach((param, i) => {
+    let paramNames = Object.keys(PARAMS) as (keyof Params)[]
+    paramNames.forEach((param) => {
         PARAMS[param] = stored[param] ?? PARAMS[param]
     })
 
@@ -20,7 +29,7 @@ export function debugBubbles(PARAMS, ctx) {
         ctx.fillText(`mouseRadius   (r, t): ${PARAMS.mouseRadius}`, 10, 120)
     }
 
-    function adjust(param, amount, places = 2) {
+    function adjust(param: keyof Params, amount: number, places = 2) {
         PARAMS[param] = round(PARAMS[param] + amount, places)
     }
 

@@ -20,7 +20,7 @@ let compositeOptions: GlobalCompositeOperation[] = ['screen', 'overlay', 'source
 
 let width = window.innerWidth
 let height = window.innerHeight
-let { ctx, resizeCanvas, canvas } = createCanvas(width, height)
+let { ctx, resizeCanvas } = createCanvas(width, height)
 let PARAMS = {
     blendModes: false,
     size: 50,

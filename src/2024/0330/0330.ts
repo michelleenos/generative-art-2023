@@ -6,7 +6,7 @@ import { random, shuffle } from '~/helpers/utils'
 
 const width = window.innerWidth
 const height = window.innerHeight
-const { ctx, canvas } = createCanvas(width, height)
+const { ctx } = createCanvas(width, height)
 let looping: ReturnType<typeof loop>
 
 let palettes = [

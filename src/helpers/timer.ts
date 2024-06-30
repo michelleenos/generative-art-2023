@@ -57,4 +57,9 @@ export class Timer {
         this.linearProgress = 1
         this.progress = 1
     }
+
+    setProgress(p: number) {
+        this.linearProgress = p
+        this.progress = easing[this.easing](this.linearProgress)
+    }
 }

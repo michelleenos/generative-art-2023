@@ -204,7 +204,6 @@ export class TilesDraw {
         if (!this.lastTime) this.lastTime = time
         if (!this.lastAdd) this.lastAdd = time
 
-        let delta = time - this.lastTime
         this.lastTime = time
 
         let deltaSinceAdded = time - this.lastAdd

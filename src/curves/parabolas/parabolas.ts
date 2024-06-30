@@ -8,7 +8,7 @@ let height = window.innerHeight
 
 let { ctx } = createCanvas(width, height)
 
-function ellipse(cx, cy, rx, ry) {
+function ellipse(cx: number, cy: number, rx: number, ry: number) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
     ctx.beginPath()
 
@@ -72,11 +72,11 @@ function parabolaSimple(a = 0.003, lines = false) {
 
     // x0 = fixed point on the parabola
     // x1 = a point on the tangent line (can be anywhere basically)
-    function tangentPoint(x0, x1) {
+    function tangentPoint(x0: number, x1: number) {
         return 2 * a * x0 * x1 - a * x0 * x0
     }
 
-    function tangentLine(x0) {
+    function tangentLine(x0: number) {
         let y0 = a * x0 * x0
         ellipse(x0, y0, 4, 4)
         ctx.fill()
@@ -126,7 +126,7 @@ function parabolaQuadratic(a = 0.003, b, c) {
 }
 
 // y = a(x - h)^2 + k --> vertex form (vertex point is h, k)
-function parabolaVertex(a, h, k) {
+function parabolaVertex(a: number, h: number, k: number) {
     ctx.beginPath()
     for (let x = -width / 2; x <= width / 2; x++) {
         let y = a * (x - h) * (x - h) + k
@@ -148,11 +148,11 @@ function parabolaVertex(a, h, k) {
 
     // x0 = fixed point on the parabola
     // x1 = a point on the tangent line (can be anywhere basically)
-    function tangentPoint(x0, x1) {
+    function tangentPoint(x0: number, x1: number) {
         return 2 * a * x0 * x1 - a * (x0 - h) * (x0 - h) + k
     }
 
-    function tangentLine(x0) {
+    function tangentLine(x0: number) {
         let y0 = a * (x0 - h) * (x0 - h) + k
         ellipse(x0, y0, 4, 4)
         ctx.fill()

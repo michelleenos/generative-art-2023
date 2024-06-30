@@ -11,7 +11,7 @@ new p5((p: p5) => {
     let steps = 8
     let currentStep = 0
     let cols: Cell[][] = []
-    let rect: { width: number; height: number; x: number; y: number }
+    // let rect: { width: number; height: number; x: number; y: number }
 
     class Cell {
         pos: p5.Vector

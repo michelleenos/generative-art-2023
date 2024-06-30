@@ -13,7 +13,6 @@ const { ctx } = createCanvas(width, height)
 let lastTime = 0
 
 function draw(t: number) {
-    let delta = t - lastTime
     lastTime = t
     ctx.clearRect(0, 0, width, height)
     ctx.save()

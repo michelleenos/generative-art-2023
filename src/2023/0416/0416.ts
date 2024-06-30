@@ -24,6 +24,13 @@ const chords = {
 let chooseChords = [chords.Csus, chords.d7, chords.a7, chords.F, chords.G9]
 
 new p5((p: p5) => {
+    let distmax: number
+    let particles: Particle[] = []
+    let sloop
+    let lowest: number
+    let highest: number
+    // let fft
+
     class Particle {
         radius: number
         osc: Oscillator
@@ -87,7 +94,7 @@ new p5((p: p5) => {
             this.freqHue = p.map(p.freqToMidi(f), lowest, highest, 0, 360)
         }
 
-        play(time) {
+        play(time: number) {
             if (!this.playing) {
                 this.lastTriggered = time
                 this.env.triggerAttack(this.osc, 0)
@@ -96,7 +103,7 @@ new p5((p: p5) => {
             }
         }
 
-        stop(time) {
+        stop(time: number) {
             if (this.playing) {
                 this.lastTriggered = time
                 this.env.triggerRelease(this.osc, 0)
@@ -124,14 +131,6 @@ new p5((p: p5) => {
             return p.dist(this.x, this.y, particle.x, particle.y)
         }
     }
-
-    let distmax
-    let particles: Particle[] = []
-    let sloop
-    let lowest
-    let highest
-    let fft
-    let spectrum
 
     let chordsMidi = chooseChords.map((chord) => {
         return chord.map((note) => midiNumbers[note])
@@ -167,7 +166,7 @@ new p5((p: p5) => {
             particles.push(new Particle(note, p.random(0.2, 2), p.random(0.2, 2)))
         }
 
-        fft = new p5.FFT()
+        // fft = new p5.FFT()
     }
 
     p.draw = function () {

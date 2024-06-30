@@ -2,11 +2,12 @@ import '../../style.css'
 import p5 from 'p5'
 import { Pane } from 'tweakpane'
 import RefreshContainer from '../../helpers/refresh-container'
-import initTrochoid from './parts/trochoid'
+// import initTrochoid from './parts/trochoid'
+import { Hypotrochoid } from './parts/trochoid-2'
 
 new p5((p: p5) => {
-    let Trochoid = initTrochoid(p).Hypotrochoid
-    let circ
+    // let Trochoid = initTrochoid(p).Hypotrochoid
+    let trochoid: Hypotrochoid
     let pane = new Pane()
     let rc = new RefreshContainer(pane)
 
@@ -20,10 +21,7 @@ new p5((p: p5) => {
     function setupControlsCircle() {
         let opts = { min: 1, max: 300, step: 1 }
         pane.addInput(PARAMS, 'lineLen', opts).on('change', () => {
-            if (
-                PARAMS.special === 'hypocycloid' ||
-                PARAMS.special.startsWith('cycratio')
-            ) {
+            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
                 PARAMS.radius = PARAMS.lineLen
 
                 if (PARAMS.special.includes('ratio2')) {
@@ -33,12 +31,12 @@ new p5((p: p5) => {
                 } else if (PARAMS.special.includes('ratio4')) {
                     PARAMS.baseRadius = PARAMS.radius * 4
                 }
-                circ.radius = PARAMS.radius
-                circ.baseRadius = PARAMS.baseRadius
+                trochoid.radius = PARAMS.radius
+                trochoid.baseRadius = PARAMS.baseRadius
             }
 
-            circ.lineLen = PARAMS.lineLen
-            circ.makeSteps()
+            trochoid.lineLen = PARAMS.lineLen
+            trochoid.makeSteps()
             rc.refresh()
         })
         pane.addInput(PARAMS, 'radius', opts).on('change', () => {
@@ -49,17 +47,14 @@ new p5((p: p5) => {
             } else if (PARAMS.special.includes('ratio4')) {
                 PARAMS.baseRadius = PARAMS.radius * 4
             }
-            if (
-                PARAMS.special === 'hypocycloid' ||
-                PARAMS.special.startsWith('cycratio')
-            ) {
+            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
                 PARAMS.lineLen = PARAMS.radius
-                circ.lineLen = PARAMS.lineLen
+                trochoid.lineLen = PARAMS.lineLen
             }
 
-            circ.baseRadius = PARAMS.baseRadius
-            circ.radius = PARAMS.radius
-            circ.makeSteps()
+            trochoid.baseRadius = PARAMS.baseRadius
+            trochoid.radius = PARAMS.radius
+            trochoid.makeSteps()
             rc.refresh()
         })
         pane.addInput(PARAMS, 'baseRadius', opts).on('change', () => {
@@ -74,17 +69,14 @@ new p5((p: p5) => {
                 PARAMS.baseRadius = PARAMS.radius * 4
             }
 
-            if (
-                PARAMS.special === 'hypocycloid' ||
-                PARAMS.special.startsWith('cycratio')
-            ) {
+            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
                 PARAMS.lineLen = PARAMS.radius
             }
 
-            circ.radius = PARAMS.radius
-            circ.lineLen = PARAMS.lineLen
-            circ.baseRadius = PARAMS.baseRadius
-            circ.makeSteps()
+            trochoid.radius = PARAMS.radius
+            trochoid.lineLen = PARAMS.lineLen
+            trochoid.baseRadius = PARAMS.baseRadius
+            trochoid.makeSteps()
             rc.refresh()
         })
 
@@ -113,18 +105,15 @@ new p5((p: p5) => {
                 if (PARAMS.radius > 75) PARAMS.radius = 75
                 PARAMS.baseRadius = PARAMS.radius * 4
             }
-            if (
-                PARAMS.special === 'hypocycloid' ||
-                PARAMS.special.startsWith('cycratio')
-            ) {
+            if (PARAMS.special === 'hypocycloid' || PARAMS.special.startsWith('cycratio')) {
                 PARAMS.lineLen = PARAMS.radius
-                circ.lineLen = PARAMS.lineLen
+                trochoid.lineLen = PARAMS.lineLen
             }
 
-            circ.radius = PARAMS.radius
-            circ.baseRadius = PARAMS.baseRadius
+            trochoid.radius = PARAMS.radius
+            trochoid.baseRadius = PARAMS.baseRadius
 
-            circ.makeSteps()
+            trochoid.makeSteps()
             rc.refresh()
         })
     }
@@ -132,7 +121,7 @@ new p5((p: p5) => {
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
         p.angleMode(p.RADIANS)
-        circ = new Trochoid({
+        trochoid = new Hypotrochoid({
             radius: PARAMS.radius,
             baseRadius: PARAMS.baseRadius,
         })
@@ -140,13 +129,18 @@ new p5((p: p5) => {
         setupControlsCircle()
     }
 
+    let lastTime = 0
     p.draw = function () {
+        let ms = p.millis()
+        let delta = ms - lastTime
+        lastTime = ms
         p.background('#0a0a0a')
         p.translate(p.width / 2, p.height / 2)
 
         p.strokeWeight(1)
         p.noFill()
         p.stroke('#fff')
-        circ.draw()
+        trochoid.tick(delta)
+        trochoid.draw(p)
     }
 })

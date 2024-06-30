@@ -1,3 +1,5 @@
+import { random } from './utils'
+
 export function polygon(
     ctx: CanvasRenderingContext2D,
     {
@@ -25,14 +27,25 @@ export function burst(
         nodes,
         vary,
         start = 0,
-    }: { cx: number; cy: number; r: number; nodes: number; vary: number; start?: number }
+        precision = 200,
+    }: {
+        cx: number
+        cy: number
+        r: number
+        nodes: number
+        vary: number
+        start?: number
+        precision?: number
+    }
 ) {
+    let step = (Math.PI * 2) / precision
     ctx.beginPath()
-    for (let i = 0; i < 2 * Math.PI; i += 0.01) {
-        let ri = r + Math.sin(i * nodes) * vary
+    for (let i = 0; i < precision; i++) {
+        let angle = i * step
+        let ri = r + Math.sin(angle * nodes) * vary
 
-        let x1 = cx + Math.cos(i + start) * ri
-        let y1 = cy + Math.sin(i + start) * ri
+        let x1 = cx + Math.cos(angle + start) * ri
+        let y1 = cy + Math.sin(angle + start) * ri
         ctx.lineTo(x1, y1)
     }
     ctx.closePath()
@@ -183,13 +196,26 @@ export function halfCircleInRect(
  */
 export function leaf(
     ctx: CanvasRenderingContext2D,
-    { x = 0, y = 0, w = 100, h = 100, progress = 1, corner = 'tl' as 'tl' | 'tr' | 'bl' | 'br' }
+    {
+        x = 0,
+        y = 0,
+        w = 100,
+        h = 100,
+        progress = 1,
+        corner = undefined as 'tl' | 'tr' | 'bl' | 'br' | undefined,
+    }
 ) {
+    if (!corner) corner = random(['tl', 'tr', 'bl', 'br'])
     let m = Math.min(w, h)
     let radius = m * 0.5
 
-    let startX = corner === 'bl' || corner === 'tl' ? x + w : x
-    let startY = corner === 'tr' || corner === 'tl' ? y + h : y
+    if (m < h && corner.startsWith('t')) {
+        y += h - m
+    } else if (m < w && corner.endsWith('l')) {
+        x += w - m
+    }
+    let startX = corner === 'bl' || corner === 'tl' ? x + m : x
+    let startY = corner === 'tr' || corner === 'tl' ? y + m : y
     let cx = x + m / 2
     let cy = y + m / 2
     let toCX = cx - startX

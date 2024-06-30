@@ -2,7 +2,7 @@ import '../../style.css'
 
 import p5 from 'p5'
 
-let palettes = [['#157A6E', '#77B28C', '#C2C5BB', '#1C2321']]
+// let palettes = [['#157A6E', '#77B28C', '#C2C5BB', '#1C2321']]
 
 let palette: string[] = ['#1C2321', '#157A6E', '#77B28C', '#C2C5BB']
 
@@ -12,15 +12,10 @@ const props = {
 
 const PI = Math.PI
 
-const easeInOutSine = (x: number) => {
-    return -(Math.cos(Math.PI * x) - 1) / 2
-}
-
 new p5((p: p5) => {
     let stepsX: number
     let stepsY: number
     let translate: { x: number; y: number }
-    let div: HTMLElement
 
     p.setup = () => {
         p.createCanvas(window.innerWidth, window.innerHeight)

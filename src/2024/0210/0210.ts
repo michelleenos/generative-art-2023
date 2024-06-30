@@ -33,7 +33,6 @@ let blur: Blur | undefined
 let palette: string[]
 
 const pane = new Pane()
-let btnRestart: ButtonApi
 let btnBlur: ButtonApi
 
 const setupInfo = () => {
@@ -155,7 +154,7 @@ const draw = (t: number) => {
     }
 }
 
-btnRestart = pane.addButton({ title: 'restart' }).on('click', setup)
+pane.addButton({ title: 'restart' }).on('click', setup)
 btnBlur = pane.addButton({ title: 'add blur' }).on('click', addBlur)
 
 setup()

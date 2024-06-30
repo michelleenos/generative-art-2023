@@ -86,7 +86,6 @@ function patterns(cx: number, cy: number, w: number, h: number) {
     let x = cx - w / 2
     let y = cy - h / 2
     let min = Math.min(w, h)
-    let max = Math.max(w, h)
     let r = min * 0.5
 
     ctx.save()

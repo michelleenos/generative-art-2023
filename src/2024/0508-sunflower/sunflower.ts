@@ -8,13 +8,13 @@ const width = window.innerWidth
 const height = window.innerHeight
 const { ctx } = createCanvas(width, height)
 
-const PARAMS = {
-    count: 200,
-    maxRadius: 300,
-    minRadius: 100,
-    maxSize: 10,
-    minSize: 2,
-}
+// const PARAMS = {
+//     count: 200,
+//     maxRadius: 300,
+//     minRadius: 100,
+//     maxSize: 10,
+//     minSize: 2,
+// }
 
 class SunflowerDraw {
     count: number = 100
@@ -121,8 +121,6 @@ class SunflowerDraw {
         let step = 1
         let angle = 0
 
-        let percent = step / this.count
-        let radius = this.minRadius + (this.maxRadius - this.minRadius) * percent
         angle += Math.PI * 2 * PHI
 
         let points: number[][] = []

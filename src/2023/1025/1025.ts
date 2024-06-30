@@ -34,7 +34,7 @@ let height = window.innerHeight
 let { ctx, resizeCanvas, canvas } = createCanvas(width, height)
 let offscreenCanvas = generateNoise(width, height)
 
-function draw(time: number = 0) {
+function draw(_time: number = 0) {
     ctx.clearRect(0, 0, width, height)
     ctx.fillStyle = '#121212'
     ctx.fillRect(0, 0, width, height)

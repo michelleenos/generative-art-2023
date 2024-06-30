@@ -1,7 +1,7 @@
-import p5 from 'p5'
-import { map, random } from '~/helpers/utils'
 import chroma from 'chroma-js'
+import p5 from 'p5'
 import { createNoise2D } from 'simplex-noise'
+import { map } from '~/helpers/utils'
 
 const PHI = (1 + Math.sqrt(5)) / 2
 let goldenAngle = Math.PI * 2 * (2 - PHI)
@@ -125,7 +125,7 @@ export class Flower {
             let percent = i / this.petals.length
             p.push()
             petal.update(t)
-            let progress = petal.progress
+            // let progress = petal.progress
             let alpha = 1
             let color = chroma.mix(this.color1, this.color2, percent).alpha(alpha).hex()
             p.fill(color)

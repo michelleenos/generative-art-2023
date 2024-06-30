@@ -7,7 +7,7 @@ import '~/style.css'
 import { Grid } from './Grid'
 
 const sizes = { width: window.innerWidth, height: window.innerHeight }
-const { ctx, canvas, resizeCanvas } = createCanvas(sizes.width, sizes.height)
+const { ctx, resizeCanvas } = createCanvas(sizes.width, sizes.height)
 
 let m: number
 let palettes = [

@@ -155,7 +155,7 @@ function draw(time: number = 0) {
         ctx.save()
         ctx.translate(x, y)
 
-        layers.forEach((layer, i) => {
+        layers.forEach((layer) => {
             if (layer.type === 'tiles') {
                 let { dbl, sz1, sz2, style, color, move, skip } = layer
                 let i = 0

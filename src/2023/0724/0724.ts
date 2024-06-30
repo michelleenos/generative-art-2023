@@ -8,7 +8,7 @@ let palette = ['#a935bb', '#f7b32b', '#f72c25', '#1c77c3']
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { canvas, ctx } = createCanvas(width, height)
+let { ctx } = createCanvas(width, height)
 
 const corners = [
     [1, 1],
@@ -42,24 +42,24 @@ function triLines(
     ctx.stroke()
 }
 
-function symLines(
-    ctx: CanvasRenderingContext2D,
-    step: number,
-    [a1, b1]: [number, number],
-    [a2, b2]: [number, number],
-    reflect: 'x' | 'y' = 'y'
-): void {
-    ctx.moveTo(step * a1, step * b1)
-    ctx.lineTo(step * a2, step * b2)
+// function symLines(
+//     ctx: CanvasRenderingContext2D,
+//     step: number,
+//     [a1, b1]: [number, number],
+//     [a2, b2]: [number, number],
+//     reflect: 'x' | 'y' = 'y'
+// ): void {
+//     ctx.moveTo(step * a1, step * b1)
+//     ctx.lineTo(step * a2, step * b2)
 
-    if (reflect === 'x') {
-        ctx.moveTo(step * a1, step * -b1)
-        ctx.lineTo(step * a2, step * -b2)
-    } else if (reflect === 'y') {
-        ctx.moveTo(step * -a1, step * b1)
-        ctx.lineTo(step * -a2, step * b2)
-    }
-}
+//     if (reflect === 'x') {
+//         ctx.moveTo(step * a1, step * -b1)
+//         ctx.lineTo(step * a2, step * -b2)
+//     } else if (reflect === 'y') {
+//         ctx.moveTo(step * -a1, step * b1)
+//         ctx.lineTo(step * -a2, step * b2)
+//     }
+// }
 
 function quads(fn: () => void) {
     for (let i = 0; i < 4; i++) {

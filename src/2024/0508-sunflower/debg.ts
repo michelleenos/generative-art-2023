@@ -1,10 +1,10 @@
 import p5 from 'p5'
 
-function arrow(p: p5, len: number) {
-    p.line(0, 0, 0, len)
-    p.line(0, 0, -5, 5)
-    p.line(0, 0, 5, 5)
-}
+// function arrow(p: p5, len: number) {
+//     p.line(0, 0, 0, len)
+//     p.line(0, 0, -5, 5)
+//     p.line(0, 0, 5, 5)
+// }
 
 function point(p: p5, x: number, y: number, text: string = '') {
     p.push()

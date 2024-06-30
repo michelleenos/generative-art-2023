@@ -87,8 +87,6 @@ export class Vec2 {
         if (mSq > n * n) {
             let m = Math.sqrt(mSq)
             this.div(m).mult(n)
-            // this.x = (this.x / m) * n
-            // this.y = (this.y / m) * n
         }
         return this
     }

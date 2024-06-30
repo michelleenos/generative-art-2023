@@ -163,6 +163,7 @@ new p5((p: p5) => {
                     p.fill(fill2)
                     if (p.random() < chance)
                         p.rect(squareSize - wid * (i + 1), wid * i, wid, squareSize - wid * i)
+                    break
                 default:
                     break
             }

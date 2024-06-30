@@ -1,12 +1,11 @@
 import '../../style.css'
 import * as Tone from 'tone'
-import { random } from '~/helpers/utils'
 
-const notes = ['C4', 'D4', 'E4', 'G4', 'A4']
+// const notes = ['C4', 'D4', 'E4', 'G4', 'A4']
 
 const synth = new Tone.Synth().toDestination()
 var pattern = new Tone.Pattern(
-    function (time, note) {
+    function (_time, note) {
         synth.triggerAttackRelease(note, 0.25)
     },
     ['C4', 'D4', 'E4', 'G4', 'A4'],

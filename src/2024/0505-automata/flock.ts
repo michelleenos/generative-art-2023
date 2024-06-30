@@ -1,7 +1,7 @@
+import p5 from 'p5'
+import { Circle, Rectangle } from '../../helpers/trig-shapes'
 import { Boid } from './boid'
 import { QuadTree } from './quadtree'
-import { Circle, Rectangle, Vec2 } from '../../helpers/trig-shapes'
-import p5 from 'p5'
 
 type BoidCb = (boid: Boid, i: number) => void
 export class Flock {

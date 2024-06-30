@@ -10,7 +10,7 @@ import { debugBubbles } from './debug'
 // https://openprocessing.org/sketch/1906399 // jelly sim
 // https://openprocessing.org/sketch/492096 // wobbly swarm
 
-const DEBUG = false
+const DEBUG = true
 const W = window.innerWidth
 const H = window.innerHeight
 
@@ -29,17 +29,15 @@ const PARAMS = {
     finalMult: 0.0005,
 }
 
-let drawParams
 let { ctx, canvas } = createCanvas(W, H)
-if (DEBUG) {
-    drawParams = debugBubbles(PARAMS, ctx)
-}
+let drawParams = debugBubbles(PARAMS, ctx)
+// drawParams = debugBubbles(PARAMS, ctx)
 
 class Vector {
     x: number
     y: number
 
-    constructor(x, y) {
+    constructor(x: number, y: number) {
         this.x = x
         this.y = y
     }
@@ -79,7 +77,7 @@ class Particle extends Vector {
     }
 }
 
-function circle(x, y, r) {
+function circle(x: number, y: number, r: number) {
     ctx.arc(x, y, r, 0, Math.PI * 2)
 }
 
@@ -89,7 +87,7 @@ let mouse = mouseTracker(canvas, {
     drag: addParticle,
 })
 
-function accelTo(particle: Particle, x, y) {
+function accelTo(particle: Particle, x: number, y: number) {
     if (!x || !y) return [0, 0]
     let distX = x - particle.x
     let distY = y - particle.y
@@ -112,7 +110,8 @@ function accelTo(particle: Particle, x, y) {
     return [force * distX, force * distY]
 }
 
-const createParticle = (x, y) => new Particle({ x, y, mass: random(PARAMS.mmin, PARAMS.mmax) })
+const createParticle = (x: number, y: number) =>
+    new Particle({ x, y, mass: random(PARAMS.mmin, PARAMS.mmax) })
 
 for (let i = 0; i < 10; i++) {
     pcles.push(createParticle(random(W), random(H)))

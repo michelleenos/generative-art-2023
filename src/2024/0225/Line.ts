@@ -124,7 +124,7 @@ export class Line {
         p.pop()
     }
 
-    update = (p: p5, time: number, m?: number) => {
+    update = (p: p5, time: number) => {
         let elapsed = time - this.lastTime
         this.lastTime = time
         let seconds = elapsed / 1000

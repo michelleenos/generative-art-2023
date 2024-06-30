@@ -57,7 +57,7 @@ pane.on('change', () => {
 // A & B = amplitude of the wave on each axis
 // a & b = frequency on each axis
 // d = delta, puts x out of phase with y
-function liss(cx, cy, A, B, a, b, d) {
+function liss(cx: number, cy: number, A: number, B: number, a: number, b: number, d: number) {
     let res = 0.01
     ctx.beginPath()
 
