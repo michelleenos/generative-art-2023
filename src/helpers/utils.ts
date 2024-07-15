@@ -63,6 +63,12 @@ const round = (num: number, precision = 1) => {
     return Math.round(num * factor) / factor
 }
 
+const roundToNearest = (n: number, nearest: number) => Math.round(n / nearest) * nearest
+
+const ceilNearest = (n: number, nearest: number) => Math.ceil(n / nearest) * nearest
+
+const floorNearest = (n: number, nearest: number) => Math.floor(n / nearest) * nearest
+
 // (constrain & clamp are the same)
 const constrain = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
@@ -108,4 +114,7 @@ export {
     step,
     smoothstep,
     randomBias,
+    roundToNearest,
+    ceilNearest,
+    floorNearest,
 }

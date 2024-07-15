@@ -53,7 +53,7 @@ class DragBox {
         this.height = s
     }
 
-    constructor(x, y, w, h, cd = 0.1) {
+    constructor(x: number, y: number, w: number, h: number, cd = 0.1) {
         this.center = new p5.Vector(x, y)
         this.left = x - w / 2
         this.right = x + w / 2
@@ -73,12 +73,7 @@ class DragBox {
 
     draw(p: p5) {
         // p.rect(this.x, this.y, this.w, this.h)
-        p.rect(
-            this.left,
-            this.top,
-            this.right - this.left,
-            this.bottom - this.top
-        )
+        p.rect(this.left, this.top, this.right - this.left, this.bottom - this.top)
     }
 }
 

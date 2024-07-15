@@ -106,6 +106,7 @@ void main() {
 let dataView = new DataView()
 let gui = new GUI()
 
+// @ts-ignore
 const one = (lines: Lines) => {
     lines.stepRate = 320
     lines.stepMult = 3
@@ -146,6 +147,7 @@ const one = (lines: Lines) => {
     lines.reset()
 }
 
+// @ts-ignore
 const two = (lines: Lines) => {
     lines.lineWidth = 4
     lines.len.minEnd = 30
@@ -183,6 +185,7 @@ const two = (lines: Lines) => {
     lines.reset()
 }
 
+// @ts-ignore
 const three = (lines: Lines) => {
     lines.stepRate = 320
     lines.stepMult = 3
@@ -223,6 +226,7 @@ const three = (lines: Lines) => {
     lines.palette = palettes.blumagenta
 }
 
+// @ts-ignore
 const four = (lines: Lines) => {
     lines.stepRate = 320
     lines.stepMult = 3

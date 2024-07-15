@@ -48,8 +48,6 @@ function draw(_time: number = 0) {
     let cellSize = Math.min(cellSizeX, cellSizeY)
     ctx.translate((cellSizeX - m) * 0.5, (cellSizeY - m) * 0.5)
 
-    let i = 0
-
     for (let cx = 0; cx < params.countX; cx++) {
         for (let cy = 0; cy < params.countY; cy++) {
             ctx.save()
@@ -116,8 +114,6 @@ function draw(_time: number = 0) {
             }
 
             ctx.restore()
-
-            i++
         }
     }
 

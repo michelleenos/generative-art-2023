@@ -16,7 +16,8 @@ export function mouseTracker(
     if (drag) mouse.down = false
 
     if (move) {
-        el.addEventListener('mousemove', (e: MouseEvent) => {
+        el.addEventListener('mousemove', (event: Event) => {
+            let e = event as MouseEvent
             mouse.x = e.clientX
             mouse.y = e.clientY
             if (drag && mouse.down) drag(e)

@@ -10,10 +10,8 @@ const width = window.innerWidth
 const height = window.innerHeight
 const { ctx } = createCanvas(width, height)
 
-let lastTime = 0
-
-function draw(t: number) {
-    lastTime = t
+function draw(_t: number) {
+    // lastTime = t
     ctx.clearRect(0, 0, width, height)
     ctx.save()
     ctx.translate(width / 2, height / 2)

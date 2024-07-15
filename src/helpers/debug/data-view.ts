@@ -34,7 +34,7 @@ interface DataViewItem {
     nested?: boolean
 }
 
-class DataViewSection {
+export class DataViewSection {
     el: Element
     dataEl: Element
     values: DataViewItem[] = []
@@ -82,6 +82,7 @@ class DataViewSection {
             return index
         } catch (err) {
             console.error('error adding nested', key, err)
+            return
         }
     }
 

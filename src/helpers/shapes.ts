@@ -165,6 +165,28 @@ export function diagTriangle(
     }
 }
 
+export function equilateralTriangle(
+    ctx: CanvasRenderingContext2D,
+    {
+        x,
+        y,
+        w = 100,
+        h = 100,
+        progress = 1,
+    }: { x: number; y: number; w: number; h: number; progress?: number }
+) {
+    let side = Math.min(w, h) * 0.9 * progress
+    let height = (side * Math.sqrt(3)) / 2
+    let x2 = x + (w - side) / 2
+    let y2 = y + (h - height) / 2
+
+    ctx.beginPath()
+    ctx.moveTo(x2, y2 + height)
+    ctx.lineTo(x2 + side / 2, y2)
+    ctx.lineTo(x2 + side, y2 + height)
+    ctx.closePath()
+}
+
 /**
  * Draw a half circle inside a square/rectangle. The radius will be the half of the longest side of the square.
  * The dir param is where the rounded side will point.

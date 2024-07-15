@@ -1,18 +1,15 @@
-import '~/style.css'
-import Stats from 'stats.js'
 import { GUI } from 'lil-gui'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import loop from '~/helpers/loop'
-import { AnimatedPatternRandom } from '../pattern-grid-animated-random'
-import { AnimatedPattern } from '../pattern-grid-animated'
+import { Sizes } from '~/helpers/sizes'
 import { random } from '~/helpers/utils'
-import { DataView } from '~/helpers/debug/data-view'
-import { createElement } from '~/helpers/dom'
+import '~/style.css'
+import { AnimatedPattern } from '../pattern-grid-animated'
+import { PatternDataView } from '../pattern-grid-animated-data'
+import { AnimatedPatternRandom } from '../pattern-grid-animated-random'
 
-const stats = new Stats()
 let looper: ReturnType<typeof loop>
-document.body.appendChild(stats.dom)
 
 let palettes = [
     // https://coolors.co/dc5132-a46589-7a82b8-8ad0a6-c4f0a8-a0bb07-ffcf33-ec9f05
@@ -25,32 +22,9 @@ let palettes = [
     ['#87425d', '#3c2e6b', '#0081af', '#a7d6c3', '#285943', '#8a8fbd', '#9a79b8', '#fcee49'],
 ]
 
-class Sizes {
-    width!: number
-    height!: number
-    grid!: number
-    tx!: number
-    ty!: number
-    gridPercent: number
-
-    constructor(width: number, height: number, gridPercent = 0.85) {
-        this.gridPercent = gridPercent
-        this.setSizes(width, height)
-    }
-
-    setSizes = (width: number, height: number) => {
-        this.width = width
-        this.height = height
-        this.grid = Math.min(width, height) * this.gridPercent
-        this.tx = (width - this.grid) / 2
-        this.ty = (height - this.grid) / 2
-    }
-}
-let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
-const sizes = new Sizes(size, size, 1)
+const sizes = new Sizes()
 const { ctx, canvas, resizeCanvas } = createCanvas(sizes.width, sizes.height, true, false)
 document.getElementById('sketch')?.appendChild(canvas)
-// const { getImage, downloadZip } = makeImages(canvas)
 
 const setGui = (gui: GUI, pattern: AnimatedPatternRandom | AnimatedPattern) => {
     let easingOpts = Object.keys(easings).reduce((opts, cur) => {
@@ -82,13 +56,17 @@ const setGui = (gui: GUI, pattern: AnimatedPatternRandom | AnimatedPattern) => {
     f.add(btnsObj, 'newPattern')
 }
 
+sizes.on('resize', (width, height) => {
+    resizeCanvas(width, height)
+    pattern.size = Math.min(width, height) * 0.9
+})
+
 let pattern = new AnimatedPattern({
-    size: sizes.grid,
+    size: Math.min(sizes.width, sizes.height) * 0.9,
     sides: 40,
-    rectOptions: ['halfCircle'],
     squareOptions: [
         // 'quarterCircleFill',
-        // 'quarterCircleLines',
+        'quarterCircleLines',
         'leaf',
         // 'lines',
         'triangle',
@@ -106,55 +84,25 @@ let pattern = new AnimatedPattern({
     palette: random(palettes),
 })
 
-let dataView = new DataView()
-let s1 = dataView.createSection()
-s1.add(pattern, 'count')
 pattern.styleOpts = {
     quarterCircleFill: { innerRatio: 0, outerRatio: 1 },
     quarterCircleLines: { innerRatio: 0, outerRatio: 1, lineWidth: 0.1 },
     lines: { lineWidth: 0.05, each: 100, diagSteps: 8, steps: 5, dirOptions: ['d1', 'd2'] },
 }
 
-pattern.debug = false
 pattern.create()
-
-let mapCells: HTMLElement[] = []
-for (let i = 0; i < pattern.map.length; i++) {
-    let el = createElement('div', { class: 'dataview__map-cell' })
-    mapCells.push(el as HTMLElement)
-}
-let mapEl = createElement('div', { class: 'dataview__map' }, mapCells) as HTMLElement
-mapEl.style.setProperty('--sides', pattern.sides.toString())
-
-const onUpdateMap = () => {
-    let map = pattern.map
-    for (let i = 0; i < map.length; i++) {
-        let cell = map[i]
-        let el = mapCells[i]
-        el.innerHTML = `${cell}`
-    }
-}
-
-// let dataCustom = dataView.createCustomSection(mapEl as HTMLElement, onUpdateMap, 'map')
 
 const gui = new GUI()
 setGui(gui, pattern)
 
-// const dataView = new PatternDataView(pattern)
-
-window.addEventListener('resize', () => {
-    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
-    sizes.setSizes(size, size)
-    resizeCanvas(sizes.width, sizes.height)
-    pattern.size = sizes.grid
-})
+const dataView = new PatternDataView(pattern)
 
 let lastTime = 0
 const draw = (t: number) => {
-    stats.begin()
     ctx.save()
     ctx.clearRect(0, 0, sizes.width, sizes.height)
-    ctx.translate(sizes.tx, sizes.ty)
+    // ctx.translate(sizes.tx, sizes.ty)
+    ctx.translate((sizes.width - pattern.size) / 2, (sizes.height - pattern.size) / 2)
 
     let delta = t - lastTime
     lastTime = t
@@ -162,8 +110,6 @@ const draw = (t: number) => {
 
     dataView.update()
     ctx.restore()
-
-    stats.end()
 }
 
 looper = loop(draw)
