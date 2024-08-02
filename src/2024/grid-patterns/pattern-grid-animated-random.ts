@@ -212,9 +212,6 @@ export class AnimatedPatternRandom extends BasePattern {
         }
         this.tick(delta)
 
-        ctx.fillStyle = this.bg
-        ctx.fillRect(0, 0, this.size, this.size)
-
         let cellSize = this.size / this.sides
 
         for (let i = 0; i < this.cells.length; i++) {
@@ -254,7 +251,7 @@ export class AnimatedPatternRandom extends BasePattern {
             easing: this.cellEase,
             duration: this.cellDuration,
             cornersPattern: this.cornerPattern,
-            colors: this.fg,
+            colors: this.palette,
             styleOpts: this.styleOpts,
         }
 

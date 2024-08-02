@@ -1,4 +1,4 @@
-import { random, shuffle } from '~/helpers/utils'
+import { random } from '~/helpers/utils'
 import { type PatternCell } from './cells/pattern-cell'
 import { PatternStyleOpts, createPattern, type CornersPattern } from './grid-stuff'
 
@@ -6,8 +6,6 @@ export type BasePatternOpts = {
     size: number
     sides?: number
     palette?: string[]
-    bg?: string
-    fg?: string[]
     squareOptions?: PatternCell['style'][]
     rectOptions?: PatternCell['style'][]
     rectChance?: number
@@ -21,9 +19,7 @@ export class BasePattern {
     cells: PatternCell[] = []
 
     noisePattern: boolean = false
-
-    bg: string = '#1a1a1a'
-    fg: string[] = ['#ebebeb']
+    palette: string[] = ['#1a1a1a']
     map: number[] = []
     mapRef: (PatternCell | null)[] = []
 
@@ -45,46 +41,25 @@ export class BasePattern {
     constructor(opts: BasePatternOpts) {
         this.size = opts.size
         this.sides = opts.sides || this.sides
-        this.bg = opts.bg || this.bg
-        this.fg = opts.fg || this.fg
         this.squareOptions = opts.squareOptions || this.squareOptions
         this.rectOptions = opts.rectOptions || this.rectOptions
         this.rectChance = opts.rectChance !== undefined ? opts.rectChance : this.rectChance
         this.cornerPattern = opts.cornerPattern || this.cornerPattern
         this.noisePattern = opts.noisePattern || this.noisePattern
-
-        if (opts.fg) {
-            this.setColors(opts.fg, opts.bg)
-        } else if (opts.palette) {
-            this.setColors(opts.palette, opts.bg)
-        }
+        if (opts.palette) this.palette = opts.palette
     }
 
     get count() {
         return this.cells.length
     }
 
-    setColors(palette: string[], newBg?: string) {
-        // let colors: { bg?: string; fg?: string[] } = {}
-        if (palette.length === 0 && newBg) {
-            this.bg = newBg
-        } else if (palette.length === 1) {
-            if (newBg) {
-                this.bg = newBg
-                this.fg = palette
-            } else {
-                this.bg = palette[0]
-            }
-        } else {
-            this.fg = shuffle(palette)
-            this.bg = newBg || this.fg.shift()!
-        }
-
+    setColors(palette: string[]) {
+        this.palette = palette
         this.setCellColors()
     }
 
     setCellColors() {
-        this.cells.forEach((cell) => (cell.color = random(this.fg)))
+        this.cells.forEach((cell) => (cell.color = random(this.palette)))
     }
 
     create(opts: Partial<Parameters<typeof createPattern>[1]> = {}) {
@@ -93,7 +68,7 @@ export class BasePattern {
             cornersPattern: this.cornerPattern,
             squareOptions: this.squareOptions,
             rectOptions: this.rectOptions,
-            colors: this.fg,
+            colors: this.palette,
             styleOpts: this.styleOpts,
             noisePattern: this.noisePattern,
             ...opts,
@@ -104,8 +79,6 @@ export class BasePattern {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.bg
-        ctx.fillRect(0, 0, this.size, this.size)
         let cellSize = this.size / this.sides
         this.cells.forEach((cell) => cell.draw(ctx, cellSize))
     }

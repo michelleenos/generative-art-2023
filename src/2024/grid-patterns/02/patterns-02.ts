@@ -6,47 +6,27 @@ import easings, { easing } from '~/helpers/easings'
 import loop from '~/helpers/loop'
 import { AnimatedPattern } from '../pattern-grid-animated'
 import makeImages from '~/helpers/canvas-images'
-import { random } from '~/helpers/utils'
+import { random, shuffle } from '~/helpers/utils'
 import { PatternDataView } from '../pattern-grid-animated-data'
+import { Sizes } from '~/helpers/sizes'
 
 const stats = new Stats()
 let looper: ReturnType<typeof loop>
 document.body.appendChild(stats.dom)
 
 let palettes = [
-    // https://coolors.co/dc5132-a46589-7a82b8-8ad0a6-c4f0a8-a0bb07-ffcf33-ec9f05
     ['#533a71', '#454a96', '#6184d8', '#50c5b7', '#9cec5b', '#f0f465', '#ff4a1c', '#ed254e'],
     ['#dc5132', '#a46589', '#7a82b8', '#8ad0a6', '#c4f0a8', '#a0bb07', '#ffcf33', '#ec9f05'],
-    // https://coolors.co/533a71-454a96-6184d8-50c5b7-9cec5b-f0f465-ff4a1c-ed254e
-    // https://coolors.co/874286-856596-f9c8ce-a8d7a8-b6cccc-8aadbc-7a7eb8-fc814a
     ['#874286', '#856596', '#f9c8ce', '#a8d7a8', '#b6cccc', '#8aadbc', '#7a7eb8', '#fc814a'],
-    // https://coolors.co/87425d-3c2e6b-0081af-a7d6c3-285943-8a8fbd-9a79b8-fcee49
     ['#87425d', '#3c2e6b', '#0081af', '#a7d6c3', '#285943', '#8a8fbd', '#9a79b8', '#fcee49'],
 ]
 
-class Sizes {
-    width!: number
-    height!: number
-    grid!: number
-    tx!: number
-    ty!: number
-    gridPercent: number
+let palette = [...random(palettes)]
+palette = shuffle(palette)
+let bg = palette.pop()!
 
-    constructor(width: number, height: number, gridPercent = 0.85) {
-        this.gridPercent = gridPercent
-        this.setSizes(width, height)
-    }
+const sizes = new Sizes()
 
-    setSizes = (width: number, height: number) => {
-        this.width = width
-        this.height = height
-        this.grid = Math.min(width, height) * this.gridPercent
-        this.tx = (width - this.grid) / 2
-        this.ty = (height - this.grid) / 2
-    }
-}
-let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
-const sizes = new Sizes(size, size, 1)
 const { ctx, canvas, resizeCanvas } = createCanvas(sizes.width, sizes.height, true, false)
 document.getElementById('sketch')?.appendChild(canvas)
 const { getImage, downloadZip } = makeImages(canvas)
@@ -87,7 +67,7 @@ const setGui = (gui: GUI, pattern: AnimatedPattern) => {
 }
 
 let pattern = new AnimatedPattern({
-    size: sizes.grid,
+    size: Math.min(sizes.width, sizes.height) * 0.9,
     sides: 8,
     rectOptions: ['quarterCircleLines', 'quarterCircleFill'],
     squareOptions: ['quarterCircleFill', 'triangle', 'triangle'],
@@ -100,7 +80,7 @@ let pattern = new AnimatedPattern({
     cornerPattern: 'wave',
     animation: 'loop',
     order: 'circle',
-    palette: random(palettes),
+    palette,
 })
 pattern.create()
 
@@ -109,19 +89,26 @@ setGui(gui, pattern)
 
 const dataView = new PatternDataView(pattern)
 
-window.addEventListener('resize', () => {
-    let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
-    sizes.setSizes(size, size)
-    resizeCanvas(sizes.width, sizes.height)
-    pattern.size = sizes.grid
+// window.addEventListener('resize', () => {
+//     let size = Math.min(window.innerWidth, window.innerHeight) * 0.9
+//     sizes.setSizes(size, size)
+//     resizeCanvas(sizes.width, sizes.height)
+//     pattern.size = sizes.grid
+// })
+
+sizes.on('resize', (width, height) => {
+    resizeCanvas(width, height)
+    pattern.size = Math.min(width, height) * 0.9
 })
 
 let lastTime = 0
 const draw = (t: number) => {
-    stats.begin()
     ctx.save()
     ctx.clearRect(0, 0, sizes.width, sizes.height)
-    ctx.translate(sizes.tx, sizes.ty)
+
+    ctx.translate((sizes.width - pattern.size) / 2, (sizes.height - pattern.size) / 2)
+    ctx.fillStyle = bg
+    ctx.fillRect(0, 0, pattern.size, pattern.size)
 
     let delta = t - lastTime
     lastTime = t
@@ -129,8 +116,6 @@ const draw = (t: number) => {
 
     dataView.update()
     ctx.restore()
-
-    stats.end()
 }
 
 // ffmpeg -f image2 -r 60 -i image-%d.png -filter_complex "fps=60,scale=320:-1:flags=lanczos,"
@@ -142,7 +127,10 @@ const startImagesLoop = () => {
     const step = (t: number) => {
         ctx.save()
         ctx.clearRect(0, 0, sizes.width, sizes.height)
-        ctx.translate(sizes.tx, sizes.ty)
+
+        ctx.translate((sizes.width - pattern.size) / 2, (sizes.height - pattern.size) / 2)
+        ctx.fillStyle = bg
+        ctx.fillRect(0, 0, pattern.size, pattern.size)
 
         pattern.draw(ctx, t)
         dataView.update()

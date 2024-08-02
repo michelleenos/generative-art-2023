@@ -3,7 +3,7 @@ import Stats from 'stats.js'
 import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import loop from '~/helpers/loop'
-import { random } from '~/helpers/utils'
+import { random, shuffle } from '~/helpers/utils'
 import { type PatternCell } from '../cells/pattern-cell'
 import { AnimatedPattern } from '../pattern-grid-animated'
 import { GUI } from 'lil-gui'
@@ -103,9 +103,11 @@ const setGui = (gui: GUI, pattern: AnimatedPattern) => {
     gui.add(btns, 'restart')
 }
 
+let palette = shuffle([...random(palettes)])
+let bg = palette.shift()!
 let pattern = new AnimatedPattern({
     size: gridSizes.grid,
-    palette: random(palettes),
+    palette,
     rectOptions: ['halfCircle'],
     squareOptions: ['leaf', 'quarterCircle'],
     addPerSecond: 20,
@@ -131,17 +133,16 @@ window.addEventListener('resize', () => {
 let looping: ReturnType<typeof loop>
 let lastTime = 0
 const draw = (t: number) => {
-    stats.begin()
-
     ctx.save()
     ctx.translate(gridSizes.tx, gridSizes.ty)
+
+    ctx.fillStyle = bg
+    ctx.fillRect(0, 0, gridSizes.grid, gridSizes.grid)
     let delta = t - lastTime
     lastTime = t
     pattern.draw(ctx, delta)
 
     ctx.restore()
-
-    stats.end()
 }
 looping = loop(draw)
 

@@ -2,7 +2,7 @@ import chroma from 'chroma-js'
 import p5 from 'p5'
 import easing from '~/helpers/easings'
 import { random } from '~/helpers/utils'
-import { sortPalette } from '../sort-colors'
+import { sortPalette } from '../../../helpers/sort-colors'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { pixelIndex, randomAngle, randomInCircle, randomInSquare, setShadow } from '../utils'
 

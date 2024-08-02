@@ -31,7 +31,6 @@ export abstract class PCell {
     timer: Timer
     hasShown: boolean = false
     switchedLastFrame: boolean = false
-    // protected _duration: number = 1000
     abstract draw(ctx: CanvasRenderingContext2D, unitSize: number, progress?: number): void
 
     constructor({ nx, ny, w, h, color, duration = 1000, easing = 'outCubic' }: PatternCellProps) {

@@ -8,6 +8,9 @@ dependencies:
   '@rollup/plugin-inject':
     specifier: ^5.0.3
     version: 5.0.3
+  '@tweenjs/tween.js':
+    specifier: ^25.0.0
+    version: 25.0.0
   '@types/chroma-js':
     specifier: ^2.4.4
     version: 2.4.4
@@ -313,6 +316,10 @@ packages:
   /@tweakpane/core@1.1.6:
     resolution: {integrity: sha512-/pDdbdXHI1xv2763K/45sVJ2IrwUDZ5rklbfgb70EZ4wjnAMrWNoYJ20Z3QDS6N13IEkde50FKokFre35rSW1Q==}
     dev: true
+
+  /@tweenjs/tween.js@25.0.0:
+    resolution: {integrity: sha512-XKLA6syeBUaPzx4j3qwMqzzq+V4uo72BnlbOjmuljLrRqdsd3qnzvZZoxvMHZ23ndsRS4aufU6JOZYpCbU6T1A==}
+    dev: false
 
   /@types/chroma-js@2.4.4:
     resolution: {integrity: sha512-/DTccpHTaKomqussrn+ciEvfW4k6NAHzNzs/sts1TCqg333qNxOhy8TNIoQCmbGG3Tl8KdEhkGAssb1n3mTXiQ==}

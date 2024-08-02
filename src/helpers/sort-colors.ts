@@ -1,6 +1,6 @@
 import chroma from 'chroma-js'
 
-type ColorSortOption =
+export type ColorSortOption =
     | 'hue'
     | 'luminance'
     | 'saturation'

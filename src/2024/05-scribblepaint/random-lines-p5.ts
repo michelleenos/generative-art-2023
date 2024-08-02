@@ -4,7 +4,7 @@ import easing from '~/helpers/easings'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { random } from '~/helpers/utils'
 import { getLinePoints } from './lines-fns'
-import { sortPalette } from './sort-colors'
+import { sortPalette } from '../../helpers/sort-colors'
 import { pixelIndex, randomAngle, randomInCircle, randomInSquare, setShadow } from './utils'
 
 function distSq(p1: [number, number], p2: [number, number]) {

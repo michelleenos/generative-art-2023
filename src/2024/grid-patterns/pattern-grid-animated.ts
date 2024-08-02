@@ -269,9 +269,6 @@ export class AnimatedPattern extends BasePattern {
         }
         this.tick(delta)
 
-        ctx.fillStyle = this.bg
-        ctx.fillRect(0, 0, this.size, this.size)
-
         let cellSize = this.size / this.sides
         for (let i = 0; i < this.cells.length; i++) {
             let cell = this.cells[i]
