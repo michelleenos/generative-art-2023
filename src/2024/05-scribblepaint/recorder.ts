@@ -4,9 +4,10 @@ import makeImages from '~/helpers/canvas-images'
 type RecorderOpts = {
     canvas: HTMLCanvasElement
     gui: GUI
+    useTime?: boolean
     fns: {
-        draw: (t: number) => boolean
-        drawRecord?: (frame: number) => boolean
+        draw: ((t: number) => void) | ((t: number) => boolean)
+        drawRecord: (frame: number) => boolean
         reset?: () => void
     }
 }
@@ -22,37 +23,40 @@ export class Recorder {
     guiBtnRecord: Controller
     guiBtnLoop: Controller
     guiBtnReset: Controller
-    looping = true
+    looping = false
     lastTime: number | null = null
     zipsDownloaded = 0
     imgsPerZip = 700
     rafId?: number | null = null
     currentId: string
+    name = 'img'
+    useTime = false
     fns: {
-        draw: (t: number) => boolean
+        draw: (t: number) => void
         drawRecord: (frame: number) => boolean
         reset?: () => void
     }
 
-    constructor({ canvas, gui, fns }: RecorderOpts) {
+    constructor({ canvas, gui, fns, useTime = false }: RecorderOpts) {
         this.canvas = canvas
         let d = new Date()
-        this.currentId = `lines-${d.getHours()}${d.getMinutes()}`
+        this.currentId = `${this.name}-${d.getHours()}${d.getMinutes()}`
         this.imgs = makeImages(canvas, this.currentId)
         this.gui = gui.addFolder('controls')
+        this.useTime = useTime
         this.fns = {
             draw: fns.draw,
-            drawRecord: fns.drawRecord ?? fns.draw,
+            drawRecord: fns.drawRecord,
             reset: fns.reset,
         }
 
         this.gui.add(this, 'framesCount').listen().disable()
         this.gui.add(this, 'maxFrames', 10, 1500, 1).name('max frames')
         this.guiBtnRecord = this.gui.add(this, 'toggleRecord').name('startRecording')
-        this.guiBtnLoop = this.gui.add(this, 'toggleLoop').name('noLoop')
+        this.guiBtnLoop = this.gui.add(this, 'toggleLoop').name('loop')
         this.guiBtnReset = this.gui.add(this, 'reset').name('reset')
 
-        this.rafId = requestAnimationFrame(this.raf)
+        // this.rafId = requestAnimationFrame(this.raf)
     }
 
     reset = () => {
@@ -65,7 +69,7 @@ export class Recorder {
     rafRecord = () => {
         if (!this.recording) return
 
-        this.imgs.getImage(`lines-${this.framesCount}`).then(() => {
+        this.imgs.getImage(`${this.name}-${this.framesCount}`).then(() => {
             let done = this.fns.drawRecord(this.framesCount)
             this.framesCount++
             if (this.framesCount >= this.maxFrames || done) {
@@ -88,7 +92,7 @@ export class Recorder {
         if (!this.lastTime) this.lastTime = time
         let delta = time - this.lastTime
         this.lastTime = time
-        this.fns.draw(delta)
+        this.fns.draw(this.useTime ? time : delta)
         this.rafId = requestAnimationFrame(this.raf)
     }
 

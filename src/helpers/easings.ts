@@ -29,6 +29,74 @@ export const easing = {
     outSquareRoot: (x: number) => Math.sqrt(x),
     inSquareRoot: (x: number) => 1 - Math.sqrt(1 - x),
     linear: (x: number) => x,
+    inBack: (x: number, mag = 1.70158) => {
+        return x * x * ((mag + 1) * x - mag)
+    },
+    outBack: (x: number, mag = 1.70158) => {
+        const s = x / 1 - 1
+        return s * s * ((mag + 1) * s + mag) + 1
+    },
+    inOutBack(x: number, mag = 1.70158) {
+        const scaledTime = x * 2
+        const scaledTime2 = scaledTime - 2
+        const s = mag * 1.525
+
+        if (scaledTime < 1) {
+            return 0.5 * scaledTime * scaledTime * ((s + 1) * scaledTime - s)
+        }
+
+        return 0.5 * (scaledTime2 * scaledTime2 * ((s + 1) * scaledTime2 + s) + 2)
+    },
+    inElastic: (x: number, mag = 0.7) => {
+        if (x === 0 || x === 1) {
+            return x
+        }
+
+        const scaledTime = x / 1
+        const scaledTime1 = scaledTime - 1
+
+        const p = 1 - mag
+        const s = (p / (2 * Math.PI)) * Math.asin(1)
+
+        return -(Math.pow(2, 10 * scaledTime1) * Math.sin(((scaledTime1 - s) * (2 * Math.PI)) / p))
+    },
+    outElastic: (x: number, mag = 0.7) => {
+        if (x === 0 || x === 1) {
+            return x
+        }
+
+        const p = 1 - mag
+        const scaledTime = x * 2
+
+        const s = (p / (2 * Math.PI)) * Math.asin(1)
+        return Math.pow(2, -10 * scaledTime) * Math.sin(((scaledTime - s) * (2 * Math.PI)) / p) + 1
+    },
+
+    inOutElastic: (x: number, mag = 0.65) => {
+        if (x === 0 || x === 1) {
+            return x
+        }
+
+        const p = 1 - mag
+        const scaledTime = x * 2
+        const scaledTime1 = scaledTime - 1
+
+        const s = (p / (2 * Math.PI)) * Math.asin(1)
+
+        if (scaledTime < 1) {
+            return (
+                -0.5 *
+                (Math.pow(2, 10 * scaledTime1) * Math.sin(((scaledTime1 - s) * (2 * Math.PI)) / p))
+            )
+        }
+
+        return (
+            Math.pow(2, -10 * scaledTime1) *
+                Math.sin(((scaledTime1 - s) * (2 * Math.PI)) / p) *
+                0.5 +
+            1
+        )
+    },
 }
 
 export type Easing = keyof typeof easing

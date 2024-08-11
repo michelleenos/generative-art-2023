@@ -34,7 +34,6 @@ export class AnimNode<D = DefaultNodeData> extends Node {
     constructor(
         bounds: Rectangle,
         {
-            capacity = 4,
             depth = 0,
             parent = null,
             duration = 500,
@@ -45,7 +44,7 @@ export class AnimNode<D = DefaultNodeData> extends Node {
             delayFn,
         }: AnimNodeOptions<D> = {}
     ) {
-        super(bounds, { capacity, depth, divideRule })
+        super(bounds, { depth, divideRule })
         this.parent = parent
         this._duration = duration
         this._easeEnter = easeEnter
@@ -130,7 +129,6 @@ export class AnimNode<D = DefaultNodeData> extends Node {
         if (!rects) return false
         this.children = rects.map((rect, i) => {
             return new AnimNode(rect, {
-                capacity: this.capacity,
                 depth: this.depth + 1,
                 parent: this,
                 duration: this._duration,

@@ -22,6 +22,7 @@
         "@types/chroma-js": "^2.4.4",
         "@types/node": "^18.15.11",
         "@types/p5": "^1.7.6",
+        "alea": "^1.0.1",
         "chroma-js": "^2.4.2",
         "jszip": "^3.10.1",
         "lil-gui": "^0.19.2",

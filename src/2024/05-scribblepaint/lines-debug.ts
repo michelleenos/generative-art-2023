@@ -15,7 +15,15 @@ const exportOpts = (lines: Lines) => {
     js += `lines.newPixelMethod = '${lines.newPixelMethod}'\n`
     js += `lines.parallel = ${lines.parallel}\n`
     js += `lines.lookPointShare = ${lines.lookPointShare}\n`
-    js += `lines.redraw = ${lines.redraw}\n`
+    if (lines.redraw) {
+        js += `lines.redraw = {\n`
+        js += `rate: ${lines.redraw.rate}\n`
+        js += `maxMult: ${lines.redraw.maxMult}\n`
+        js += `after: ${lines.redraw.after}\n`
+        js += `}\n`
+    } else {
+        js += `lines.redraw = false\n`
+    }
     js += `lines.len.minStart = ${lines.len.minStart}\n`
     js += `lines.len.minEnd = ${lines.len.minEnd}\n`
     js += `lines.len.minReduceBy = ${lines.len.minReduceBy}\n`

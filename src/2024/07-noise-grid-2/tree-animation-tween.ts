@@ -1,16 +1,13 @@
 import { createNoise3D } from 'simplex-noise'
-import { type Easing } from '~/helpers/easings'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { random, randomBias } from '~/helpers/utils'
-import { AnimNode } from './anim-node'
 import { AnimNodeTween } from './anim-node-tween'
 import { DivideRectRule } from './divide-rect'
 
 export type TreeOptions = {
     bounds: Rectangle
-    nodeDuration?: number
-    nodeEaseEnter?: Easing
-    nodeEaseLeave?: Easing
+    nodeDurationIn?: number
+    nodeDurationOut?: number
     divideRule?: DivideRectRule
     maxDepth?: number
     minDepth?: number
@@ -27,17 +24,13 @@ export type NoiseOptions = {
 }
 
 export class Tree<D extends {}> {
-    node: AnimNode<D>
+    node: AnimNodeTween<D>
     bounds: Rectangle
     lastTime = 0
-    leaves: AnimNode<D>[] = []
+    leaves: AnimNodeTween<D>[] = []
     noise = createNoise3D()
     thresholdChange = 0.8
-    divideRule = 'quarters-grid' as AnimNode['divideRule']
-
-    _nodeDuration = 800
-    _nodeEaseEnter = 'inCubic' as Easing
-    _nodeEaseLeave = 'outCubic' as Easing
+    divideRule = 'quarters-grid' as AnimNodeTween['divideRule']
     noiseVals: { [key: string]: number } = {}
 
     noiseOptions: NoiseOptions
@@ -57,47 +50,21 @@ export class Tree<D extends {}> {
             ...(options.noiseOptions || {}),
         }
 
-        if (options.nodeDuration) this._nodeDuration = options.nodeDuration
-        if (options.nodeEaseEnter) this._nodeEaseEnter = options.nodeEaseEnter
-        if (options.nodeEaseLeave) this._nodeEaseLeave = options.nodeEaseLeave
+        // if (options.nodeEaseEnter) this._nodeEaseEnter = options.nodeEaseEnter
+        // if (options.nodeEaseLeave) this._nodeEaseLeave = options.nodeEaseLeave
         if (options.divideRule) this.divideRule = options.divideRule
         if (options.maxDepth) this.maxDepth = options.maxDepth
         if (options.minDepth) this.minDepth = options.minDepth
         if (options.thresholdChange) this.thresholdChange = options.thresholdChange
         if (options.minLifeSpan) this.minLifeSpan = options.minLifeSpan
 
-        this.node = new AnimNode<D>(bounds, {
+        this.node = new AnimNodeTween<D>(bounds, {
             capacity: 1,
-            duration: this._nodeDuration,
-            delayFn: options.delayFn,
+            durationIn: options.nodeDurationIn,
+            durationOut: options.nodeDurationOut,
+            // easeEnter: options.nodeEaseEnter,
+            // easeLeave: options.nodeEaseLeave,
         })
-    }
-
-    set nodeDuration(duration: number) {
-        this._nodeDuration = duration
-        this.node.getAll().forEach((node) => (node.duration = duration))
-    }
-
-    get nodeDuration() {
-        return this._nodeDuration
-    }
-
-    get nodeEaseLeave() {
-        return this._nodeEaseLeave
-    }
-
-    get nodeEaseEnter() {
-        return this._nodeEaseEnter
-    }
-
-    set nodeEaseEnter(ease: Easing) {
-        this._nodeEaseEnter = ease
-        this.node.getAll().forEach((node) => (node.easeEnter = ease))
-    }
-
-    set nodeEaseLeave(ease: Easing) {
-        this._nodeEaseLeave = ease
-        this.node.getAll().forEach((node) => (node.easeLeave = ease))
     }
 
     initTree = () => {
@@ -126,8 +93,9 @@ export class Tree<D extends {}> {
         this.refreshLeaves()
     }
 
-    divide = (leaf: AnimNode<D>) => {
-        let promise = leaf.setWillDivide()
+    divide = (leaf: AnimNodeTween<D>) => {
+        console.log('divide')
+        let promise = leaf.setWillDivide(this.node.durationIn * 0.25)
         if (promise) {
             promise.then(() => {
                 this.refreshLeaves()
@@ -137,9 +105,9 @@ export class Tree<D extends {}> {
         return false
     }
 
-    collapse = (leaf: AnimNode<D>) => {
+    collapse = (leaf: AnimNodeTween<D>) => {
         let parent = leaf.parent
-        let promise = parent?.setWillCollapse()
+        let promise = parent?.setWillCollapse(this.node.durationOut * 0.25)
         if (promise) {
             promise.then(() => {
                 this.refreshLeaves()
@@ -151,27 +119,24 @@ export class Tree<D extends {}> {
     }
 
     tick(ms: number, ctx: CanvasRenderingContext2D) {
-        let delta = ms - this.lastTime
         this.lastTime = ms
-
         this.draw(ctx)
 
         this.noiseVals = {}
 
         this.leaves.forEach((leaf) => {
             if (leaf.isBusy() || leaf.parent?.isBusy() || leaf.age < this.minLifeSpan) {
-                leaf.tick(delta)
+                leaf.tick(ms)
                 return
             }
             let noise = this.getNoise(leaf, this.noiseOptions)
-
             let threshold = this.thresholdChange
             if (noise > threshold && leaf.depth < this.maxDepth) {
                 this.divide(leaf)
             } else if (noise < -threshold && leaf.depth > this.minDepth) {
                 this.collapse(leaf)
             }
-            leaf.tick(delta)
+            leaf.tick(ms)
         })
     }
 
@@ -185,7 +150,7 @@ export class Tree<D extends {}> {
         ctx.restore()
     }
 
-    getNoise(leaf: AnimNode<D>, options = this.noiseOptions): number {
+    getNoise(leaf: AnimNodeTween<D>, options = this.noiseOptions): number {
         let cx = Math.round(leaf.bounds.x + leaf.bounds.width / 2)
         let cy = Math.round(leaf.bounds.y + leaf.bounds.height / 2)
         let key = `${options.key}-${cx}-${cy}`

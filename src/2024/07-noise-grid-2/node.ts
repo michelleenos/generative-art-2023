@@ -4,7 +4,6 @@ import { DivideRectRule, divideRect } from './divide-rect'
 let nodeIdCount = 0
 
 export type NodeOptions = {
-    capacity?: number
     depth?: number
     parent?: Node | null
     divideRule?: DivideRectRule
@@ -12,7 +11,6 @@ export type NodeOptions = {
 
 export class Node {
     bounds: Rectangle
-    capacity: number
     depth: number
     children: Node[] = []
     parent: Node | null = null
@@ -21,10 +19,9 @@ export class Node {
 
     constructor(
         bounds: Rectangle,
-        { capacity = 4, depth = 0, parent = null, divideRule = 'two-random' }: NodeOptions
+        { depth = 0, parent = null, divideRule = 'two-random' }: NodeOptions
     ) {
         this.bounds = bounds
-        this.capacity = capacity
         this.depth = depth
         this.divideRule = divideRule
         if (parent) this.parent = parent
@@ -41,7 +38,6 @@ export class Node {
 
         this.children = rects.map((rect) => {
             return new Node(rect, {
-                capacity: this.capacity,
                 depth: this.depth + 1,
                 parent: this,
                 divideRule: this.divideRule,

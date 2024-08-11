@@ -2,15 +2,14 @@ import loop from '~/helpers/loop'
 import { Rectangle } from '~/helpers/trig-shapes'
 import '~/style.css'
 import createCanvas from '../../../helpers/canvas/createCanvas'
-import { NoiseOptions, Tree, TreeOptions } from '../tree-animation'
-import { Sizes } from '~/helpers/sizes'
-import { clamp, map, random, shuffle } from '~/helpers/utils'
-import { AnimNode, AnimNodeOptions } from '../anim-node'
+import { Easing, Tween } from '@tweenjs/tween.js'
 import chroma from 'chroma-js'
 import GUI from 'lil-gui'
+import { Sizes } from '~/helpers/sizes'
 import { ColorSortOption, sortPalette } from '~/helpers/sort-colors'
-import { TreePerf } from '../tree-animation-perf'
-import { DataView } from '~/helpers/debug/data-view'
+import { random, shuffle } from '~/helpers/utils'
+import { AnimNodeOptions, AnimNodeTween } from '../anim-node-tween'
+import { Tree, type NoiseOptions, type TreeOptions } from '../tree-animation-tween'
 
 const sizes = new Sizes()
 let { ctx, resizeCanvas } = createCanvas(sizes.width, sizes.height)
@@ -43,13 +42,79 @@ type AnimNodeData = {
     angle: number
 }
 
-class AnimNodeBlobs extends AnimNode<AnimNodeData> {
-    constructor(bounds: Rectangle, opts: AnimNodeOptions<AnimNodeData>) {
+// type CirclyNode = AnimNodeTween<AnimNodeData>
+
+class CirclyNode extends AnimNodeTween<AnimNodeData> {
+    declare children: CirclyNode[]
+    tweenCircle: Tween<CirclyNode>
+    circleProgress = 0
+    // _easeCircEnter: Easing
+    // _easeCircLeave: Easing
+
+    constructor(bounds: Rectangle, opts: AnimNodeOptions<AnimNodeData> = {}) {
         super(bounds, opts)
+        this.tweenCircle = new Tween(this).to({ circleProgress: 1 }, this.durationIn * 3)
+        this.tweenCircle.easing(Easing.Elastic.InOut)
+        this.tweenGroup.add(this.tweenCircle)
+
+        this.tweenEnter.stop()
+        this.tweenEnter.onComplete()
+        this.tweenEnter.onEveryStart(() => {
+            this.tweenCircle.start()
+        })
+        this.tweenEnter.start()
+        // this._easeCircEnter = this.easeEnter
+        // this._easeCircLeave = this.easeLeave
+        this.tweenCircle.onComplete(() => {
+            this.state = 'idle'
+            this.birthday = Date.now()
+        })
+    }
+
+    // get easeCircEnter() {
+    //     return this._easeCircEnter
+    // }
+
+    // get easeCircLeave() {
+    //     return this._easeCircLeave
+    // }
+
+    // set easeCircEnter(val: Easing) {
+    //     this._easeCircEnter = val
+    //     this.tweenCircle.easing(easing[val])
+    //     this.children.forEach((node) => (node.easeCircEnter = val))
+    // }
+
+    // set easeCircLeave(val: Easing) {
+    //     this._easeCircLeave = val
+    //     this.tweenCircle.easing(easing[val])
+    //     this.children.forEach((node) => (node.easeCircLeave = val))
+    // }
+
+    divide(delayStep?: number) {
+        let rects = this.divideRect()
+        if (!rects) return false
+
+        this.children = rects.map((rect, i) => {
+            let newNode = new CirclyNode(rect, {
+                depth: this.depth + 1,
+                parent: this,
+                durationIn: this.durationIn,
+                durationOut: this.durationOut,
+                divideRule: this.divideRule,
+                delayEnter: delayStep && delayStep * i,
+            })
+
+            return newNode
+        })
+
+        this.tweenEnter.end()
+        this.tweenCircle.end()
+        return true
     }
 }
 
-class ColorTree extends TreePerf<AnimNodeData> {
+class ColorTree extends Tree<AnimNodeData> {
     colorRandomness = 0.2
     circleNum: number
     noiseOptsColor: NoiseOptions = {
@@ -57,6 +122,8 @@ class ColorTree extends TreePerf<AnimNodeData> {
         speed: 0.1,
         freq: 1,
     }
+    node: CirclyNode
+    leaves: CirclyNode[] = []
 
     circleStep = 2
     colorMix: chroma.InterpolationMode = 'rgb'
@@ -78,6 +145,11 @@ class ColorTree extends TreePerf<AnimNodeData> {
         this.colorRandomness = options.colorRandomness || 0.2
         this.colorMix = options.colorMix || 'rgb'
         this.circleNum = options.circleNum || 3
+
+        this.node = new CirclyNode(this.bounds, {
+            durationIn: options.nodeDurationIn,
+            durationOut: options.nodeDurationOut,
+        })
     }
 
     get colorSort() {
@@ -106,7 +178,7 @@ class ColorTree extends TreePerf<AnimNodeData> {
         }
     }
 
-    getLeafColors = (leaf: AnimNode<AnimNodeData>) => {
+    getLeafColors = (leaf: CirclyNode) => {
         let noise = this.getNoise(leaf, this.noiseOptsColor)
         let colorVal = noise * 0.5 + 0.5
 
@@ -132,7 +204,7 @@ class ColorTree extends TreePerf<AnimNodeData> {
         return colorsFinal
     }
 
-    // getLeafMovement = (leaf: AnimNode<AnimNodeData>, i: number) => {
+    // getLeafMovement = (leaf: CirclyNode, i: number) => {
     //     if (leaf.data?.center) {
     //         return leaf.data.center
     //     }
@@ -160,12 +232,12 @@ class ColorTree extends TreePerf<AnimNodeData> {
     //     return [nx, ny]
     // }
 
-    getLeafDist = (leaf: AnimNode<AnimNodeData>) => {
+    getLeafDist = (leaf: CirclyNode) => {
         let noise = this.getNoise(leaf, this.noiseOptsColor)
         return noise * 0.5 + 0.5
     }
 
-    getLeafData = (leaf: AnimNode<AnimNodeData>) => {
+    getLeafData = (leaf: CirclyNode) => {
         if (!leaf.data) {
             let r = random(this.colorRandomness)
             let noise = this.getNoise(leaf, this.noiseOptsColor)
@@ -203,6 +275,7 @@ class ColorTree extends TreePerf<AnimNodeData> {
             let prevRadius: number
             colors.forEach((color, i) => {
                 let radius = leaf.bounds.width * (1 - i / (len + this.circleStep)) * progress * 0.5
+                radius = Math.max(0, radius)
                 let translateMax: number
                 if (prevRadius === undefined) {
                     translateMax = 0
@@ -213,8 +286,8 @@ class ColorTree extends TreePerf<AnimNodeData> {
                 prevRadius = radius
 
                 if (i > 0) {
-                    let tx = Math.cos(angle) * translateMax * (1 - leaf.progress)
-                    let ty = Math.sin(angle) * translateMax * (1 - leaf.progress)
+                    let tx = Math.cos(angle) * translateMax * (1 - leaf.circleProgress)
+                    let ty = Math.sin(angle) * translateMax * (1 - leaf.circleProgress)
                     ctx.translate(tx, ty)
                 }
                 ctx.fillStyle = color
@@ -222,6 +295,7 @@ class ColorTree extends TreePerf<AnimNodeData> {
                 ctx.arc(0, 0, radius, 0, Math.PI * 2)
                 ctx.fill()
             })
+
             ctx.restore()
         })
     }
@@ -237,14 +311,15 @@ let tree = new ColorTree({
         speed: 0.2,
         freq: 1,
     },
-    minLifeSpan: 600,
-    nodeDuration: 400,
-    nodeEaseEnter: 'inQuad',
-    nodeEaseLeave: 'inQuad',
+    minLifeSpan: 1500,
+    nodeDurationIn: 400,
+    nodeDurationOut: 300,
+    // nodeEaseEnter: 'inOutCubic',
+    // nodeEaseLeave: 'inOutCubic',
     divideRule: 'quarters-grid',
     colorSort: 'hue',
     colorRandomness: 0.31,
-    delayFn: (index, count) => random(),
+    // delayFn: (index, count) => random(),
 })
 
 // window.addEventListener('mousedown', (e: MouseEvent) => {
@@ -266,27 +341,28 @@ let tree = new ColorTree({
 //     // })
 // })
 
+// let easeOpts: { [key: string]: any } = {}
+// let easeKeys = Object.keys(Easing) as (keyof typeof Easing)[]
+// easeKeys.forEach((key) => {
+//     let group = Easing[key]
+//     if (typeof group === 'object') {
+//         let groupKeys = Object.keys(group) as (keyof typeof group)[]
+//         groupKeys.forEach((key2) => {
+//             easeOpts[key + '.' + key2] = group[key2]
+//         })
+//     }
+// })
 const gui = new GUI()
 
 gui.add(tree, 'maxDepth', 1, 8, 1)
 gui.add(tree, 'minDepth', 1, 8, 1)
 gui.add(tree, 'thresholdChange', 0, 1, 0.01)
-if (typeof tree.noiseOptions.freq === 'object') {
-    gui.add(tree.noiseOptions.freq, 'x', 0, 5, 0.01).name('noise freq x')
-    gui.add(tree.noiseOptions.freq, 'y', 0, 5, 0.01).name('noise freq y')
-} else {
-    gui.add(tree.noiseOptions, 'freq', 0, 5, 0.01).name('noise freq')
-}
-gui.add(tree.noiseOptions, 'speed', 0, 2, 0.01).name('noise speed')
-if (typeof tree.noiseOptsColor.freq === 'object') {
-    gui.add(tree.noiseOptsColor.freq, 'x', 0, 5, 0.01).name('noise2 freq x')
-    gui.add(tree.noiseOptsColor.freq, 'y', 0, 5, 0.01).name('noise2 freq y')
-} else {
-    gui.add(tree.noiseOptsColor, 'freq', 0, 5, 0.001).name('noise2 freq')
-}
-gui.add(tree.noiseOptsColor, 'speed', 0, 2, 0.001).name('noise2 speed')
-gui.add(tree, 'circleStep', 0, 5, 0.1)
-gui.add(tree, 'circleNum', 0, 10, 1)
+gui.add(tree, 'minLifeSpan', 0, 5000, 10)
+
+// gui.add(tree.node, 'easeEnter', easing).name('node ease enter')
+// gui.add(tree.node, 'easeLeave', easing).name('node ease leave')
+// gui.add(tree.node, 'easeCircEnter', easing).name('node ease circ enter')
+// gui.add(tree.node, 'easeCircLeave', easing).name('node ease circ leave')
 
 gui.add(tree, 'colorSort', [
     'hue',
@@ -297,6 +373,8 @@ gui.add(tree, 'colorSort', [
     'lightness-saturation',
     'random',
 ])
+
+gui.add(tree.node, 'durationIn', 0, 2000, 10).name('node duration in')
 gui.add(tree, 'divideRule', ['quarters-grid', 'half', 'two-random', 'two-thirds', 'thirds-row'])
 gui.add(tree, 'colorRandomness', 0, 1, 0.01)
 gui.add(tree, 'colorMix', ['rgb', 'lab', 'hsv', 'hsl', 'hsi'])
@@ -310,14 +388,8 @@ gui.add(
     bg = newBg
 })
 
-gui.add(tree, 'nodeDuration', 0, 2000, 1)
-
 gui.add(tree, 'initTree')
 gui.close()
-
-let dv = new DataView().createSection('Tree')
-dv.add(tree, 'tickCalculationsAvg', 1)
-dv.add(tree, 'leavesCountsAvg', 1)
 
 tree.initTree()
 
@@ -327,7 +399,6 @@ function draw(ms: number) {
     ctx.fillRect(0, 0, sizes.width, sizes.height)
 
     tree.tick(ms, ctx)
-    dv.update()
 }
 
 loop(draw)

@@ -1,34 +1,27 @@
-import { Timer } from '~/helpers/timer-promise'
+import { Easing, Group, Tween } from '@tweenjs/tween.js'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { Node, type NodeOptions } from './node'
-import easing, { type Easing } from '~/helpers/easings'
-import { map } from '~/helpers/utils'
 
-type DefaultNodeData = undefined
-
-export type AnimNodeOptions<D = DefaultNodeData> = NodeOptions & {
-    duration?: number
+export type AnimNodeOptions<D> = NodeOptions & {
+    durationIn?: number
+    durationOut?: number
     parent?: AnimNodeTween<D> | null
-    easeEnter?: Easing
-    easeLeave?: Easing
-    delayAnimate?: number
-    delayFn?: (index: number, count: number) => number
+    delayEnter?: number
 }
 
-export class AnimNodeTween<D = DefaultNodeData> extends Node {
+export class AnimNodeTween<D = {}> extends Node {
     declare getLeaves: () => AnimNodeTween<D>[]
     declare getAll: () => AnimNodeTween<D>[]
     children: AnimNodeTween<D>[] = []
     parent: AnimNodeTween<D> | null
-    points: [number, number][] = []
     state: 'entering' | 'willDivide' | 'willCollapse' | 'parentWillCollapse' | 'idle' = 'entering'
     birthday = Date.now()
-    _duration: number
-    timer: Timer
-    _easeLeave: Easing = 'inOutQuad'
-    _easeEnter: Easing = 'inOutQuad'
-    delayAnimate = 0
-    delayFn?: (index: number, count: number) => number
+    _progress = 0
+    _durationIn: number
+    _durationOut: number
+    tweenEnter: Tween<AnimNodeTween<D>>
+    tweenLeave: Tween<AnimNodeTween<D>>
+    tweenGroup: Group
     data?: D
 
     constructor(
@@ -37,109 +30,82 @@ export class AnimNodeTween<D = DefaultNodeData> extends Node {
             capacity = 4,
             depth = 0,
             parent = null,
-            duration = 500,
+            durationIn = 500,
+            durationOut = 500,
+            // easeEnter = 'inCubic',
+            // easeLeave = 'outCubic',
             divideRule,
-            easeEnter = 'inOutQuad',
-            easeLeave = 'inOutQuad',
-            delayAnimate = 0,
-            delayFn,
+            delayEnter,
         }: AnimNodeOptions<D> = {}
     ) {
         super(bounds, { capacity, depth, divideRule })
         this.parent = parent
-        this._duration = duration
-        this._easeEnter = easeEnter
-        this._easeLeave = easeLeave
+        this.tweenEnter = new Tween(this).to({ _progress: 1 }, durationIn)
+        this.tweenEnter.easing(Easing.Cubic.Out)
+        this.tweenEnter.onComplete(() => {
+            this.state = 'idle'
+            this.birthday = Date.now()
+        })
 
-        if (delayAnimate > 0) {
-            let waitAmount = this._duration * delayAnimate
-            let totalDur = this._duration + waitAmount
-            this.delayAnimate = delayAnimate
-            this.timer = new Timer({ duration: totalDur, easing: 'linear' })
-        } else {
-            this.timer = new Timer({ duration: this._duration, easing: 'linear' })
-        }
+        this._durationIn = durationIn
+        this._durationOut = durationOut
 
-        if (delayFn) this.delayFn = delayFn
-    }
-
-    get duration() {
-        return this._duration
-    }
-
-    set duration(duration: number) {
-        this._duration = duration
-        this.timer.duration = duration
+        this.tweenLeave = new Tween(this).to({ _progress: 0 }, durationOut)
+        this.tweenLeave.easing(Easing.Cubic.In)
+        this.tweenGroup = new Group(this.tweenEnter, this.tweenLeave)
+        if (delayEnter) this.tweenEnter.delay(delayEnter)
+        this.tweenEnter.start()
     }
 
     get progress() {
-        if (this.state === 'idle') return 1
-        if (this.state === 'entering') return easing[this.easeEnter](this.timer.progress)
-        if (this.state === 'parentWillCollapse') {
-            if (this.delayAnimate > 0) {
-                let progress = this.timer.progress
-                if (progress < this.delayAnimate) {
-                    return 1
-                } else {
-                    return easing[this._easeLeave](map(progress, this.delayAnimate, 1, 1, 0))
-                }
-            }
-        }
-        return easing[this.easeLeave](1 - this.timer.progress)
+        return this._progress
     }
 
     get age() {
         return Date.now() - this.birthday
     }
 
-    get easeLeave() {
-        return this._easeLeave
+    set durationIn(val: number) {
+        this._durationIn = val
+        this.tweenEnter.duration(val)
+        this.children.forEach((node) => (node.durationIn = val))
     }
 
-    get easeEnter() {
-        return this._easeEnter
+    get durationIn() {
+        return this._durationIn
     }
 
-    set easeLeave(ease: Easing) {
-        this._easeLeave = ease
+    get durationOut() {
+        return this._durationOut
     }
 
-    set easeEnter(ease: Easing) {
-        this._easeEnter = ease
+    set durationOut(val: number) {
+        this._durationOut = val
+        this.tweenLeave.duration(val)
+        this.getAll().forEach((node) => (node.durationOut = val))
     }
 
-    beIdle() {
-        this.state = 'idle'
-        this.timer.complete()
+    tick(time: number) {
+        this.tweenGroup.update(time)
     }
 
-    tick(delta: number) {
-        this.timer.tick(delta)
-
-        if (this.state === 'entering' && this.timer.progress === 1) {
-            this.state = 'idle'
-        } else if (this.state === 'willDivide' && this.timer.progress === 1) {
-            this.divide()
-        } else if (this.state === 'willCollapse' && this.timer.progress === 1) {
-            this.collapse()
-        }
-    }
-
-    divide() {
+    divide(delayStep?: number) {
         let rects = this.divideRect()
         if (!rects) return false
         this.children = rects.map((rect, i) => {
-            return new AnimNodeTween(rect, {
+            let newNode = new AnimNodeTween(rect, {
                 capacity: this.capacity,
                 depth: this.depth + 1,
                 parent: this,
-                duration: this._duration,
+                durationIn: this.durationIn,
+                durationOut: this.durationOut,
                 divideRule: this.divideRule,
-                delayAnimate: this.delayFn ? this.delayFn(i, rects.length) : 0,
-                delayFn: this.delayFn,
+                delayEnter: delayStep && delayStep * i,
             })
+
+            return newNode
         })
-        this.beIdle()
+        this.tweenEnter.end()
         return true
     }
 
@@ -147,8 +113,7 @@ export class AnimNodeTween<D = DefaultNodeData> extends Node {
         let collapsed = super.collapse()
         if (collapsed) {
             this.state = 'entering'
-            this.timer.restart()
-            this.birthday = Date.now()
+            this.tweenEnter.start()
         }
         return collapsed
     }
@@ -157,29 +122,32 @@ export class AnimNodeTween<D = DefaultNodeData> extends Node {
         return this.state !== 'idle'
     }
 
-    setWillDivide() {
+    setWillDivide(delayStep?: number) {
         if (this.isBusy() || this.children.length > 0) return false
         this.state = 'willDivide'
-        return this.timer.restart()
+        this.tweenLeave.start()
+        return new Promise<void>((resolve) => {
+            this.tweenLeave.onComplete(() => {
+                this.divide(delayStep)
+                this.state = 'idle'
+                resolve()
+            })
+        })
     }
 
-    setWillCollapse(delayAnimate?: number) {
+    setWillCollapse(delay?: number) {
         if (this.isBusy()) return false
 
         if (this.children.length === 0) {
-            if (delayAnimate && delayAnimate > 0) {
-                // let offset = index * (this.duration * 0.25) + 1
-                let offset = delayAnimate * this._duration
-                this.state = 'parentWillCollapse'
-                this.timer = new Timer({ duration: offset + this._duration })
-                this.delayAnimate = offset / (this._duration + offset)
-                return this.timer.promise
-            } else {
-                this.timer = new Timer({ duration: this._duration })
-                this.state = 'parentWillCollapse'
-                this.delayAnimate = 0
-                return this.timer.promise
-            }
+            this.state = 'parentWillCollapse'
+            if (delay) this.tweenLeave.delay(delay)
+
+            this.tweenLeave.start()
+            return new Promise<void>((resolve) => {
+                this.tweenLeave.onComplete(() => {
+                    resolve()
+                })
+            })
         }
 
         let leaves = this.getLeaves()
@@ -189,15 +157,14 @@ export class AnimNodeTween<D = DefaultNodeData> extends Node {
         let promises: Promise<void>[] = []
         for (let i = 0; i < leaves.length; i++) {
             let leaf = leaves[i]
-            let leafPromise = leaf.setWillCollapse(
-                this.delayFn ? this.delayFn(i, leaves.length) : 0
-            )
+            let leafPromise = leaf.setWillCollapse(delay && delay * i)
             if (!leafPromise) return false
             promises.push(leafPromise)
         }
 
         this.state = 'willCollapse'
         return Promise.all(promises).then(() => {
+            this._progress = 0
             this.collapse()
         })
     }

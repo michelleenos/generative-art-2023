@@ -47,6 +47,7 @@ ${snoise}
 precision mediump float;
 uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
+uniform vec2 uNoiseFreq1;
 
 attribute vec3 aPosition;
 attribute vec2 aTexCoord;
@@ -58,7 +59,8 @@ uniform float uTime;
 void main() {
   vTexCoord = aTexCoord;
 
-  vec3 noisePos = vec3(aTexCoord.x * 50.0, aTexCoord.y * 234.0, uTime);
+//   vec3 noisePos = vec3(aTexCoord.x * 50.0, aTexCoord.y * 234.0, uTime);
+vec3 noisePos = vec3(aTexCoord.x * uNoiseFreq1.x, aTexCoord.y * uNoiseFreq1.y, uTime);
     // float noisePos = sin(aTexCoord.x * 50.0) * 0.5 + cos(aTexCoord.y * 234.0) * 0.5 + uTime;
     float wave = snoise(noisePos);
     vWave = wave;
@@ -78,6 +80,7 @@ uniform sampler2D uTex;
 uniform float uTime;
 uniform float uStrokeWeight;
 uniform vec2 uPixelSize;
+uniform float uAngleMult;
 uniform float uDistortion;
 varying vec2 vTexCoord;
 varying float vWave;
@@ -92,7 +95,7 @@ void main() {
 
     vec2 st1 = st;
     float wave = vWave;
-    float angle = 1.9 * sin(st.x + uTime);
+    float angle = uAngleMult * sin(st.x + uTime);
     // st *= (1.0 - 0.4 * uDistortion);
     float radius = snoise(vec3(st.x * 50.0 - uTime * 0.3, st.y * 7.3 - uTime * 0.6 , uTime * 0.3)) * 0.05;
     st.x += cos(angle) * radius * 0.2;
@@ -306,6 +309,49 @@ const five = (lines: Lines) => {
     lines.palette = palettes.blumagenta
 }
 
+const six = (lines: Lines) => {
+    lines.stepRate = 320
+    lines.stepMult = 3
+    lines.alphaThreshold = 54
+    lines.lineWidth = 5
+    lines.longLineRatio = 0.05
+    lines.newPixelRadius = 136
+    lines.newPixelMethod = 'circle'
+    lines.parallel = 20
+    lines.lookPointShare = true
+    lines.redraw = {
+        rate: 50,
+        maxMult: 2,
+        after: 300,
+    }
+    lines.len.minStart = 217
+    lines.len.minEnd = 30
+    lines.len.minReduceBy = 1
+    lines.len.max = 500
+    lines.len.maxForColor = 500
+    lines.colors.mixSpace = 'hsv'
+    lines.colors.pattern = 'step'
+    lines.colors.move = 0.001865
+    lines.colors.sort = 'hue'
+    lines.colors.sortDir = '+'
+    lines.colors.shadowAmt = 0
+    lines.colors.shadowAlpha = 0
+    lines.colors.shadowOffset[0] = 0
+    lines.colors.shadowOffset[1] = 0
+    lines.wiggle.withinLine = 0
+    lines.wiggle.onLinePointFail = 0.145
+    lines.wiggle.betweenLine = 0
+    lines.wiggle.dir = -1
+    lines.wiggle.nLines = 15
+    lines.wiggle.max = 2.17
+    lines.failsUntil.stop = 1000
+    lines.failsUntil.moveLook = 100
+    lines.failsUntil.forceMoveLook = 300
+    lines.failsUntil.reduceMinLen = 200
+    lines.tries.pixel = 10
+    lines.tries.linePoint = 10
+}
+
 new p5((p: p5) => {
     let theShader: p5.Shader
     let g: p5.Graphics
@@ -351,6 +397,21 @@ new p5((p: p5) => {
         theShader.setUniform('uTime', 0)
         theShader.setUniform('uTex', g)
         theShader.setUniform('uPixelSize', [1 / g.width, 1 / g.height])
+        theShader.setUniform('uNoiseFreq1', [50, 234])
+        theShader.setUniform('uAngleMult', 1.9)
+
+        const debg = {
+            uNoiseFreq1: [50, 234],
+            uAngleMult: 1.9,
+        }
+        const u = gui.addFolder('shader')
+        u.add(debg.uNoiseFreq1, '0', 0, 1).name('uNoiseFreq1.x')
+        u.add(debg.uNoiseFreq1, '1', 0, 1).name('uNoiseFreq1.y')
+        u.add(debg, 'uAngleMult', 0, 10, 0.1)
+        u.onChange(() => {
+            theShader.setUniform('uNoiseFreq1', debg.uNoiseFreq1)
+            theShader.setUniform('uAngleMult', debg.uAngleMult)
+        })
 
         new Recorder({
             canvas: canvas.elt,
@@ -368,6 +429,7 @@ new p5((p: p5) => {
         gui.add(params, 'camShiftZ', -500, 500)
         gui.add(params, 'camShiftY', -500, 500)
         gui.add(params, 'upShiftX', -1, 1)
+        // gui.add(theShader)
         five(lines)
         lines.reset()
         linesDebug(lines, gui, dataView, reset)

@@ -1,14 +1,14 @@
-import '~/style.css'
-import createCanvas from '../../../helpers/canvas/createCanvas'
-import { clamp, map, random, randomBias } from '~/helpers/utils'
-import { QuadTree } from '~/helpers/quadtree'
-import { Rectangle } from '~/helpers/trig-shapes'
-import { Sizes } from '~/helpers/sizes'
 import { GUI } from 'lil-gui'
-import { leaf } from '~/helpers/shapes'
-import { createNoise2D, createNoise3D } from 'simplex-noise'
+import { createNoise3D } from 'simplex-noise'
 import easing from '~/helpers/easings'
 import loop from '~/helpers/loop'
+import { QuadTree } from '~/helpers/quadtree'
+import { leaf } from '~/helpers/shapes'
+import { Sizes } from '~/helpers/sizes'
+import { Rectangle } from '~/helpers/trig-shapes'
+import { clamp, map, randomBias } from '~/helpers/utils'
+import '~/style.css'
+import createCanvas from '../../../helpers/canvas/createCanvas'
 
 let noise3d = createNoise3D()
 

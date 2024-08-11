@@ -7,6 +7,7 @@ export type ColorSortOption =
     | 'temperature'
     | 'lightness'
     | 'lightness-saturation'
+
 export const sortPalette = (
     colors: string[],
     sort: ColorSortOption,
