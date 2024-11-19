@@ -69,3 +69,33 @@ export const f1 = (
         ctx.restore()
     }
 }
+
+type F2options = {
+    /*
+     * Translate X as a ratio of the width of the tile
+     */
+    tx?: number
+    glideAmount?: number
+    fullWidth: number
+    tileWidth: number
+    tileHeight: number
+}
+export const f2 = (
+    ctx: CanvasRenderingContext2D,
+    { tx = 1, glideAmount = 0.5, tileWidth, fullWidth, tileHeight }: F2options,
+    cb: () => void
+) => {
+    let steps = Math.ceil(fullWidth / (tileWidth * tx))
+
+    for (let i = Math.floor(-steps * 0.3); i < steps; i++) {
+        ctx.save()
+        ctx.translate(i * tileWidth * tx, 0)
+        cb()
+        ctx.translate(tileWidth * glideAmount, 0)
+        ctx.translate(0, tileHeight)
+        ctx.scale(1, -1)
+        ctx.translate(0, -tileHeight)
+        cb()
+        ctx.restore()
+    }
+}

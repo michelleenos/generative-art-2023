@@ -2,8 +2,6 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 import { Sizes } from '~/helpers/sizes'
 import '~/style.css'
 import { f1 } from '../friezes'
-import GUI from 'lil-gui'
-import { drawings, overlapDrawing } from '../tiles'
 import { random, shuffle } from '~/helpers/utils'
 
 // let palette = ['#f9c80e', '#f86624', '#ea3546', '#662e9b', '#43bccd']
@@ -60,7 +58,6 @@ abstract class F1Drawing {
     writeInfo = (ctx: CanvasRenderingContext2D) => {
         let keys = Object.keys(this) as (keyof typeof this)[]
 
-        let str = ''
         ctx.save()
         ctx.fillStyle = 'rgba(255,255,255,0.9)'
         ctx.fillRect(0, 0, 150, this.tileHeight)
