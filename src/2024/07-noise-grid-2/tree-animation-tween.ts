@@ -59,7 +59,6 @@ export class Tree<D extends {}> {
         if (options.minLifeSpan) this.minLifeSpan = options.minLifeSpan
 
         this.node = new AnimNodeTween<D>(bounds, {
-            capacity: 1,
             durationIn: options.nodeDurationIn,
             durationOut: options.nodeDurationOut,
             // easeEnter: options.nodeEaseEnter,

@@ -3,7 +3,6 @@ import { type Easing } from '~/helpers/easings'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { random, randomBias } from '~/helpers/utils'
 import { AnimNode } from './anim-node'
-import { AnimNodeTween } from './anim-node-tween'
 import { DivideRectRule } from './divide-rect'
 
 export type TreeOptions = {
@@ -67,7 +66,7 @@ export class Tree<D extends {}> {
         if (options.minLifeSpan) this.minLifeSpan = options.minLifeSpan
 
         this.node = new AnimNode<D>(bounds, {
-            capacity: 1,
+            // capacity: 1,
             duration: this._nodeDuration,
             delayFn: options.delayFn,
         })

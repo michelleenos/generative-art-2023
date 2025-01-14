@@ -27,7 +27,6 @@ export class AnimNodeTween<D = {}> extends Node {
     constructor(
         bounds: Rectangle,
         {
-            capacity = 4,
             depth = 0,
             parent = null,
             durationIn = 500,
@@ -38,7 +37,7 @@ export class AnimNodeTween<D = {}> extends Node {
             delayEnter,
         }: AnimNodeOptions<D> = {}
     ) {
-        super(bounds, { capacity, depth, divideRule })
+        super(bounds, { depth, divideRule })
         this.parent = parent
         this.tweenEnter = new Tween(this).to({ _progress: 1 }, durationIn)
         this.tweenEnter.easing(Easing.Cubic.Out)
@@ -94,7 +93,6 @@ export class AnimNodeTween<D = {}> extends Node {
         if (!rects) return false
         this.children = rects.map((rect, i) => {
             let newNode = new AnimNodeTween(rect, {
-                capacity: this.capacity,
                 depth: this.depth + 1,
                 parent: this,
                 durationIn: this.durationIn,

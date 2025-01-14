@@ -52,8 +52,8 @@ const makeGui = (tree: TreePattern) => {
         ['half', 'random', 'thirds-row', 'two-thirds', 'quarters-grid', 'quarters-random'],
     ]).onChange(tree.initTree)
 
-    gls.add(tree, 'noiseSpeed1', [0, 2, 0.001])
-    gls.add(tree, 'noiseSpeed2', [0, 2, 0.001])
+    // gls.add(tree, 'noiseSpeed1', [0, 2, 0.001])
+    // gls.add(tree, 'noiseSpeed2', [0, 2, 0.001])
     gls.add(tree, 'minLifeSpan', [100, 10000, 10])
     gls.add(tree, 'noiseVarColor', [[1, 2]])
     gls.add(tree, 'noiseVarPattern', [[1, 2]])

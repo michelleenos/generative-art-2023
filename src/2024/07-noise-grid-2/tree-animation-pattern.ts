@@ -22,7 +22,7 @@ export class TreePattern extends Tree<AnimNodeData> {
             key: 'pattern',
             freq: 0.64,
             speed: 1.6,
-            amp: 1,
+            // amp: 1,
             ...options.noiseOptsPattern,
         }
         this.palette = options.palette

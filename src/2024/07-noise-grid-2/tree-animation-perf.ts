@@ -1,6 +1,6 @@
 import { NoiseOptions, Tree } from './tree-animation'
 
-export class TreePerf<D = {}> extends Tree<D> {
+export class TreePerf<D extends {}> extends Tree<D> {
     lastPerfUpdate = 0
     tickCalculationsAvg = 0
     tickCalculationsCount = 0
