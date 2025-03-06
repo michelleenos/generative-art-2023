@@ -8,6 +8,7 @@ import { type PatternCell } from '../cells/pattern-cell'
 import { AnimatedPattern } from '../pattern-grid-animated'
 import { GUI } from 'lil-gui'
 import { Sizes } from '~/helpers/sizes'
+import { PatternDataView } from '../pattern-grid-animated-data'
 
 const getGridSizes = (sizes: Sizes) => {
     let grid = Math.min(sizes.width, sizes.height) * 0.85
@@ -124,6 +125,8 @@ pattern.create()
 const gui = new GUI({ title: 'pattern controls' })
 setGui(gui, pattern)
 
+let dataView = new PatternDataView(pattern)
+
 window.addEventListener('resize', () => {
     gridSizes = getGridSizes(sizes)
     resizeCanvas(sizes.width, sizes.height)
@@ -141,6 +144,7 @@ const draw = (t: number) => {
     let delta = t - lastTime
     lastTime = t
     pattern.draw(ctx, delta)
+    dataView.update()
 
     ctx.restore()
 }

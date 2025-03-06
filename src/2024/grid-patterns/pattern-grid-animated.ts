@@ -289,6 +289,11 @@ export class AnimatedPattern extends BasePattern {
                     cell.nx * cellSize + cell.w * 0.5 * cellSize,
                     cell.ny * cellSize + cell.h * 0.5 * cellSize
                 )
+                ctx.fillText(
+                    `${cell.timer.progress}`,
+                    cell.nx * cellSize + cell.w * 0.5 * cellSize,
+                    cell.ny * cellSize + cell.h * 0.5 * cellSize + 10
+                )
             }
         }
     }

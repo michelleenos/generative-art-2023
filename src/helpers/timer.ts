@@ -9,7 +9,7 @@ export type TimerOpts = {
 
 export class Timer {
     delta: number = 0
-    easing?: Easing
+    easing: Easing = 'linear'
     progress: number = 0
     linearProgress: number = 0
     duration: number = 1000
@@ -41,7 +41,7 @@ export class Timer {
         } else {
             this.linearProgress = Math.max(0, this.linearProgress - this.delta / this.duration)
             if (this.linearProgress === 0) {
-                this.complete()
+                this.completeReverse()
             }
         }
         // this.progress = easing[this.easing](this.linearProgress)
@@ -89,6 +89,14 @@ export class Timer {
         this.linearProgress = 0
         this.dir = 1
         this.isComplete = false
+        return this
+    }
+
+    completeReverse() {
+        this.linearProgress = 0
+        this.progress = 0
+        this.isComplete = true
+        if (this._onComplete) this._onComplete()
         return this
     }
 
