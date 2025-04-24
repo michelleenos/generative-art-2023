@@ -14,7 +14,7 @@ new p5((p: p5) => {
         h: number
         cd: number
 
-        constructor(x, y, w, h, cd = 0.1) {
+        constructor(x: number, y: number, w: number, h: number, cd = 0.1) {
             this.x = x
             this.y = y
             this.w = w
@@ -28,12 +28,7 @@ new p5((p: p5) => {
             let t = particle.y - particle.radius
             let b = particle.y + particle.radius
 
-            return (
-                l > this.x &&
-                r < this.x + this.w &&
-                t > this.y &&
-                b < this.y + this.h
-            )
+            return l > this.x && r < this.x + this.w && t > this.y && b < this.y + this.h
         }
 
         draw() {
@@ -77,14 +72,10 @@ new p5((p: p5) => {
         for (let i = 0; i < 7; i++) {
             let mass = p.random(0.5, 3)
             let radius = p.map(mass, 0.5, 3, 4, 20)
-            let particle = new Particle(
-                p.random(p.width * 0.1, p.width * 0.9),
-                p.random(0),
-                {
-                    radius,
-                    mass,
-                }
-            )
+            let particle = new Particle(p.random(p.width * 0.1, p.width * 0.9), p.random(0), {
+                radius,
+                mass,
+            })
             particles.push(particle)
         }
 

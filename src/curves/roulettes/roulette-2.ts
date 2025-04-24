@@ -23,7 +23,7 @@ let height = window.innerHeight
 
 let { ctx } = createCanvas(width, height)
 
-function ellipse(cx, cy, rx, ry) {
+function ellipse(cx: number, cy: number, rx: number, ry: number) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
     ctx.beginPath()
 
@@ -52,7 +52,7 @@ ctx.stroke()
 
 trochoid(50, 50)
 
-function trochoid(radius, lineLen) {
+function trochoid(radius: number, lineLen: number) {
     let res = 0.05
     ctx.beginPath()
     // t is the angle of rotation of the circle
@@ -65,7 +65,7 @@ function trochoid(radius, lineLen) {
     ctx.stroke()
 }
 
-function gcf(x, y) {
+function gcf(x: number, y: number) {
     let result = Math.min(x, y)
     while (result > 0) {
         if (x % result === 0 && y % result === 0) {
@@ -76,7 +76,7 @@ function gcf(x, y) {
     return result
 }
 
-function simplify(num, denom) {
+function simplify(num: number, denom: number) {
     let factor = gcf(num, denom)
     return { num: num / factor, denom: denom / factor }
 }

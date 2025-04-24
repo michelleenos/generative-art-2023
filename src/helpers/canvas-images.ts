@@ -45,7 +45,7 @@ function makeImages(canvas: HTMLCanvasElement, zipFileName?: string) {
     }
 
     function downloadZipPromise() {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             zip.generateAsync({ type: 'blob' }).then(function (content) {
                 let url = URL.createObjectURL(content)
                 let name = `${zipFileName ?? 'images'}.zip`
@@ -56,7 +56,7 @@ function makeImages(canvas: HTMLCanvasElement, zipFileName?: string) {
     }
 
     function zipStream() {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             zip.generateInternalStream({
                 type: 'blob',
             })

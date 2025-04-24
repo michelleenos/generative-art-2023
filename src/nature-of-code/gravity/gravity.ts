@@ -7,7 +7,7 @@ new p5((p: p5) => {
     let attractor: Attractor
 
     class Attractor extends Particle {
-        constructor(x, y, r, mass = 1) {
+        constructor(x: number, y: number, r: number, mass = 1) {
             super(x, y, { radius: r, mass })
         }
 
@@ -23,8 +23,7 @@ new p5((p: p5) => {
             distance = p.constrain(distance, 5, 25)
             force.normalize()
             let G = 1
-            let strength =
-                (G * this.mass * particle.mass) / (distance * distance)
+            let strength = (G * this.mass * particle.mass) / (distance * distance)
             force.mult(strength)
             return force
         }

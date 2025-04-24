@@ -46,7 +46,7 @@ export class Node {
         return true
     }
 
-    divideRect() {
+    divideRect(): false | Rectangle[] {
         if (this.children.length > 0) return false
         return divideRect(this.bounds, this.divideRule)
     }

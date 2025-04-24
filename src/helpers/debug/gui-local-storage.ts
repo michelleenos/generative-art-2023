@@ -101,10 +101,10 @@ export class GuiWithLocalStorage {
         localStorage.setItem(this.storageKey, JSON.stringify(this.storedVals))
     }
 
-    resetVals = (reload = true) => {
+    resetVals = () => {
         this.storedVals = {}
         this.setStorage()
-        this.children.forEach((child) => child.resetVals(false))
+        this.children.forEach((child) => child.resetVals())
         // if (reload) window.location.reload()
         this.gui.controllersRecursive().forEach((c) => {
             if (this.defaultVals.hasOwnProperty(c.property)) {

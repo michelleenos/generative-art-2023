@@ -256,7 +256,7 @@ class ColorTree extends Tree<AnimNodeData> {
 
     draw = (ctx: CanvasRenderingContext2D) => {
         ctx.save()
-        this.leaves.forEach((leaf, i) => {
+        this.leaves.forEach((leaf) => {
             // let progress = leaf.state === 'waitingToCollapse' ? 1 : leaf.progress
             let progress = leaf.progress
 

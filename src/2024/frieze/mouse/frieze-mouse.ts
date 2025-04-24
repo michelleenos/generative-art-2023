@@ -386,7 +386,7 @@ function drawPoints() {
             for (let i = 0; i < stepsX; i++) {
                 ctx.save()
                 ctx.translate(params.tileSize * i, 0)
-                points.forEach(({ x, y, tileX, tileY }) => {
+                points.forEach(({ y, tileX }) => {
                     ctx.beginPath()
                     ctx.arc(tileX, y, params.radius, 0, Math.PI * 2)
                     ctx.fill()

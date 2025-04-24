@@ -29,17 +29,10 @@ pane.addInput(PARAMS, 'amplitude', { min: 0, max: height + 200 })
 pane.on('change', () => {
     ctx.clearRect(0, 0, width, height)
     ctx.strokeStyle = '#fff'
-    sineWave(
-        PARAMS.x0,
-        PARAMS.y0,
-        PARAMS.x1,
-        PARAMS.y1,
-        PARAMS.wavelength,
-        PARAMS.amplitude
-    )
+    sineWave(PARAMS.x0, PARAMS.y0, PARAMS.x1, PARAMS.y1, PARAMS.wavelength, PARAMS.amplitude)
 })
 
-function sineWave(x0, y0, x1, y1, wavelen, amp) {
+function sineWave(x0: number, y0: number, x1: number, y1: number, wavelen: number, amp: number) {
     let dx = x1 - x0
     let dy = y1 - y0
     let dist = Math.sqrt(dx * dx + dy * dy)

@@ -124,7 +124,7 @@ export class Grid {
         }
     }
 
-    update = (ms: number, ctx: CanvasRenderingContext2D) => {
+    update = (ms: number) => {
         let delta = ms - this.lastTime
         this.lastTime = ms
         let doDiv = false
@@ -171,7 +171,7 @@ export class Grid {
     }
 
     draw = (ms: number, ctx: CanvasRenderingContext2D) => {
-        this.update(ms, ctx)
+        this.update(ms)
 
         ctx.fillStyle = 'rgb(230,230,230)'
         ctx.fillRect(0, 0, this.width, this.height)

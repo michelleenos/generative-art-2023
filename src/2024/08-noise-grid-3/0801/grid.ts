@@ -14,8 +14,7 @@ import easing from '~/helpers/easings'
 const initCells = (
     sizes: { width: number; height: number },
     minDepth: number,
-    maxDepth: number,
-    rootSize = 300
+    maxDepth: number
 ) => {
     // let sz = Math.min(sizes.width, sizes.height) * 0.9
     let sz = 850
@@ -60,7 +59,7 @@ export class Grid {
         this.width = width
         this.height = height
 
-        this.root = initCells({ width, height }, params.minDepth, params.maxDepth, 300)
+        this.root = initCells({ width, height }, params.minDepth, params.maxDepth)
         this.root.onCollapse = this.updateLeaves
         this.root.onDivide = this.updateLeaves
 

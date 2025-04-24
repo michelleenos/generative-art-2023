@@ -125,7 +125,7 @@ export class AnimNode<D = DefaultNodeData> extends Node {
     }
 
     divide() {
-        let rects = this.divideRect()
+        let rects: false | Rectangle[] = this.divideRect()
         if (!rects) return false
         this.children = rects.map((rect, i) => {
             return new AnimNode(rect, {
@@ -133,7 +133,7 @@ export class AnimNode<D = DefaultNodeData> extends Node {
                 parent: this,
                 duration: this._duration,
                 divideRule: this.divideRule,
-                delayAnimate: this.delayFn ? this.delayFn(i, rects.length) : 0,
+                delayAnimate: this.delayFn ? this.delayFn(i, (rects as Rectangle[]).length) : 0,
                 delayFn: this.delayFn,
             })
         })

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import inject from '@rollup/plugin-inject'
-import vitePluginFaviconsInject from 'vite-plugin-favicons-inject'
+
 import getEntries from './get-entries'
 
 let entries = await getEntries('src')
@@ -19,7 +19,6 @@ export default defineConfig({
             p5: 'p5',
             sourceMap: false,
         }),
-        process.env.NODE_ENV == 'production' ? vitePluginFaviconsInject('./src/icon.svg') : false,
     ],
     // optimizeDeps: {
     //     include: ['p5', 'p5/lib/addons/p5.sound.js'],

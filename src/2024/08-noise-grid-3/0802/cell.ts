@@ -14,7 +14,7 @@ export class Cell {
     depth: number
     birthday: number
     stage: 'in' | 'out' | 'childrenOut' | 'hidden' | 'idle'
-    randomVal: number
+    // randomVal: number
     cellId: number
     lastTime: number = 0
     delayEnter?: number
@@ -31,7 +31,7 @@ export class Cell {
         this.depth = parent ? parent.depth + 1 : 0
         this.birthday = -1
         this.delayEnter = delayEnter
-        this.randomVal = random(-params.randomness / 2, params.randomness / 2)
+        // this.randomVal = random(-params.randomness / 2, params.randomness / 2)
         this.cellId = ++cellCount
     }
 

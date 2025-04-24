@@ -8,7 +8,7 @@ let height = window.innerHeight
 
 let { ctx } = createCanvas(width, height)
 
-function ellipse(cx, cy, rx, ry) {
+function ellipse(cx: number, cy: number, rx: number, ry: number) {
     let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
     ctx.beginPath()
 
@@ -18,17 +18,32 @@ function ellipse(cx, cy, rx, ry) {
     ctx.closePath()
 }
 
-function quadBezierOne(a0, a1, a2, t) {
+function quadBezierOne(a0: number, a1: number, a2: number, t: number) {
     let m = 1 - t
     return m * m * a0 + 2 * m * t * a1 + t * t * a2
 }
 
-function quadBezierPoint(x0, y0, x1, y1, x2, y2, t) {
+function quadBezierPoint(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    t: number
+) {
     return { x: quadBezierOne(x0, x1, x2, t), y: quadBezierOne(y0, y1, y2, t) }
 }
 
-// @ts-ignore
-function quadCurve(x0, y0, x1, y1, x2, y2, res) {
+function quadCurve(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    res: number
+) {
     ctx.beginPath()
     ctx.moveTo(x0, y0)
     for (let t = res; t <= 1; t += res) {
@@ -38,24 +53,38 @@ function quadCurve(x0, y0, x1, y1, x2, y2, res) {
     ctx.lineTo(x2, y2)
 }
 
-function cubicBezierOne(a0, a1, a2, a3, t) {
+function cubicBezierOne(a0: number, a1: number, a2: number, a3: number, t: number): number {
     let m = 1 - t
-    return (
-        m * m * m * a0 +
-        3 * m * m * t * a1 +
-        3 * m * t * t * a2 +
-        t * t * t * a3
-    )
+    return m * m * m * a0 + 3 * m * m * t * a1 + 3 * m * t * t * a2 + t * t * t * a3
 }
 
-function cubicBezierPoint(x0, y0, x1, y1, x2, y2, x3, y3, t) {
+function cubicBezierPoint(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    x3: number,
+    y3: number,
+    t: number
+) {
     let x = cubicBezierOne(x0, x1, x2, x3, t)
     let y = cubicBezierOne(y0, y1, y2, y3, t)
     return { x, y }
 }
 
-// @ts-ignore
-function cubicCurve(x0, y0, x1, y1, x2, y2, x3, y3, res) {
+function cubicCurve(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    x3: number,
+    y3: number,
+    res: number
+) {
     ctx.beginPath()
     ctx.moveTo(x0, y0)
     for (let t = res; t <= 1; t += res) {
@@ -78,9 +107,8 @@ let y0 = 50
 let y1 = 150
 let y2 = 200
 
-// @ts-ignore
 function drawCurve() {
-    ctx.clearRect(0, 0, width, height)
+    // ctx.clearRect(0, 0, width, height)
     ctx.beginPath()
     ctx.moveTo(x0, y0)
     for (let t = res; t < finalT; t += res) {
@@ -98,19 +126,9 @@ function drawCurve() {
         finalT = 0
         dt = -dt
     }
-
-    requestAnimationFrame(loop)
 }
 
-// function circleOnCurve(t) {
-//     ctx.clearRect(0, 0, width, height)
-//     let { x, y } = quadBezierPoint(x0, y0, x1, y1, x2, y2, (Math.sin(t * 0.01) + 1) / 2)
-
-//     ellipse(x, y, 5, 5)
-//     ctx.fill()
-// }
-
-function loop(cb) {
+function loop(cb: FrameRequestCallback) {
     let t = 0
     const animate = () => {
         cb(t)
@@ -120,8 +138,7 @@ function loop(cb) {
     requestAnimationFrame(animate)
 }
 
-// @ts-ignore
-function multiCurve(points) {
+function multiCurve(points: Point[]) {
     ctx.moveTo(points[0].x, points[0].y)
     let midX = (points[0].x + points[1].x) / 2
     let midY = (points[0].y + points[1].y) / 2
@@ -139,7 +156,12 @@ function multiCurve(points) {
     ctx.lineTo(last.x, last.y)
 }
 
-function multiLoop(points) {
+/**
+ * Draw a loop of connected quadratic curves from a list of points.
+ * The loop is closed by connecting the last point to the first point.
+ * @param points - The points to connect with the curves.
+ */
+function multiLoop(points: Point[]) {
     // ctx.moveTo(points[0].x, points[0].y)
     let midX0 = (points[0].x + points[1].x) / 2
     let midY0 = (points[0].y + points[1].y) / 2
@@ -163,15 +185,7 @@ function multiLoop(points) {
 }
 
 type Point = { x: number; y: number }
-
 let points: Point[] = []
-
-// [
-//     { x: 500, y: 200 },
-//     { x: 200, y: 200 },
-//     { x: 500, y: 700 },
-//     { x: 700, y: 400 },
-// ]
 
 for (let i = 0; i < 5; i++) {
     points.push({
@@ -185,7 +199,6 @@ points.forEach((pt) => {
     ctx.fill()
 })
 
-// multiCurve(points)
 multiLoop(points)
 ctx.stroke()
 

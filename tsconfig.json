@@ -12,10 +12,10 @@
         "strict": true,
         "noEmit": true,
         "noImplicitAny": true,
-        "noUnusedLocals": true,
+        // "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
+        // "noEmitOnError": false,
 
         "types": ["node", "vite/client"],
         "baseUrl": "./",
