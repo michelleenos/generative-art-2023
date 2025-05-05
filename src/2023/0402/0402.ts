@@ -36,6 +36,7 @@ function setPane() {
     pane.addInput(PARAMS, 'showOrigin')
     pane.addInput(PARAMS, 'lines', { min: 1, max: 25, step: 1 })
     pane.addInput(PARAMS, 'scaleMin', { min: 0, max: 1, step: 0.01 })
+    pane.addInput(PARAMS, 'pointsReflection')
 
     let folderPoints = pane.addFolder({ title: 'points' })
     let pointsInput = folderPoints.addInput(PARAMS, 'pointsN', {

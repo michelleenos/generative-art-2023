@@ -16,7 +16,6 @@ export class Line {
     points: Cell[] = []
     color: string
     maxPoints: number
-    lastAdd: number = 0
     lastTime: number = 0
     progress: number = 0
     thickness: number

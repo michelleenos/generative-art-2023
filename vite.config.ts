@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import inject from '@rollup/plugin-inject'
-
 import getEntries from './get-entries'
 
 let entries = await getEntries('src')
