@@ -1,1 +1,0 @@
-const h=(t,n,o,s,e)=>(t-n)*(e-s)/(o-n)+s,c=(t=0,n=1)=>Math.random()*(n-t)+t,m=t=>{let n=t.length,o;for(;n!==0;)o=Math.floor(Math.random()*n),n-=1,[t[n],t[o]]=[t[o],t[n]];return t},a=(t,n,o)=>Math.min(Math.max(t,n),o);export{a as c,h as m,c as r,m as s};
