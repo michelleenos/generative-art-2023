@@ -1,6 +1,6 @@
 import '../../style.css'
 import { random, shuffle } from '~/helpers/utils'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { polygon, burst, zigzag, rectCenter } from '~/helpers/shapes'
 import { crazyTiles } from '~/helpers/crazy-tiles'
 import { Pane } from 'tweakpane'

@@ -1,5 +1,5 @@
 import '../../style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { Pane } from 'tweakpane'
 import { rectCenter } from '~/helpers/shapes'
 import { clamp, map, random, shuffle } from '~/helpers/utils'

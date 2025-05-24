@@ -1,5 +1,5 @@
 import '../../style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 
 // https://www.bit-101.com/blog/2022/11/coding-curves-03-arcs-circles-ellipses/
 

@@ -1,4 +1,4 @@
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 
 function fermatPoint(a: number = 20, angle: number) {
     let radius = a * Math.pow(angle, 0.5)

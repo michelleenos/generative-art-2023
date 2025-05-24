@@ -3,7 +3,7 @@ import { Sizes } from '~/helpers/sizes'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { random, shuffle } from '~/helpers/utils'
 import '~/style.css'
-import createCanvas from '../../../helpers/canvas/createCanvas'
+import createCanvas from '../../../helpers/create-canvas'
 import { boxesHorizontal, boxesVertical } from '../patterns'
 import { TreePattern } from '../tree-animation-pattern'
 

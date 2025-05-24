@@ -1,7 +1,7 @@
 import loop from '~/helpers/loop'
 import { Rectangle } from '~/helpers/trig-shapes'
 import '~/style.css'
-import createCanvas from '../../../helpers/canvas/createCanvas'
+import createCanvas from '../../../helpers/create-canvas'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import chroma from 'chroma-js'
 import GUI from 'lil-gui'

@@ -1,5 +1,5 @@
 import '~/style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { GUI } from 'lil-gui'
 
 const PHI = (1 + Math.sqrt(5)) / 2

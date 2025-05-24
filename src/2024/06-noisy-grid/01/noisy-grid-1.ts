@@ -8,7 +8,7 @@ import { Sizes } from '~/helpers/sizes'
 import { Rectangle } from '~/helpers/trig-shapes'
 import { clamp, map, randomBias } from '~/helpers/utils'
 import '~/style.css'
-import createCanvas from '../../../helpers/canvas/createCanvas'
+import createCanvas from '../../../helpers/create-canvas'
 
 let noise3d = createNoise3D()
 

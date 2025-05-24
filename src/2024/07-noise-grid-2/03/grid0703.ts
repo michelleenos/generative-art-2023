@@ -1,7 +1,7 @@
 import loop from '~/helpers/loop'
 import { Rectangle } from '~/helpers/trig-shapes'
 import '~/style.css'
-import createCanvas from '../../../helpers/canvas/createCanvas'
+import createCanvas from '../../../helpers/create-canvas'
 import { NoiseOptions, Tree, TreeOptions } from '../tree-animation'
 import { Sizes } from '~/helpers/sizes'
 import { random, shuffle } from '~/helpers/utils'

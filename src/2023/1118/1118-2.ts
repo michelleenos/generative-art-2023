@@ -1,5 +1,5 @@
 import '../../style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { random } from '~/helpers/utils'
 import loop from '~/helpers/loop'
 

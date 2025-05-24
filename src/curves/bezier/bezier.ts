@@ -1,5 +1,5 @@
 import '../../style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 
 // https://www.bit-101.com/blog/2022/12/coding-curves-08-bezier-curves/
 

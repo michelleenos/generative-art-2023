@@ -1,6 +1,6 @@
 import '~/style.css'
 import Stats from 'stats.js'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import easings from '~/helpers/easings'
 import loop from '~/helpers/loop'
 import { random, shuffle } from '~/helpers/utils'

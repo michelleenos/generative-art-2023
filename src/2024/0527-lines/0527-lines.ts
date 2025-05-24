@@ -1,5 +1,5 @@
 import { GUI } from 'lil-gui'
-import createCanvas from '../../helpers/canvas/createCanvas'
+import createCanvas from '../../helpers/create-canvas'
 import '../../style.css'
 import { getPoints } from './lines-points'
 

@@ -1,4 +1,4 @@
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import '../../style.css'
 import loop from '~/helpers/loop'
 import { lerp, random } from '~/helpers/utils'

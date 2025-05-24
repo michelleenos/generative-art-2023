@@ -1,5 +1,5 @@
 import '../../style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { Pane } from 'tweakpane'
 import { random } from '~/helpers/utils'
 import { hexToHsb, hsbToHex, type ColorHSB } from '~/helpers/color-utils'

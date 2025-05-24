@@ -1,6 +1,6 @@
 import '../../style.css'
 import { random, shuffle, map } from '~/helpers/utils'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { burst } from '~/helpers/shapes'
 import { crazyTiles } from '~/helpers/crazy-tiles'
 import loop from '~/helpers/loop'

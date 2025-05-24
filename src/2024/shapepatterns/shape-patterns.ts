@@ -1,5 +1,5 @@
 import '~/style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { Sizes } from '~/helpers/sizes'
 import { clamp, map, random } from '~/helpers/utils'
 import { createNoise2D, NoiseFunction2D } from 'simplex-noise'

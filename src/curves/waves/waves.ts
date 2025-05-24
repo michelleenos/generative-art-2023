@@ -1,6 +1,6 @@
 import '../../style.css'
 import { Pane } from 'tweakpane'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 
 // https://www.bit-101.com/blog/2022/11/coding-curves-02-trig-curves/
 

@@ -1,6 +1,6 @@
 // p5 version: https://openprocessing.org/sketch/2202948
 
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import loop from '~/helpers/loop'
 import { random, shuffle } from '~/helpers/utils'
 import '~/style.css'

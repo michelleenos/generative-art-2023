@@ -2,7 +2,7 @@ import { GUI } from 'lil-gui'
 import loop from '~/helpers/loop'
 import { Rectangle } from '~/helpers/trig-shapes'
 import '~/style.css'
-import createCanvas from '../../../helpers/canvas/createCanvas'
+import createCanvas from '../../../helpers/create-canvas'
 
 import { GuiWithLocalStorage } from '~/helpers/debug/gui-local-storage'
 import easing from '~/helpers/easings'

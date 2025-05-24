@@ -1,5 +1,5 @@
 import '../../style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { createPetal, type Petal } from '~/2023/0404/petal'
 import loop from '~/helpers/loop'
 // import map from '~/helpers/map'

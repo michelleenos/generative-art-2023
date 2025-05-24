@@ -1,7 +1,7 @@
 import '~/style.css'
 import Stats from 'stats.js'
 import { GUI } from 'lil-gui'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import easings, { easing } from '~/helpers/easings'
 import loop from '~/helpers/loop'
 import { AnimatedPattern } from '../pattern-grid-animated'

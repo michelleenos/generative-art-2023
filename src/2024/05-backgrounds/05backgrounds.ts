@@ -1,5 +1,5 @@
 import '~/style.css'
-import createCanvas from '~/helpers/canvas/createCanvas'
+import createCanvas from '~/helpers/create-canvas'
 import { map, random } from '~/helpers/utils'
 import { createNoise2D } from 'simplex-noise'
 import easing from '~/helpers/easings'
