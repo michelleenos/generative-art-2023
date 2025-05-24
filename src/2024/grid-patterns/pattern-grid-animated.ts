@@ -228,6 +228,8 @@ export class AnimatedPattern extends BasePattern {
         if (steps.shouldWait) this.waitStep()
         if (steps.shouldEnter) this.enterStep()
         if (steps.shouldLeave) this.leaveStep()
+
+        // this.cells.forEach((cell) => cell.tick(this.delta))
     }
 
     setLastAddIndex(index: number) {

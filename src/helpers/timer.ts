@@ -76,6 +76,7 @@ export class Timer {
 
     reverse(from?: number) {
         this.dir = -1
+        this.isComplete = false
         if (from !== undefined) {
             this.linearProgress = from
             this.progress = this.easing

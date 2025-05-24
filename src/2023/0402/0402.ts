@@ -3,7 +3,7 @@ import createCanvas from '~/helpers/canvas/createCanvas'
 import easings from '~/helpers/easings'
 import { Pane } from 'tweakpane'
 import { Point, getRandomPoints, reflectPoints, drawPoints, drawPoint } from './parts/points'
-import quadLoop from '~/helpers/canvas/quadLoop'
+import quadLoop from '~/helpers/quad-loop'
 import loop from '~/helpers/loop'
 import { map } from '~/helpers/utils'
 
