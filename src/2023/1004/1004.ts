@@ -31,7 +31,7 @@ new p5((p: p5) => {
         }
 
         display() {
-            p.stroke(200, 0, 150)
+            p.stroke(200, 0, 100)
             p.strokeWeight(2)
             p.fill(this.on ? 100 : this.step === currentStep ? 150 : 200)
             p.rect(this.pos.x, this.pos.y, this.w, this.h)
@@ -43,8 +43,6 @@ new p5((p: p5) => {
     }
 
     function createCells() {
-        // let pad = 4
-        // rect = { width: p.width - pad * 2, height: p.height - pad * 2, x: pad, y: pad }
         let w = p.width / steps
         let h = p.height / pitches.length
         for (let i = 0; i < steps; i++) {

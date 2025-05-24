@@ -1,8 +1,9 @@
 import { Pane } from 'tweakpane'
 import p5 from 'p5'
+import { PARAMS as paramsDef } from './0422'
 
 function setPane(
-    PARAMS: { [key: string]: any },
+    PARAMS: typeof paramsDef,
     p: p5,
     initVelOpts: { [key: string]: string },
     makeParticles: (n: number, reset: boolean) => void,
@@ -15,9 +16,16 @@ function setPane(
     }
 
     pane.addInput(PARAMS, 'gravityConstant', { min: 0.1, max: 3, step: 0.1 })
-    pane.addInput(PARAMS, 'alpha', { min: 0, max: 1, step: 0.01 })
-    pane.addInput(PARAMS, 'weight', { min: 0, max: 10, step: 0.1 })
-    pane.addInput(PARAMS, 'showAttractors')
+
+    let dFolder = pane.addFolder({ title: 'draw' })
+    dFolder.addInput(PARAMS.draw, 'strokeWeight', { min: 0, max: 10, step: 0.1 })
+    dFolder.addInput(PARAMS.draw, 'alpha', { min: 0, max: 1, step: 0.01 })
+    dFolder.addInput(PARAMS.draw, 'saturation', { min: 0, max: 100, step: 1 })
+    dFolder.addInput(PARAMS.draw, 'lightness', { min: 0, max: 100, step: 1 })
+    dFolder.addInput(PARAMS.draw, 'hueMin', { min: 0, max: 360, step: 1 })
+    dFolder.addInput(PARAMS.draw, 'hueMax', { min: 0, max: 360, step: 1 })
+    dFolder.addInput(PARAMS.draw, 'showAttractors')
+    dFolder.addInput(PARAMS.draw, 'showParticles')
 
     let pFolder = pane.addFolder({ title: 'particles grid' })
     pFolder

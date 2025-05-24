@@ -1,6 +1,6 @@
-import '../../style.css'
+import '~/style.css'
 import p5 from 'p5'
-import { Particle } from '../../helpers/particles/particle'
+import { p5Particle as Particle } from '~/helpers/p5-particle'
 
 new p5((p: p5) => {
     let particles: Particle[] = []

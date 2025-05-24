@@ -1,24 +1,5 @@
 import p5 from 'p5'
-import { constrain } from '../utils'
-
-// export interface Particle extends p5.Vector {
-//     radius: number
-//     acceleration: p5.Vector
-//     velocity: p5.Vector
-//     mass: number
-//     applyForce(force: p5.Vector): void
-//     update(): void
-//     distFromEdge(): {
-//         left: number
-//         right: number
-//         top: number
-//         bottom: number
-//     }
-//     checkEdges(): void
-//     draw(): void
-//     attract(particle: Particle): p5.Vector
-//     constraint: { min: number; max: number }
-// }
+import { constrain } from './utils'
 
 export type ParticleOpts = {
     radius?: number
@@ -32,7 +13,7 @@ export type ForceOpts = {
     min?: number
     max?: number
 }
-export class Particle extends p5.Vector {
+export class p5Particle extends p5.Vector {
     radius: number
     acceleration: p5.Vector = new p5.Vector()
     velocity: p5.Vector
@@ -120,10 +101,7 @@ export class Particle extends p5.Vector {
         p.circle(this.x, this.y, this.radius * 2)
     }
 
-    attract(
-        particle: Particle,
-        { G = 1, min = this.min, max = this.max }: ForceOpts = {}
-    ) {
+    attract(particle: p5Particle, { G = 1, min = this.min, max = this.max }: ForceOpts = {}) {
         // F = (G * m1 * m2) / r^2 * rn
         // G = gravitational constant
         // m1 and m2 = mass of objects
@@ -132,7 +110,6 @@ export class Particle extends p5.Vector {
 
         let force = this.copy().sub(particle)
         let distance = force.mag()
-        // distance = constrain(distance, this.attractMin, this.attractMax)
         distance = constrain(distance, min, max)
         force.normalize()
         let strength = (G * this.mass * particle.mass) / (distance * distance)
@@ -140,10 +117,7 @@ export class Particle extends p5.Vector {
         return force
     }
 
-    repel(
-        particle: Particle,
-        { min = this.min, max = this.max }: ForceOpts = {}
-    ) {
+    repel(particle: p5Particle, { min = this.min, max = this.max }: ForceOpts = {}) {
         let between = this.copy().sub(particle)
         let distance = between.mag()
         // distance = constrain(distance, 1, 100)
@@ -154,5 +128,3 @@ export class Particle extends p5.Vector {
         return force
     }
 }
-
-// export type Particleee = InstanceType<typeof init>

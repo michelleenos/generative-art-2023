@@ -1,15 +1,11 @@
-import '../../style.css'
+import '~/style.css'
 import p5 from 'p5'
 
-import { Particle } from '../../helpers/particles/particle'
-import { DragBox, getDrag } from '../../helpers/friction-drag'
+import { p5Particle as Particle } from '~/helpers/p5-particle'
 
 import setPane from './pane'
 
-import makeImages from '~/helpers/canvas-images'
-let RECORD = false
-
-const PARAMS = {
+export const PARAMS = {
     a1: {
         mass: 15,
         pos: { x: 0.5, y: 0.5 },
@@ -31,28 +27,35 @@ const PARAMS = {
         gridYMax: 1,
         initVelX: '-1',
         initVelY: '-1',
+        highlight: 5,
     },
     gravityConstant: 1.5,
     size: 400,
-    nBoxes: 0,
-    boxDrag: 0.05,
-    boxSize: 0.25,
+    canvasSize: 600,
     aConstrainMin: 5,
     aConstrainMax: 25,
-    weight: 1,
-    alpha: 0.2,
-    alphaH: 0.8,
-    showAttractors: true,
+
+    draw: {
+        saturation: 50,
+        lightness: 50,
+        strokeWeight: 1,
+        highlightStrokeWeight: 5,
+        alpha: 0.2,
+        highlightAlpha: 0.8,
+        showAttractors: true,
+        showParticles: true,
+        hueMin: 200,
+        hueMax: 300,
+    },
 }
 
 new p5((p: p5) => {
-    let particles: { particle: Particle; highlight: boolean }[] = []
-    let img: p5.Graphics = p.createGraphics(600, 600)
-    let boxes: DragBox[] = []
+    // let particles: Particle[] = []
+    let particleItems: { particle: Particle; points: { x: number; y: number }[] }[] = []
+    let img: p5.Graphics
     let attractors: Particle[] = []
     let STOPANDSAVEIMG = false
     let translate = new p5.Vector(0, 0)
-    let recorder: ReturnType<typeof makeImages>
 
     let initVelFunctions: { [key: string]: (i?: any, n?: any) => number } = {
         '-1': () => -1,
@@ -83,7 +86,6 @@ new p5((p: p5) => {
     let pane = setPane(PARAMS, p, initVelOpts, makeParticles, setStuff)
 
     function setStuff() {
-        makeBoxes()
         if (PARAMS.particles.type === 'grid') {
             makeParticlesGrid()
         } else {
@@ -92,25 +94,17 @@ new p5((p: p5) => {
         makeAttractors()
         if (img) img.remove()
         img = p.createGraphics(p.width, p.height)
+        img.strokeCap(p.SQUARE)
         img.colorMode(p.HSL)
         translate.set(p.width / 2 - PARAMS.size / 2, p.height / 2 - PARAMS.size / 2)
     }
 
-    function makeBoxes() {
-        boxes = []
-        for (let i = 0; i < PARAMS.nBoxes; i++) {
-            let boxx = p.random(p.width)
-            let boxy = p.random(p.height)
-            boxes.push(new DragBox(boxx, boxy, p.width * 0.25, p.height * 0.25, PARAMS.boxDrag))
-        }
-    }
-
     function makeParticles(n = PARAMS.particles.nRandom, reset = true) {
-        if (reset) particles = []
+        if (reset) particleItems = []
         for (let i = 0; i < n; i++) {
             let mass = 1
 
-            particles.push({
+            particleItems.push({
                 particle: new Particle(p.random(PARAMS.size), p.random(PARAMS.size), {
                     radius: mass * 8,
                     mass,
@@ -119,18 +113,13 @@ new p5((p: p5) => {
                         initVelFunctions[PARAMS.particles.initVelY]()
                     ),
                 }),
-                highlight: false,
+                points: [],
             })
         }
     }
 
-    function isHighlighted(x: number, y: number) {
-        let vals = [2, 2]
-        return (x === vals[0] && y === vals[1]) || (x === vals[1] && y === vals[0])
-    }
-
     function makeParticlesGrid() {
-        particles = []
+        particleItems = []
         let nx = PARAMS.particles.nx
         let ny = PARAMS.particles.ny
         for (let x = 0; x < nx; x++) {
@@ -151,8 +140,6 @@ new p5((p: p5) => {
                         p.map(0.5, 0, 1, PARAMS.particles.gridYMin, PARAMS.particles.gridYMax) *
                         PARAMS.size
 
-                let highlight = isHighlighted(x, y)
-
                 let particle = new Particle(posX, posY, {
                     radius: mass * 8,
                     mass,
@@ -162,7 +149,7 @@ new p5((p: p5) => {
                     ),
                 })
 
-                particles.push({ particle, highlight })
+                particleItems.push({ particle, points: [] })
             }
         }
     }
@@ -190,16 +177,9 @@ new p5((p: p5) => {
     }
 
     p.setup = () => {
-        let canvas = p.createCanvas(600, 600)
+        let canvas = p.createCanvas(PARAMS.canvasSize, PARAMS.canvasSize)
         p.angleMode(p.RADIANS)
         setStuff()
-
-        recorder = makeImages(canvas.elt)
-
-        if (RECORD) {
-            p.noLoop()
-            doLoop()
-        }
 
         pane.addButton({ title: 'save canvas' }).on('click', () => p.saveCanvas(canvas))
         pane.addButton({ title: 'save image (only overlay)' }).on('click', () => {
@@ -228,21 +208,13 @@ new p5((p: p5) => {
         p.stroke(100, 100)
         p.strokeWeight(2)
         p.fill(50, 100)
-        if (PARAMS.showAttractors) attractors.forEach((attractor) => attractor.draw(p))
+        if (PARAMS.draw.showAttractors) attractors.forEach((attractor) => attractor.draw(p))
 
         p.fill(200, 100)
         p.noStroke()
 
-        img.strokeWeight(0.5)
-
-        boxes.forEach((box) => {
-            p.fill(200, p.map(box.cd, 0.005, 0.08, 0, 100))
-            box.draw(p)
-        })
-
         const doParticles = (draw = true) => {
-            particles.forEach((item) => {
-                let particle = item.particle
+            particleItems.forEach(({ particle }, i) => {
                 let prev = particle.copy()
 
                 attractors.forEach((attractor) => {
@@ -254,49 +226,34 @@ new p5((p: p5) => {
                     particle.applyForce(gravity.mult(particle.mass))
                 })
 
-                boxes.forEach((box) => {
-                    if (box.contains(particle)) {
-                        let drag = getDrag(particle.velocity, box.cd)
-                        particle.applyForce(drag)
-                    }
-                })
-
                 particle.update()
 
-                if (draw) particle.draw(p)
-
                 let mag = particle.velocity.mag()
-                img.strokeWeight(
-                    // item.highlight ? PARAMS.weightH : PARAMS.weight
-                    PARAMS.weight
-                )
-                let hue = p.map(mag, 0, 4, 200, 300)
 
-                img.stroke(hue, 50, 50, PARAMS.alpha)
+                let alpha = PARAMS.draw.alpha
+                if (PARAMS.particles.highlight === i) {
+                    img.strokeWeight(PARAMS.draw.highlightStrokeWeight)
+                    alpha = PARAMS.draw.highlightAlpha
+                    // console.log('highlighted', PARAMS.draw.highlightStrokeWeight)
+                } else {
+                    img.strokeWeight(PARAMS.draw.strokeWeight)
+                }
+
+                let hue = p.map(mag, 0, 4, PARAMS.draw.hueMin, PARAMS.draw.hueMax)
+
+                img.stroke(hue, PARAMS.draw.saturation, PARAMS.draw.lightness, alpha)
                 img.line(prev.x, prev.y, particle.x, particle.y)
+
+                if (draw) particle.draw(p)
             })
         }
 
         doParticles(false)
         doParticles(false)
-        doParticles()
+        doParticles(PARAMS.draw.showParticles)
 
         img.pop()
         p.pop()
         p.image(img, 0, 0)
-    }
-
-    function doLoop() {
-        if (recorder) {
-            p.redraw()
-            recorder.getImage().then(() => {
-                console.log(p.frameCount)
-                if (p.frameCount > 1700) {
-                    recorder.downloadZip()
-                    return
-                }
-                doLoop()
-            })
-        }
     }
 })

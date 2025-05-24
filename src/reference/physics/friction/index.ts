@@ -1,7 +1,7 @@
-import '../../style.css'
+import '~/style.css'
 import p5 from 'p5'
 
-import { Particle } from '~/helpers/particles/particle'
+import { p5Particle as Particle } from '~/helpers/p5-particle'
 
 new p5((p: p5) => {
     let particles: Particle[] = []
@@ -89,7 +89,7 @@ new p5((p: p5) => {
 
         liquid.draw()
 
-        let wind = new p5.Vector(0.001, 0)
+        let wind = new p5.Vector(0.01, 0)
         let gravity = new p5.Vector(0, 0.1)
         particles.forEach((particle) => {
             let mass = particle.mass
