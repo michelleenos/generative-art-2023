@@ -1,14 +1,10 @@
 // 20230128
 import p5 from 'p5'
-import '../../style.css'
-import { Pane } from 'tweakpane'
+import '~/style.css'
 import easings from '~/helpers/easings'
+import GUI from 'lil-gui'
 
 const P = {
-    aspectMin: 0,
-    aspectMax: 0.6,
-    aspect: 0,
-    animAspect: false,
     sidesMin: 3,
     sidesMax: 6,
     rectSize: 0.2,
@@ -23,51 +19,22 @@ const P = {
     multY: 1,
 }
 
-const pane = new Pane()
-const folder = pane.addFolder({ title: 'controls' })
+const makeGUI = () => {
+    let gui = new GUI()
+    gui.add(P, 'rectSize', 0, 1, 0.01)
+    gui.add(P, 'showCheckered')
+    gui.add(P, 'showNotCheckered')
+    gui.add(P, 'showCenters')
 
-let fSides = pane.addFolder({ title: 'Sides' })
-fSides.addInput(P, 'sidesMin', { min: 3, max: 10, step: 1 })
-fSides.addInput(P, 'sidesMax', { min: 3, max: 10, step: 1 })
-fSides.addInput(P, 'speedSides', { min: 0, max: 1, step: 0.001 })
-fSides.addInput(P, 'stepSides')
-
-const fSize = pane.addFolder({ title: 'Size/Aspect' })
-let aspectAnimControl = fSize.addInput(P, 'animAspect', { label: 'animate' })
-let aspectControl = fSize.addInput(P, 'aspect', { min: 0, max: 2 })
-let aspectMinControl = fSize.addInput(P, 'aspectMin', { min: 0, max: 2 })
-let aspectMaxControl = fSize.addInput(P, 'aspectMax', { min: 0, max: 2 })
-let speedSizeControl = fSize.addInput(P, 'speedSize', { min: 0, max: 3, label: 'speed' })
-
-aspectMinControl.hidden = !P.animAspect
-aspectMaxControl.hidden = !P.animAspect
-aspectControl.hidden = P.animAspect
-speedSizeControl.hidden = !P.animAspect
-aspectAnimControl.on('change', (e) => {
-    if (e.value) {
-        aspectMinControl.hidden = false
-        aspectMaxControl.hidden = false
-        speedSizeControl.hidden = false
-        aspectControl.hidden = true
-    } else {
-        aspectMinControl.hidden = true
-        aspectMaxControl.hidden = true
-        speedSizeControl.hidden = true
-        aspectControl.hidden = false
-    }
-})
-
-folder.addInput(P, 'rectSize', { min: 0, max: 1 })
-
-let fShow = pane.addFolder({ title: 'Show' })
-fShow.addInput(P, 'showCheckered', { label: 'checkered' })
-fShow.addInput(P, 'showNotCheckered', { label: 'notchckrd' })
-fShow.addInput(P, 'showCenters', { label: 'centers' })
-// folder.addInput(P, 'multX', { min: 0, max: 3, step: 0.1 })
-// folder.addInput(P, 'multY', { min: 0, max: 3, step: 0.1 })
-// folder.addInput(P, 'paused')
+    let sides = gui.addFolder('Sides')
+    sides.add(P, 'sidesMin', 3, 10)
+    sides.add(P, 'sidesMax', 3, 10)
+    sides.add(P, 'speedSides', 0, 1, 0.001)
+    sides.add(P, 'stepSides')
+}
 
 new p5((p: p5) => {
+    makeGUI()
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
         p.angleMode(p.DEGREES)
@@ -81,16 +48,8 @@ new p5((p: p5) => {
         p.noFill()
 
         let sides
-        let rectWidRatio
-        // let progress = p.fract(p.millis() * 0.001)
         let sidesProgress = p.fract(p.millis() * 0.001 * P.speedSides)
         let centersProgress = p.fract(p.millis() * 0.001 * P.speedSides * 2)
-
-        if (P.paused || !P.animAspect) {
-            rectWidRatio = P.aspect
-        } else {
-            rectWidRatio = p.map(p.sin(p.frameCount * P.speedSize), -1, 1, P.aspectMin, P.aspectMax)
-        }
 
         if (P.paused) {
             sides = P.sidesMin
@@ -102,7 +61,7 @@ new p5((p: p5) => {
         }
 
         let rectLen = p.width * P.rectSize
-        let rectWid = rectLen * rectWidRatio
+        let rectWid = 0
 
         let angle = 360 / sides
         let ySpace = p.round(p.abs(p.sin(angle) * rectLen), 2)

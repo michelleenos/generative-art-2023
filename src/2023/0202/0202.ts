@@ -1,6 +1,9 @@
+// 202302
+
 import p5 from 'p5'
-import { colorUtils, shapeUtils, TrisOpts } from './utils'
-import '../../style.css'
+import { colorUtils, shapeUtils, TrisOpts } from './hexels-helper-fns'
+import '~/style.css'
+import GUI from 'lil-gui'
 
 const paletteUrls = [
     'https://coolors.co/ffedeb-320d6d-ffd447-700353-fc814a',
@@ -18,12 +21,22 @@ const paletteFromUrl = (url: string) =>
 
 const palettes = paletteUrls.map((url) => paletteFromUrl(url))
 
-const MUSH = false
+const Z = {
+    grid: 4,
+    version: 1,
+}
 
 new p5((p: p5) => {
     let palette, btn: p5.Element
     let colors: ReturnType<typeof colorUtils>
     let shapes: ReturnType<typeof shapeUtils> = shapeUtils(p)
+
+    function makeGUI() {
+        let gui = new GUI()
+        gui.add(Z, 'grid', 1, 8, 1)
+        gui.add(Z, 'version', [1, 2])
+        gui.onChange(() => p.redraw())
+    }
 
     p.setup = function () {
         let canvas = p.createCanvas(window.innerWidth, window.innerHeight)
@@ -32,6 +45,8 @@ new p5((p: p5) => {
             .parent('btns')
             .mouseClicked(() => p.saveCanvas(canvas, 'hexagons', 'jpg'))
         p.noLoop()
+
+        makeGUI()
     }
 
     p.draw = function () {
@@ -41,36 +56,48 @@ new p5((p: p5) => {
         p.background(palette.shift())
 
         let m = p.min(p.width, p.height)
-        let yStep = m * 0.06
-        let xStep = yStep * 0.8
+        let size = m * 0.9
+        let step = size / Z.grid
+        let shapeSize = step * 0.25
 
         let c = p.createVector(0, 0)
 
-        let t = p.createVector(0, -yStep)
-        let rt = p.createVector(xStep, -yStep / 2)
-        let rb = p.createVector(xStep, yStep / 2)
-        let b = p.createVector(0, yStep)
-        let lb = p.createVector(-xStep, yStep / 2)
-        let lt = p.createVector(-xStep, -yStep / 2)
-        let pts = [t, rt, rb, b, lb, lt]
+        let pts: p5.Vector[] = []
+        for (let i = 0; i < 6; i++) {
+            let angle = (p.TWO_PI / 6) * i
+            pts.push(p.createVector(shapeSize * p.cos(angle), shapeSize * p.sin(angle)))
+        }
+        // let t = p.createVector(0, -yStep)
+        // let rt = p.createVector(xStep, -yStep / 2)
+        // let rb = p.createVector(xStep, yStep / 2)
+        // let b = p.createVector(0, yStep)
+        // let lb = p.createVector(-xStep, yStep / 2)
+        // let lt = p.createVector(-xStep, -yStep / 2)
+        // let pts = [t, rt, rb, b, lb, lt]
 
-        let size = m * 0.9
         p.translate((p.width - size) / 2, (p.height - size) / 2)
-        let step = size * 0.25
 
-        for (let x = step / 2; x < size; x += step) {
-            for (let y = step / 2; y < size; y += step) {
+        // for (let x = step / 2; x < m; x += step) {
+        for (let xi = 0; xi < Z.grid; xi += 1) {
+            // for (let y = step / 2; y < m; y += step) {
+            for (let yi = 0; yi < Z.grid; yi += 1) {
+                let x = (xi + 0.5) * step
+                let y = (yi + 0.5) * step
                 p.push()
                 p.translate(x, y)
                 p.shuffle(palette, true)
-                MUSH ? designMushedTogether(pts, c) : design(pts, c)
+                if (Z.version === 1) {
+                    design(pts, c)
+                } else {
+                    designMushedTogether(pts, c)
+                }
                 p.pop()
             }
         }
     }
 
     p.mouseClicked = function (e: Event) {
-        if (e.target !== btn.elt) p.redraw()
+        if (e.target instanceof HTMLCanvasElement) p.redraw()
     }
 
     function design(pts: p5.Vector[], c: p5.Vector, style = -1) {
@@ -88,13 +115,13 @@ new p5((p: p5) => {
 
                 colors.fill(1)
                 shapes.shapeMoved(pts, {
-                    moveOpts: { subset: indexes[0] },
+                    moveOpts: { choices: indexes[0], mult: [0.4, 1] },
                     rotate: true,
                 })
 
                 colors.stroke(2)
                 shapes.shapeMoved(pts, {
-                    moveOpts: { subset: indexes[1] },
+                    moveOpts: { choices: indexes[1] },
                     rotate: true,
                 })
 
@@ -104,7 +131,7 @@ new p5((p: p5) => {
                     chooseColor: () => (p.random() < 0.5 ? colors.fill(3) : colors.stroke(3)),
                 }
                 shapes.trisRound(pts, c, trisOpts, {
-                    subset: indexes[2],
+                    choices: indexes[2],
                     mult: [0.7, 1],
                 })
 
@@ -123,7 +150,7 @@ new p5((p: p5) => {
                 colors.stroke(0)
                 shapes.shapeMoved(pts, {
                     moveOpts: { mult: [0, 0] },
-                    scale: [1, 1],
+                    scale: [0.8, 1.2],
                 })
 
                 colors.fill(1)
@@ -183,7 +210,7 @@ new p5((p: p5) => {
 
             colors.fill(1)
             shapes.shapeMoved(pts, {
-                moveOpts: { subset: indexes[0] },
+                moveOpts: { choices: indexes[0] },
                 rotate: true,
             })
         } else if (steps[0] === 'bigTris') {
@@ -196,7 +223,7 @@ new p5((p: p5) => {
 
             colors.stroke(2)
             shapes.shapeMoved(pts, {
-                moveOpts: { subset: indexes[0] },
+                moveOpts: { choices: indexes[0] },
                 rotate: true,
             })
         } else {
@@ -212,7 +239,7 @@ new p5((p: p5) => {
         if (steps.includes('shapeMoved')) {
             colors.stroke(2)
             shapes.shapeMoved(pts, {
-                moveOpts: { subset: indexes[1] },
+                moveOpts: { choices: indexes[1] },
                 rotate: true,
             })
         }
@@ -243,7 +270,7 @@ new p5((p: p5) => {
             }
 
             shapes.trisRound(pts, c, trisOpts, {
-                subset: indexes[2],
+                choices: indexes[2],
                 mult: [0.7, 1],
             })
         }
@@ -251,7 +278,7 @@ new p5((p: p5) => {
         if (steps.includes('circles')) {
             colors.fill(2)
             shapes.circles(pts, {
-                radius: 8,
+                radius: p.random(8, 18),
                 num: p.random([2, 3, 4]),
                 translate: p.random(0.7, 1.3),
             })

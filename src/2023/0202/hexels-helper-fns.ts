@@ -34,7 +34,7 @@ export type PtsIndexToMove = false | [number, number] | number
 
 export type MoveOpts = {
     mult?: [number, number]
-    subset?: PtsIndexToMove
+    choices?: PtsIndexToMove
 }
 
 export interface MoveCenterOpts extends MoveOpts {
@@ -48,7 +48,7 @@ export type ShapeOpts = {
 }
 
 export type TrisOpts = {
-    scale?: [number, number] | number
+    scale?: number | [number, number]
     scaleChance?: number
     num?: number
     translate?: false | number
@@ -63,19 +63,14 @@ export type CirclesOpts = {
 }
 
 export const shapeUtils = (p: p5) => ({
-    midpoint: (a: p5.Vector, b: p5.Vector) =>
-        p.createVector((a.x + b.x) / 2, (a.y + b.y) / 2),
+    midpoint: (a: p5.Vector, b: p5.Vector) => p.createVector((a.x + b.x) / 2, (a.y + b.y) / 2),
 
-    moveCenter: ({
-        pts,
-        subset = false,
-        mult = [0.2, 0.8],
-    }: MoveCenterOpts) => {
+    moveCenter: ({ pts, choices = false, mult = [0.2, 0.8] }: MoveCenterOpts) => {
         let chooseFrom = pts
-        if (typeof subset === 'number') {
-            chooseFrom = [pts[subset]]
-        } else if (typeof subset === 'object') {
-            chooseFrom = pts.slice(subset[0], subset[1])
+        if (typeof choices === 'number') {
+            chooseFrom = [pts[choices]]
+        } else if (typeof choices === 'object') {
+            chooseFrom = pts.slice(choices[0], choices[1])
         }
         let move = p.random(chooseFrom).copy().mult(p.random(mult[0], mult[1]))
         p.translate(move.x, move.y)
@@ -136,7 +131,8 @@ export const shapeUtils = (p: p5) => ({
         let len = indexes.length
 
         for (let i = 0; i < Math.min(num, len); i++) {
-            let ind: number = indexes.pop()!
+            // let ind: number = indexes.pop()!
+            let ind = indexes[i]
             let pt1 = pts[ind]
             let pt2 = pts[(ind + 1) % len]
 
@@ -187,12 +183,7 @@ export const shapeUtils = (p: p5) => ({
 
     circles: function (
         pts: p5.Vector[],
-        {
-            radius = 7,
-            num = 0,
-            translate = 0.5,
-            chooseColor = undefined,
-        }: CirclesOpts = {}
+        { radius = 7, num = 0, translate = 0.5, chooseColor = undefined }: CirclesOpts = {}
     ) {
         let ptsCopy = pts.map((pt) => pt)
         p.shuffle(ptsCopy, true)
@@ -202,7 +193,6 @@ export const shapeUtils = (p: p5) => ({
             let pt = ptsCopy[i]
             p.push()
             if (translate) {
-                // let trans = this.midpoint(pt, center).mult(translate)
                 let trans = pt.copy().mult(translate)
                 p.translate(trans.x, trans.y)
             }

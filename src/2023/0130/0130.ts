@@ -1,5 +1,6 @@
 import p5 from 'p5'
 import '../../style.css'
+import GUI from 'lil-gui'
 
 const paletteUrls = [
     'https://coolors.co/247ba0-70c1b3-b2dbbf',
@@ -16,29 +17,49 @@ const paletteFromUrl = (url: string) =>
         .map((c) => `#${c}`)
 
 const palettes = paletteUrls.map((p) => paletteFromUrl(p))
+
 let palette: string[]
-let setting = 'noisy'
+// let setting = 'base'
 let btns = document.getElementById('btns')
 
 new p5((p: p5) => {
-    let div = p.createDiv()
-    p.createElement('label', 'style: ').parent(div)
-    let sel = p.createSelect().parent(div)
-
-    div.parent('btns')
-
-    // @ts-ignore
-    sel.option('noisy')
-    // @ts-ignore
-    sel.option('base')
-    // @ts-ignore
-    sel.changed(selectEvent)
-
-    function selectEvent() {
-        let option = sel.value() as string
-        setting = option
-        p.redraw()
+    const Z = {
+        setting: 'noisy',
+        noiseTranslate: p.floor(p.random(0, 1000)),
+        noiseMult: p.random(0.0005, 0.003),
+        // squareSizeMult: 0.08,
+        squareSizeMult: p.random(0.05, 0.1),
     }
+
+    const makeGui = () => {
+        let gui = new GUI()
+        gui.add(Z, 'setting', ['base', 'noisy']).onChange((setting: 'base' | 'noisy') => {
+            noiseControllers.forEach((c) => {
+                setting === 'base' ? c.hide() : c.show()
+            })
+        })
+        gui.add(Z, 'squareSizeMult', 0.05, 0.5, 0.001).decimals(3)
+
+        let noiseControllers = [
+            gui.add(Z, 'noiseTranslate', 0, 1000, 1).decimals(0),
+            gui.add(Z, 'noiseMult', 0.0005, 0.01, 0.0001).decimals(4),
+        ]
+
+        const debg = {
+            randomize: () => {
+                Z.noiseTranslate = p.floor(p.random(0, 1000))
+                Z.noiseMult = p.random(0.0005, 0.003)
+                Z.squareSizeMult = p.random(0.05, 0.1)
+
+                gui.controllersRecursive().forEach((c) => c.updateDisplay())
+            },
+        }
+
+        gui.add(debg, 'randomize')
+
+        gui.onChange(() => p.redraw())
+    }
+    makeGui()
 
     p.setup = function () {
         p.createCanvas(window.innerWidth, window.innerHeight)
@@ -48,15 +69,15 @@ new p5((p: p5) => {
     p.draw = function () {
         p.background(255)
         let edges = true
-        let mult = p.random(0.0005, 0.003)
-        let add = p.random(0, 1000)
-        let squareSize = p.min(p.width, p.height) * p.random(0.05, 0.1)
+        let mult = Z.noiseMult
+        let add = Z.noiseTranslate
+        let squareSize = p.min(p.width, p.height) * Z.squareSizeMult
         let xPos = squareSize * -0.5
-        palette = ['#6f6f6f', '#cfcfcf', '#989898']
+        // palette = ['#6f6f6f', '#cfcfcf', '#989898']
+        palette = p.random(palettes)
 
-        if (setting === 'noisy') {
+        if (Z.setting === 'noisy') {
             p.noiseSeed(p.random())
-            palette = p.random(palettes)
             edges = false
         }
 
@@ -74,10 +95,17 @@ new p5((p: p5) => {
                 }
 
                 let pieces = p.floor(p.random(4, 8))
-                let chance =
-                    setting === 'noisy'
-                        ? p.map(p.noise((xPos + add) * mult, (yPos + add) * mult), 0.35, 0.6, 0, 1)
-                        : 1
+                let chance = 1
+                if (Z.setting === 'noisy') {
+                    chance = p.map(
+                        p.noise((xPos + add) * mult, (yPos + add) * mult),
+                        0.35,
+                        0.6,
+                        0,
+                        1
+                    )
+                }
+
                 strips(
                     squareSize,
                     pieces,
@@ -94,7 +122,7 @@ new p5((p: p5) => {
     }
 
     p.mouseClicked = function (e: Event) {
-        if (e.target instanceof HTMLElement && (!btns || !btns.contains(e.target))) {
+        if (e.target instanceof HTMLCanvasElement) {
             p.redraw()
         }
     }
