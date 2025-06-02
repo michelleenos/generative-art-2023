@@ -26,7 +26,7 @@
         "chroma-js": "^2.4.2",
         "jszip": "^3.10.1",
         "lil-gui": "^0.19.2",
-        "mish-bainrow": "^1.0.13",
+        "mish-bainrow": "^1.0.20",
         "nanoevents": "^9.0.0",
         "p5": "^1.9.3",
         "pure-rand": "^6.0.4",

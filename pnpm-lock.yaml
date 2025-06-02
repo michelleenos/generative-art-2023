@@ -36,8 +36,8 @@ importers:
         specifier: ^0.19.2
         version: 0.19.2
       mish-bainrow:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.20
+        version: 1.0.20
       nanoevents:
         specifier: ^9.0.0
         version: 9.1.0
@@ -306,8 +306,8 @@ packages:
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
-  mish-bainrow@1.0.13:
-    resolution: {integrity: sha512-mZRzojhJ16xMOUTku1z9APPzowlj0ntBEMHSne5TPKmvGUAwLkFVqeMTXRuWBuOvF0n1onDiClT3ovz0Vea7fg==}
+  mish-bainrow@1.0.20:
+    resolution: {integrity: sha512-Bbxanm7KpUxQhrgV1cEDpiGa9cTfiPI+vb0NhOHT6vkXy7QqUqGdLvc5Bae02sa9T3LCyokx9jZU+O2lznk+ew==}
 
   nanoevents@9.1.0:
     resolution: {integrity: sha512-Jd0fILWG44a9luj8v5kED4WI+zfkkgwKyRQKItTtlPfEsh7Lznfi1kr8/iZ+XAIss4Qq5GqRB0qtWbaz9ceO/A==}
@@ -598,7 +598,7 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  mish-bainrow@1.0.13: {}
+  mish-bainrow@1.0.20: {}
 
   nanoevents@9.1.0: {}
 
