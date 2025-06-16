@@ -30,26 +30,26 @@ export const params = {
 
 const updateStagger = (stagger: typeof cellStagger) => {
     stagger.in = getStagger({
-        durationTotal: params.durationIn,
-        durationEach: params.durationIn * params.eachAmount,
+        total: params.durationIn,
+        each: params.durationIn * params.eachAmount,
         steps: params.layers,
     })
     stagger.out = getStagger({
-        durationTotal: params.durationOut,
-        durationEach: params.durationOut * params.eachAmount,
+        total: params.durationOut,
+        each: params.durationOut * params.eachAmount,
         steps: params.layers,
     })
 }
 
 export const cellStagger = {
     in: getStagger({
-        durationTotal: params.durationIn,
-        durationEach: params.durationIn * params.eachAmount,
+        total: params.durationIn,
+        each: params.durationIn * params.eachAmount,
         steps: params.layers,
     }),
     out: getStagger({
-        durationTotal: params.durationOut,
-        durationEach: params.durationOut * params.eachAmount,
+        total: params.durationOut,
+        each: params.durationOut * params.eachAmount,
         steps: params.layers,
     }),
 }

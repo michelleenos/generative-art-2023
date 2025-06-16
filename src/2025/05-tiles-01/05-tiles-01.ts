@@ -1,4 +1,4 @@
-import { getAllPaletteContexts } from 'mish-bainrow'
+import { getPaletteContexts } from 'mish-bainrow'
 import p5 from 'p5'
 import { random } from '~/helpers/utils'
 import '~/style.css'
@@ -7,7 +7,7 @@ import { Tile, TileSquares, TileCircSquare } from './tiles'
 new p5((p: p5) => {
     let tiles: Tile[] = []
 
-    let pals = getAllPaletteContexts({ excludePalettes: ['livingRoom'] })
+    let pals = getPaletteContexts({ excludePalettes: ['livingRoom'] })
     let pal = pals.find((p) => p.name === 'squiggles-1')!
     let palette = pal.colors
     let bg = pal.bg

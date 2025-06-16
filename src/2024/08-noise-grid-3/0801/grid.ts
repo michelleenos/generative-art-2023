@@ -140,6 +140,8 @@ export class Grid {
 
             let cx = cell.bounds.x + cell.bounds.width / 2
             let cy = cell.bounds.y + cell.bounds.height / 2
+            let textx = cx
+            let texty = cy
 
             let ci = this.noise(cx * noiseFreqColor, cy * noiseFreqColor, ms * noiseSpeedColor)
             ci = map(ci, 0, 1, params.randomness, 1 - params.randomness - params.colorsDist)
@@ -194,6 +196,11 @@ export class Grid {
                 ctx.beginPath()
                 ctx.arc(x, y, Math.max(ri, 0), 0, Math.PI * 2)
                 ctx.fill()
+
+                if (i === 2) {
+                    ctx.fillStyle = '#000'
+                    ctx.fillText(`${cellStagger.in.vals[i].start}`, textx, texty)
+                }
             }
 
             // ctx.fillStyle = '#000'

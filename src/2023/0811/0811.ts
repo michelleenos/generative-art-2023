@@ -228,7 +228,7 @@ new p5((p: p5) => {
         }
     }, 50)
 
-    p.keyPressed = (e: KeyboardEvent) => {
+    p.keyPressed = (_e: KeyboardEvent) => {
         if (p.key === ' ') {
             palette = [...p.random(palettes)]
             palette = p.shuffle(palette)

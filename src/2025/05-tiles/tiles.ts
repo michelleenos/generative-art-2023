@@ -1,6 +1,7 @@
 import p5 from 'p5'
 import { easing, type Easing } from '~/helpers/easings'
 import { clamp, lerp, map, random, shuffle } from '~/helpers/utils'
+import { getStagger, StaggerVals } from '~/helpers/stagger'
 
 type StaggerOpts = {
     total: number
@@ -10,20 +11,20 @@ type StaggerOpts = {
     ease?: Easing
 }
 
-function stagger({ total, steps, each, ease, start = 0 }: StaggerOpts) {
-    let space = total - each
-    let vals = []
+// function stagger({ total, steps, each, ease, start = 0 }: StaggerOpts) {
+//     let space = total - each
+//     let vals = []
 
-    for (let i = 0; i < steps; i++) {
-        let dec = i / (steps - 1)
-        if (ease) dec = easing[ease](dec)
+//     for (let i = 0; i < steps; i++) {
+//         let dec = i / (steps - 1)
+//         if (ease) dec = easing[ease](dec)
 
-        let startVal = space * dec + start
-        vals.push({ start: startVal, duration: each, end: startVal + each })
-    }
+//         let startVal = space * dec + start
+//         vals.push({ start: startVal, duration: each, end: startVal + each })
+//     }
 
-    return vals
-}
+//     return vals
+// }
 
 type TileOpts = {
     x: number
@@ -127,6 +128,7 @@ export abstract class Tile {
         p.translate(x, y)
         p.rotate((this.rotate * p.PI) / 2)
         p.translate(-x, -y)
+        p.stroke(this.clr).noFill()
         this.tDraw(p)
         p.pop()
     }
@@ -152,11 +154,11 @@ export abstract class Tile {
 export class TileCircle extends Tile {
     circsCount = 3
     circSizeMin = 0.6
-    stagger: ReturnType<typeof stagger>
+    stagger: StaggerVals
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
 
-        this.stagger = stagger({ total: 1, steps: this.circsCount, each: 0.7 })
+        this.stagger = getStagger({ total: 1, steps: this.circsCount, each: 0.7 }).vals
     }
 
     tDraw(p: p5) {
@@ -179,13 +181,13 @@ export class TileCircle extends Tile {
 export class TileLines extends Tile {
     lineCount = 9
     lineSpacing: number
-    lineStagger: ReturnType<typeof stagger>
+    lineStagger: ReturnType<typeof getStagger>
     linesProgress = 0
 
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
         this.lineCount = random([11])
-        this.lineStagger = stagger({ total: 1, steps: this.lineCount, each: 0.5 })
+        this.lineStagger = getStagger({ total: 1, steps: this.lineCount, each: 0.5 })
 
         this.t.in = 2000
         this.lineSpacing = this.sz / (this.lineCount - 1)
@@ -193,7 +195,7 @@ export class TileLines extends Tile {
 
     updateLineVals() {
         this.lineSpacing = this.sz / (this.lineCount - 1)
-        this.lineStagger = stagger({ total: 1, steps: this.lineCount, each: 0.5 })
+        this.lineStagger = getStagger({ total: 1, steps: this.lineCount, each: 0.5 })
     }
 
     tDraw(p: p5) {
@@ -203,9 +205,10 @@ export class TileLines extends Tile {
         p.stroke(this.clr).strokeWeight(1)
         let y1 = top
 
-        this.lineStagger.forEach((line, i) => {
+        this.lineStagger.vals.forEach((line, i) => {
             if (pr < line.start) return
-            let lp = p.constrain(p.norm(pr, line.start, line.end), 0, 1)
+            // let lp = p.constrain(p.norm(pr, line.start, line.end), 0, 1)
+            let lp = this.lineStagger.getProgress(pr, i)
 
             let linex = left + space * i
             let y2 = y1 + sz * lp
@@ -315,17 +318,63 @@ export class TileTriSquare extends Tile {
 //     }
 // }
 
-export class TileTris extends Tile {
-    stagger: ReturnType<typeof stagger>
+export class TileDiag extends Tile {
+    stagger: StaggerVals
+
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
-        let steps = random([2, 3])
-        this.stagger = stagger({ total: 1, steps, each: 0.75 })
+        let steps = random([5, 9])
+        this.stagger = getStagger({ total: 1, steps, each: 0.5 }).vals
+        console.log(this.stagger)
+        this.rotate = 0
+    }
+
+    tDraw(p: p5) {
+        let { x, y, left, bottom, right, top, sz } = this.sizes
+
+        let pr = this.stage === 'out' ? 1 - this.pr : this.pr
+
+        let stepSide = sz / this.stagger.length
+        let side2Step = 0
+
+        this.stagger.forEach((s, i) => {
+            if (pr < s.start) return
+            if (pr >= s.end) side2Step = i
+            let pri = p.constrain(p.norm(pr, s.start, s.end), 0, 1)
+            // pri = easing.inCubic(pri)
+
+            // let amt = p.lerp(0, sz, pri)
+            let x1 = left
+            let y1 = top + stepSide * (i + 1)
+            let x2 = left + stepSide * (i + 1)
+            let y2 = top
+
+            x2 = p.lerp(x1, x2, pri)
+            y2 = p.lerp(y1, y2, pri)
+
+            p.line(x1, y1, x2, y2)
+        })
+
+        let last = this.stagger[this.stagger.length - 1]
+        let side1Pr = p.constrain(p.norm(pr, 0, last.start), 0, 1)
+        let side2Pr = p.constrain(p.norm(pr, 0, last.end), 0, 1)
+        p.line(left, top, left, top + sz * side1Pr)
+    }
+}
+
+export class TileTris extends Tile {
+    // stagger: StaggerVals
+    stagger: ReturnType<typeof getStagger>
+    constructor(...args: ConstructorParameters<typeof Tile>) {
+        super(...args)
+        // let steps = random([2, 3])
+        let steps = 2
+        this.stagger = getStagger({ total: 1, steps, each: 0.75 })
     }
 
     drawTri(progress: number, p: p5) {
         let { sz } = this.sizes
-        let y = (sz / this.stagger.length) * progress
+        let y = (sz / this.stagger.vals.length) * progress
         let x = (sz / 2) * progress
         p.beginShape()
         p.vertex(0, 0)
@@ -343,10 +392,11 @@ export class TileTris extends Tile {
 
         p.translate(0, -sz / 2)
 
-        let translateStep = sz / this.stagger.length
+        let translateStep = sz / this.stagger.vals.length
 
-        this.stagger.forEach((s) => {
-            let tripr = p.constrain(p.norm(pr, s.start, s.end), 0, 1)
+        this.stagger.vals.forEach((_s, i) => {
+            // let tripr = p.constrain(p.norm(pr, s.start, s.end), 0, 1)
+            let tripr = this.stagger.getProgress(pr, i)
             tripr = easing.inOutCubic(tripr)
             if (tripr > 0) this.drawTri(tripr, p)
             p.translate(0, translateStep)
@@ -357,10 +407,10 @@ export class TileTris extends Tile {
 }
 
 export class TileSquares extends Tile {
-    stagger: ReturnType<typeof stagger>
+    stagger: StaggerVals
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
-        this.stagger = stagger({ total: 1, steps: 5, each: 0.75 })
+        this.stagger = getStagger({ total: 1, steps: 5, each: 0.75 }).vals
     }
 
     tDraw(p: p5) {

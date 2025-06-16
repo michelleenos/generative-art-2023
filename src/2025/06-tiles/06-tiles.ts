@@ -1,9 +1,25 @@
 import p5 from 'p5'
-import { random, weightedRandom } from '~/helpers/utils'
+// import { weightedRandom } from '~/helpers/utils'
 import '~/style.css'
-import { Tile, TileLines, TileCircle, TileTris, TileDiag, TileTriSquare } from './tiles'
+import { Tile, TileArc, TileLines, TileTris, TileTriSquare } from './tiles'
 import { getPaletteContexts } from 'mish-bainrow'
 import { GUI } from 'lil-gui'
+import { Recorder } from 'canvas-frames'
+
+function weightedRandom<T>(array: T[], weights: number[], p: p5): T {
+    const totalWeight = weights.reduce((acc, weight) => acc + weight, 0)
+    const randomNum = p.random() * totalWeight
+    let weightSum = 0
+
+    for (let i = 0; i < array.length; i++) {
+        weightSum += weights[i]
+        if (randomNum <= weightSum) {
+            return array[i]
+        }
+    }
+
+    return array[array.length - 1]
+}
 
 let pals = getPaletteContexts({
     bgShade: { type: 'dark', limit: 40 },
@@ -15,65 +31,58 @@ let pals = getPaletteContexts({
 new p5((p: p5) => {
     let drawing: Drawing
     let palIndex: number
+    let recorder: Recorder
 
     class Drawing {
         tiles: Tile[] = []
-        tileWeights = { circle: 1, lines: 2, tris: 5, triSquare: 5, diag: 4 }
+        tileWeights = { arc: 0, lines: 4, tris: 4, triSquare: 2 }
         colors: string[]
         bg: string
         n = 10
         m: number
         unit: number
         lastTime: number | null = null
-        changeTilesInterval = 100
-        lastChangeTilesTime = 0
-        idealLength = 50
+        changeTilesInterval = 30
+        lastChangeTilesTime: number | null = null
+        idealLength = 40
         noiseFreq = 0.3
-        noiseSpeed = 0.2
+        // noiseSpeed = 0.2
         makeTileChance = 0.6
-        initMaxDelay = 6000
-        laterMaxDelay = 2000
-        _durationIn = 2000
-        _durationOut = 2000
+        maxTileSize = 2
+        flipChance = 0.01
+
+        _duration = 1500
         paused = false
         allInPause = false
+        debg = false
 
         constructor(palette: { colors: string[]; bg: string }) {
             this.colors = palette.colors
             this.bg = palette.bg
 
-            this.m = p.min(p.width, p.height) * 0.9
+            this.m = p.min(p.width, p.height) * 0.75
             this.unit = this.m / this.n
 
-            this.tiles = this.makeTiles(this.idealLength, this.initMaxDelay)
+            this.tiles = this.makeTiles(this.idealLength)
         }
 
-        get durationIn() {
-            return this._durationIn
+        get duration() {
+            return this._duration
         }
 
-        get durationOut() {
-            return this._durationOut
+        set duration(val: number) {
+            this._duration = val
+            this.tiles.forEach((tile) => (tile.dur = val))
         }
 
-        set durationIn(val: number) {
-            this._durationIn = val
-            this.tiles.forEach((tile) => (tile.t.in = val))
-        }
-
-        set durationOut(val: number) {
-            this._durationOut = val
-            this.tiles.forEach((tile) => (tile.t.out = val))
-        }
-
-        makeTiles(count: number, delay = 0) {
+        makeTiles(count: number) {
             let tiles: Tile[] = []
             let tries = 0
 
-            while (tiles.length < count && tries < 10) {
+            while (tiles.length < count && tries < 100) {
                 let spot = this.findSpot(tiles)
                 if (spot) {
-                    let maybeTile = this.maybeMakeTile(spot.x, spot.y, spot.sz, delay)
+                    let maybeTile = this.maybeMakeTile(spot.x, spot.y, spot.sz)
                     if (maybeTile) {
                         tiles.push(maybeTile)
                         tries = 0
@@ -93,7 +102,7 @@ new p5((p: p5) => {
             this.bg = bg
 
             this.tiles.forEach((tile) => {
-                tile.clr = random(colors)
+                tile.clr = p.random(colors)
             })
         }
 
@@ -104,7 +113,7 @@ new p5((p: p5) => {
             while (tries < this.n * this.n) {
                 x = p.floor(p.random(0, this.n))
                 y = p.floor(p.random(0, this.n))
-                sz = p.random([1, 2])
+                sz = p.floor(p.random(1, this.maxTileSize + 1))
                 if (sz === 2 && x > 0 && y > 0) {
                     x -= 0.5
                     y -= 0.5
@@ -122,46 +131,45 @@ new p5((p: p5) => {
             return null
         }
 
-        maybeMakeTile(x: number, y: number, sz: number, delay = 0) {
-            if (
-                p.noise(
-                    x * sz * this.noiseFreq,
-                    y * sz * this.noiseFreq,
-                    p.millis() * (this.noiseSpeed / 1000)
-                ) <
-                1 - this.makeTileChance
-            )
+        maybeMakeTile(x: number, y: number, sz: number) {
+            if (p.noise(x * sz * this.noiseFreq, y * sz * this.noiseFreq) < 1 - this.makeTileChance)
                 return null
 
-            return this.makeTile(x, y, sz, delay)
+            return this.makeTile(x, y, sz)
         }
 
-        makeTile(x: number, y: number, sz: number, delay = 0) {
+        makeTile(x: number, y: number, sz: number) {
             let Opt = weightedRandom(
-                [TileCircle, TileLines, TileTris, TileTriSquare],
+                [TileTris, TileTriSquare, TileLines, TileArc],
                 [
-                    this.tileWeights.circle,
-                    this.tileWeights.lines,
                     this.tileWeights.tris,
                     this.tileWeights.triSquare,
-                ]
+                    this.tileWeights.lines,
+                    this.tileWeights.arc,
+                ],
+                p
             )
+            let rotateOpts = []
+            if (x + sz <= this.n - 1) rotateOpts.push(1)
+            if (x - sz >= 0) rotateOpts.push(3)
+            if (y + sz <= this.n - 1) rotateOpts.push(2)
+            if (y - sz >= 0) rotateOpts.push(0)
 
             let tile = new Opt({
                 x,
                 y,
                 sz,
+                rotate: p.random(rotateOpts),
                 unit: this.unit,
-                clr: random(this.colors),
-                delay: delay ? random(0, delay) : 0,
+                clr: p.random(this.colors),
             })
-            tile.t.in = this.durationIn
-            tile.t.out = this.durationOut
+            tile.dur = this.duration
+            tile.show()
             return tile
         }
 
-        draw() {
-            let ms = p.millis()
+        draw(ms: number) {
+            if (this.lastTime === null) this.lastTime = ms
             let delta = ms - (this.lastTime || 0)
             this.lastTime = ms
 
@@ -170,6 +178,7 @@ new p5((p: p5) => {
             p.background(this.bg)
 
             let maybeChangeStuff = false
+            if (!this.lastChangeTilesTime) this.lastChangeTilesTime = ms
             if (!this.allInPause && ms - this.lastChangeTilesTime > this.changeTilesInterval) {
                 this.lastChangeTilesTime = ms
                 maybeChangeStuff = true
@@ -179,17 +188,19 @@ new p5((p: p5) => {
 
             p.push()
             p.translate((p.width - this.m) / 2, (p.height - this.m) / 2)
+
             p.translate(this.unit / 2, this.unit / 2)
 
             this.tiles.forEach((tile) => {
                 tile.update(delta)
                 tile.draw(p)
 
-                if (tile.stage === 'show' && maybeChangeStuff) {
-                    if (p.random() < 0.01) {
-                        tile.leave()
+                if (maybeChangeStuff && tile.stage === 'show') {
+                    if (p.random() < this.flipChance) {
+                        tile.flip()
                     }
                 }
+
                 if (tile.stage !== 'show') {
                     shouldPause = false
                 }
@@ -197,19 +208,7 @@ new p5((p: p5) => {
 
             p.pop()
 
-            this.tiles.forEach((tile, i) => {
-                if (tile.stage === 'hide') {
-                    this.tiles.splice(i, 1)
-                }
-            })
-
-            if (maybeChangeStuff && this.tiles.length < this.idealLength) {
-                let newTiles = this.makeTiles(
-                    this.idealLength - this.tiles.length,
-                    this.laterMaxDelay
-                )
-                this.tiles.push(...newTiles)
-            }
+            this.tiles = this.tiles.filter((tile) => tile.stage !== 'hide')
 
             if (shouldPause) {
                 this.paused = true
@@ -227,31 +226,24 @@ new p5((p: p5) => {
 
         restart() {
             p.noiseSeed(p.random())
-            this.tiles = this.makeTiles(this.idealLength, this.initMaxDelay)
+            this.tiles = this.makeTiles(this.idealLength)
             this.allInPause = false
             this.paused = false
         }
     }
-
-    // p.mouseClicked = (e: PointerEvent) => {
-    //     if (!(e.target instanceof HTMLCanvasElement)) return
-    //     palIndex++
-    //     let pal = pals[palIndex % pals.length]
-    //     drawing.updatePalette(pal)
-    // }
 
     const makeGui = () => {
         const gui = new GUI().close()
 
         gui.add(drawing, 'idealLength', 1, 200, 1)
         gui.add(drawing, 'changeTilesInterval', 0, 1000, 1)
-        gui.add(drawing, 'makeTileChance', 0, 1, 0.01)
         gui.add(drawing, 'noiseFreq', 0, 0.5, 0.001)
-        gui.add(drawing, 'noiseSpeed', 0, 1, 0.01)
-        gui.add(drawing, 'initMaxDelay', 0, 10000, 10)
-        gui.add(drawing, 'laterMaxDelay', 0, 10000, 10)
-        gui.add(drawing, 'durationIn', 10, 4000, 10)
-        gui.add(drawing, 'durationOut', 10, 4000, 10)
+        gui.add(drawing, 'duration', 0, 4000, 10)
+        gui.add(drawing, 'flipChance', 0, 0.3, 0.0001)
+        gui.add(drawing, 'n', 1, 100, 1).onChange(() => {
+            drawing.unit = drawing.m / drawing.n
+            drawing.restart()
+        })
         gui.add(drawing, 'allInPause').listen()
         gui.add(drawing, 'paused').listen()
 
@@ -269,7 +261,7 @@ new p5((p: p5) => {
             })
 
         let wf = gui.addFolder('tile weights')
-        wf.add(drawing.tileWeights, 'circle', 0, 10, 1)
+        wf.add(drawing.tileWeights, 'arc', 0, 10, 1)
         wf.add(drawing.tileWeights, 'lines', 0, 10, 1)
         wf.add(drawing.tileWeights, 'tris', 0, 10, 1)
         wf.add(drawing.tileWeights, 'triSquare', 0, 10, 1)
@@ -280,8 +272,24 @@ new p5((p: p5) => {
     }
 
     p.setup = function () {
-        p.createCanvas(p.windowWidth, p.windowHeight)
-        p.rectMode(p.CENTER)
+        let m = p.min(window.innerWidth, window.innerHeight)
+        let canvas = p.createCanvas(m, m).elt as HTMLCanvasElement
+
+        recorder = new Recorder({
+            canvas: canvas as HTMLCanvasElement,
+            draw: (ms) => {
+                drawing.draw(ms)
+            },
+            position: 'bottom-right',
+        })
+        recorder.on('beforeStart', () => {
+            p.noLoop()
+            drawing.restart()
+            drawing.lastChangeTilesTime = null
+            drawing.lastTime = null
+        })
+
+        // p.rectMode(p.CENTER)
         p.strokeCap(p.SQUARE)
         p.strokeJoin(p.MITER)
 
@@ -293,12 +301,8 @@ new p5((p: p5) => {
     }
 
     p.draw = function () {
-        drawing.draw()
+        if (recorder.isRecording) return
 
-        p.fill(255).noStroke()
-        p.rect(0, 0, 100, 40)
-        p.fill(0)
-        p.textAlign(p.CENTER, p.CENTER)
-        p.text(drawing.tiles.length, 25, 10)
+        drawing.draw(p.millis())
     }
 }, document.getElementById('sketch') ?? undefined)

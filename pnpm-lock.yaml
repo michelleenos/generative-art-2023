@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  canvas-frames: link:../canvas-frames
+  mish-bainrow: link:../bainrow
+
 importers:
 
   .:
@@ -26,6 +30,9 @@ importers:
       alea:
         specifier: ^1.0.1
         version: 1.0.1
+      canvas-frames:
+        specifier: link:../canvas-frames
+        version: link:../canvas-frames
       chroma-js:
         specifier: ^2.4.2
         version: 2.6.0
@@ -36,14 +43,14 @@ importers:
         specifier: ^0.19.2
         version: 0.19.2
       mish-bainrow:
-        specifier: ^1.0.20
-        version: 1.0.20
+        specifier: link:../bainrow
+        version: link:../bainrow
       nanoevents:
         specifier: ^9.0.0
         version: 9.1.0
       p5:
-        specifier: ^1.9.3
-        version: 1.11.5
+        specifier: ^1.11.8
+        version: 1.11.8
       pure-rand:
         specifier: ^6.0.4
         version: 6.1.0
@@ -306,9 +313,6 @@ packages:
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
-  mish-bainrow@1.0.20:
-    resolution: {integrity: sha512-Bbxanm7KpUxQhrgV1cEDpiGa9cTfiPI+vb0NhOHT6vkXy7QqUqGdLvc5Bae02sa9T3LCyokx9jZU+O2lznk+ew==}
-
   nanoevents@9.1.0:
     resolution: {integrity: sha512-Jd0fILWG44a9luj8v5kED4WI+zfkkgwKyRQKItTtlPfEsh7Lznfi1kr8/iZ+XAIss4Qq5GqRB0qtWbaz9ceO/A==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -318,8 +322,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  p5@1.11.5:
-    resolution: {integrity: sha512-tn/Em+mwRReFOH6HgAhr/kj2BSRtlEn4bga3MMCwo4OQE1POO9zEIg+7SDxJj8f+H37N6NJgxtEYaQGSNpxwyA==}
+  p5@1.11.8:
+    resolution: {integrity: sha512-owi2+HDP/KQvzc3mAagp74cc6yPalWejMjjDfrIqjsheo6CZ16WjbPRDKjgpuIH9F5eAPVTuTSbLsTawl2Djiw==}
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
@@ -598,13 +602,11 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  mish-bainrow@1.0.20: {}
-
   nanoevents@9.1.0: {}
 
   nanoid@3.3.11: {}
 
-  p5@1.11.5: {}
+  p5@1.11.8: {}
 
   pako@1.0.11: {}
 

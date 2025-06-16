@@ -1,5 +1,5 @@
 import { Line } from './Lines'
-import type { Pt, TwoPtSide, TwoPtSidesBox } from './types'
+import type { Pt, TwoPtSidesBox } from './types'
 import p5 from 'p5'
 
 type DrawBoxProps = {
@@ -77,6 +77,4 @@ export function drawBox({ sides, vpa, vpb, colors, fill = true }: DrawBoxProps, 
     p.endShape(p.CLOSE)
 
     p.pop()
-
-    // d && p.line(d.x, d.y1, d.x, d.y2)
 }
