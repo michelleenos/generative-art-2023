@@ -26,7 +26,7 @@
         "canvas-frames": "link:../canvas-frames",
         "chroma-js": "^2.4.2",
         "jszip": "^3.10.1",
-        "lil-gui": "^0.19.2",
+        "lil-gui": "^0.20.0",
         "mish-bainrow": "^1.0.20",
         "nanoevents": "^9.0.0",
         "p5": "^1.11.8",

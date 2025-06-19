@@ -100,6 +100,22 @@ const randomBias = (min: number, max: number, bias: number, influence = 0.5) => 
     return base * (1 - mix) + bias * mix
 }
 
+function simplify(num: number, denom: number) {
+    let factor = gcf(num, denom)
+    return { num: num / factor, denom: denom / factor }
+}
+
+function gcf(x: number, y: number) {
+    let result = Math.min(x, y)
+    while (result > 1) {
+        if (x % result === 0 && y % result === 0) {
+            break
+        }
+        result--
+    }
+    return result
+}
+
 export {
     lerp,
     map,
@@ -117,4 +133,6 @@ export {
     roundToNearest,
     ceilNearest,
     floorNearest,
+    simplify,
+    gcf,
 }

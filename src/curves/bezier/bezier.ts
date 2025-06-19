@@ -1,22 +1,12 @@
 import '../../style.css'
 import createCanvas from '~/helpers/create-canvas'
 
-// https://www.bit-101.com/blog/2022/12/coding-curves-08-bezier-curves/
+//www.bit-101.com/2017/2022/12/coding-curves-08-bezier-curves/
 
 let width = window.innerWidth
 let height = window.innerHeight
 
 let { ctx } = createCanvas(width, height)
-
-function ellipse(cx: number, cy: number, rx: number, ry: number) {
-    let res = Math.max(rx, ry) < 6 ? 0.1 : 4 / Math.max(rx, ry)
-    ctx.beginPath()
-
-    for (let angle = 0; angle < Math.PI * 2; angle += res) {
-        ctx.lineTo(cx + Math.cos(angle) * rx, cy + Math.sin(angle) * ry)
-    }
-    ctx.closePath()
-}
 
 function quadBezierOne(a0: number, a1: number, a2: number, t: number) {
     let m = 1 - t
@@ -94,40 +84,6 @@ function cubicCurve(
     ctx.lineTo(x3, y3)
 }
 
-ctx.strokeStyle = '#fff'
-ctx.fillStyle = '#fff'
-
-let finalT = 0
-let dt = 0.01
-let res = 0.025
-let x0 = 100
-let x1 = 200
-let x2 = 250
-let y0 = 50
-let y1 = 150
-let y2 = 200
-
-function drawCurve() {
-    // ctx.clearRect(0, 0, width, height)
-    ctx.beginPath()
-    ctx.moveTo(x0, y0)
-    for (let t = res; t < finalT; t += res) {
-        let { x, y } = quadBezierPoint(x0, y0, x1, y1, x2, y2, t)
-        ctx.lineTo(x, y)
-    }
-    ctx.stroke()
-
-    finalT += dt
-
-    if (finalT > 1) {
-        finalT = 1
-        dt = -dt
-    } else if (finalT < 0) {
-        finalT = 0
-        dt = -dt
-    }
-}
-
 function loop(cb: FrameRequestCallback) {
     let t = 0
     const animate = () => {
@@ -185,24 +141,31 @@ function multiLoop(points: Point[]) {
 }
 
 type Point = { x: number; y: number }
-let points: Point[] = []
 
-for (let i = 0; i < 5; i++) {
-    points.push({
-        x: Math.floor(Math.random() * 800),
-        y: Math.floor(Math.random() * 800),
-    })
+function fillCircle(x: number, y: number, r: number) {
+    ctx.beginPath()
+    ctx.arc(x, y, r, 0, Math.PI * 2)
+    ctx.fill()
 }
 
-points.forEach((pt) => {
-    ellipse(pt.x, pt.y, 5, 5)
-    ctx.fill()
+let p1 = { x: width * 0.1, y: height * 0.1 }
+let cp = { x: width * 0.2, y: height * 0.9 }
+let p2 = { x: width * 0.9, y: height * 0.7 }
+
+loop((t) => {
+    ctx.clearRect(0, 0, width, height)
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 2
+
+    ctx.fillStyle = '#fff'
+
+    // ctx.beginPath()
+
+    fillCircle(p1.x, p1.y, 5)
+    fillCircle(cp.x, cp.y, 5)
+    fillCircle(p2.x, p2.y, 5)
+
+    ctx.beginPath()
+    quadCurve(p1.x, p1.y, cp.x, cp.y, p2.x, p2.y, 0.01)
+    ctx.stroke()
 })
-
-multiLoop(points)
-ctx.stroke()
-
-// cubicCurve(x0, y0, x1, y1, x2, y2, x3, y3, 0.01)
-// ctx.stroke()
-// quadCurve(x0, y0, x1, y1, x3, y3, 0.01)
-// ctx.stroke()

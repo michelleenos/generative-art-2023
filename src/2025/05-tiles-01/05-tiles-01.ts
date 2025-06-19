@@ -2,7 +2,7 @@ import { getPaletteContexts } from 'mish-bainrow'
 import p5 from 'p5'
 import { random } from '~/helpers/utils'
 import '~/style.css'
-import { Tile, TileSquares, TileCircSquare } from './tiles'
+import { Tile, TileSquares } from './tiles'
 
 new p5((p: p5) => {
     let tiles: Tile[] = []

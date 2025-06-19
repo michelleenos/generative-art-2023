@@ -1,10 +1,9 @@
 import p5 from 'p5'
-// import { weightedRandom } from '~/helpers/utils'
+import { Recorder } from 'canvas-frames'
+import { GUI } from 'lil-gui'
+import { getPaletteContexts } from 'mish-bainrow'
 import '~/style.css'
 import { Tile, TileArc, TileLines, TileTris, TileTriSquare } from './tiles'
-import { getPaletteContexts } from 'mish-bainrow'
-import { GUI } from 'lil-gui'
-import { Recorder } from 'canvas-frames'
 
 function weightedRandom<T>(array: T[], weights: number[], p: p5): T {
     const totalWeight = weights.reduce((acc, weight) => acc + weight, 0)

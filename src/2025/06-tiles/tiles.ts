@@ -1,29 +1,7 @@
 import p5 from 'p5'
-import { easing, type Easing } from '~/helpers/easings'
-import { clamp, lerp, map, random, shuffle } from '~/helpers/utils'
-
-type StaggerOpts = {
-    total: number
-    steps: number
-    each: number
-    start?: number
-    ease?: Easing
-}
-
-function stagger({ total, steps, each, ease, start = 0 }: StaggerOpts) {
-    let space = total - each
-    let vals = []
-
-    for (let i = 0; i < steps; i++) {
-        let dec = i / (steps - 1)
-        if (ease) dec = easing[ease](dec)
-
-        let startVal = space * dec + start
-        vals.push({ start: startVal, duration: each, end: startVal + each })
-    }
-
-    return vals
-}
+import { easing } from '~/helpers/easings'
+import { getStagger } from '~/helpers/stagger'
+import { map, random } from '~/helpers/utils'
 
 function rotateAround(x: number, y: number, angle: number, p: p5) {
     p.translate(x, y)
@@ -223,11 +201,11 @@ export class TileTri extends Tile {
 }
 
 export class TileTris extends Tile {
-    stagger: ReturnType<typeof stagger>
+    stagger: ReturnType<typeof getStagger>['vals']
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
         let steps = 2
-        this.stagger = stagger({ total: 1, steps, each: 0.75 })
+        this.stagger = getStagger({ total: 1, steps, each: 0.75 })['vals']
     }
 
     drawTri(progress: number, p: p5) {
@@ -286,24 +264,24 @@ export class TileTriSquare extends Tile {
 export class TileLines extends Tile {
     lineCount: number
     lineSpacing: number
-    lineStagger: ReturnType<typeof stagger>
+    lineStagger: ReturnType<typeof getStagger>['vals']
     linesProgress = 0
 
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
         this.lineCount = random([9, 5])
-        this.lineStagger = stagger({
+        this.lineStagger = getStagger({
             total: 1,
             steps: this.lineCount,
             each: 0.5,
-        })
+        }).vals
 
         this.lineSpacing = this.sz / (this.lineCount - 1)
     }
 
     updateLineVals() {
         this.lineSpacing = this.sz / (this.lineCount - 1)
-        this.lineStagger = stagger({ total: 1, steps: this.lineCount, each: 0.5 })
+        this.lineStagger = getStagger({ total: 1, steps: this.lineCount, each: 0.5 }).vals
     }
 
     tDraw(p: p5, pr: number) {
@@ -325,11 +303,11 @@ export class TileLines extends Tile {
 
 export class TileArc extends Tile {
     arcSizeMin = 0.25
-    stagger: ReturnType<typeof stagger>
+    stagger: ReturnType<typeof getStagger>['vals']
     constructor(...args: ConstructorParameters<typeof Tile>) {
         super(...args)
 
-        this.stagger = stagger({ total: 1, steps: 4, each: 0.5 })
+        this.stagger = getStagger({ total: 1, steps: 4, each: 0.5 })['vals']
     }
 
     tDraw(p: p5, pr: number) {
