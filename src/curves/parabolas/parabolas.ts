@@ -31,7 +31,6 @@ function drawAxes() {
 }
 
 // y = a * x * x
-// @ts-ignore
 function parabolaSimple(a = 0.003, lines = false) {
     ctx.beginPath()
     for (let x = -width / 2; x <= width / 2; x++) {
@@ -106,8 +105,7 @@ function parabolaSimple(a = 0.003, lines = false) {
 }
 
 // y = a * x * x + b * x + c --> standard quadratic form (ax^2 + bx + c)
-// @ts-ignore
-function parabolaQuadratic(a = 0.003, b, c) {
+function parabolaQuadratic(a = 0.003, b: number, c: number) {
     ctx.beginPath()
     for (let x = -width / 2; x <= width / 2; x++) {
         let y = a * x * x + b * x + c
@@ -182,5 +180,5 @@ ctx.scale(1, -1)
 drawAxes()
 
 // parabolaSimple(0.002)
-// parabolaQuadratic(0.003, -1.5, 100)
-parabolaVertex(0.003, 0, -200)
+parabolaQuadratic(0.03, 0, 100)
+// parabolaVertex(0.003, 0, -200)

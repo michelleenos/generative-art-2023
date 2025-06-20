@@ -1,27 +1,11 @@
-import '../../style.css'
-import { Pane } from 'tweakpane'
-import RefreshContainer from '~/helpers/refresh-container'
-
-function createCanvas(width: number, height: number) {
-    const canvas = document.createElement('canvas')
-    let resolution = window.devicePixelRatio
-    canvas.width = width * resolution
-    canvas.height = height * resolution
-    canvas.style.position = 'absolute'
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
-    document.body.appendChild(canvas)
-
-    let ctx = canvas.getContext('2d')!
-    ctx.scale(resolution, resolution)
-    return { canvas, ctx }
-}
+import GUI from 'lil-gui'
+import '~/style.css'
+import createCanvas from '~/helpers/create-canvas'
 
 let width = window.innerWidth
 let height = window.innerHeight
 
-let { ctx } = createCanvas(window.innerWidth, window.innerHeight)
-
+const { ctx } = createCanvas(window.innerWidth, window.innerHeight)
 const PHI = (1 + Math.sqrt(5)) / 2
 
 const PARAMS = {
@@ -39,79 +23,48 @@ const PARAMS = {
     },
 }
 
-let pane = new Pane()
-let rc = new RefreshContainer(pane)
-let inpType = pane
-    .addInput(PARAMS.spiral, 'spiralType', {
-        options: {
-            archimedean: 'archimedean',
-            hyperbolic: 'hyperbolic',
-            fermat: 'fermat',
-            lituus: 'lituus',
-            logarithmic: 'logarithmic',
-            golden: 'golden',
-        },
-    })
-    .on('change', function () {
-        let type = PARAMS.spiral.spiralType
-        inpA.hidden = type === 'golden' ? true : false
-        inpK.hidden = type === 'logarithmic' ? false : true
-        PARAMS.spiral.a = defaults[type].a
-        rc.refresh()
-    })
-let inpA = pane.addInput(PARAMS.spiral, 'a', { min: 0, max: 1000, step: 0.1 })
-let inpK = pane.addInput(PARAMS.spiral, 'k', { min: 0, max: 5, step: 0.01 })
-let inpCycles = pane.addInput(PARAMS.spiral, 'cycles', {
-    min: 0,
-    max: 100,
-    step: 1,
-})
-let inpCount = pane.addInput(PARAMS.sunflower, 'count', {
-    min: 0,
-    max: 1000,
-    step: 1,
-})
-let inpMaxRadius = pane.addInput(PARAMS.sunflower, 'maxRadius', {
-    min: 0,
-    max: 1000,
-    step: 1,
-})
-let inpMaxSize = pane.addInput(PARAMS.sunflower, 'maxSize', {
-    min: 0,
-    max: 100,
-    step: 1,
-})
-
-function setMode() {
-    if (rc.refreshing) return
-    if (PARAMS.mode === 'spiral') {
-        inpType.hidden = false
-        inpA.hidden = PARAMS.spiral.spiralType === 'golden' ? true : false
-        inpK.hidden = PARAMS.spiral.spiralType === 'logarithmic' ? false : true
-        inpCycles.hidden = false
-        inpCount.hidden = true
-        inpMaxRadius.hidden = true
-        inpMaxSize.hidden = true
-    } else {
-        inpType.hidden = true
-        inpA.hidden = true
-        inpK.hidden = true
-        inpCycles.hidden = true
-        inpCount.hidden = false
-        inpMaxRadius.hidden = false
-        inpMaxSize.hidden = false
+function makeGui() {
+    let gui = new GUI()
+    const updateGui = () => {
+        if (PARAMS.mode === 'spiral') {
+            spf.show()
+            sunf.hide()
+        } else {
+            spf.hide()
+            sunf.show()
+        }
     }
+    gui.add(PARAMS, 'mode', ['spiral', 'sunflower']).onChange(updateGui)
+
+    let spf = gui.addFolder('spiral')
+    spf.add(PARAMS.spiral, 'spiralType', [
+        'archimedean',
+        'hyperbolic',
+        'fermat',
+        'lituus',
+        'logarithmic',
+        'golden',
+    ]).onChange((type: string) => {
+        type === 'golden' ? ca.hide() : ca.show()
+        type === 'logarithmic' ? ck.show() : ck.hide()
+        PARAMS.spiral.a = defaults[type].a
+        PARAMS.spiral.cycles = defaults[type].cycles || 10
+    })
+    let ca = spf.add(PARAMS.spiral, 'a', 0, 1000, 0.1).listen()
+    let ck = spf.add(PARAMS.spiral, 'k', 0, 5, 0.01).listen()
+    spf.add(PARAMS.spiral, 'cycles', 0, 100, 1).listen()
+
+    let sunf = gui.addFolder('sunflower')
+    sunf.add(PARAMS.sunflower, 'count', 0, 1000, 1)
+    sunf.add(PARAMS.sunflower, 'maxRadius', 0, 1000, 1)
+    sunf.add(PARAMS.sunflower, 'maxSize', 0, 100, 1)
+
+    updateGui()
+
+    gui.onChange(() => {
+        setTimeout(draw)
+    })
 }
-
-pane.addInput(PARAMS, 'mode', {
-    options: { spiral: 'spiral', sunflower: 'sunflower' },
-})
-
-pane.on('change', () => {
-    setMode()
-    ctx.clearRect(-width / 2, -height / 2, width, height)
-    draw()
-})
 
 const spirals: { [key: string]: Function } = {
     archimedean: (a: number, t: number) => a * t,
@@ -152,15 +105,15 @@ function spiral() {
 }
 
 function sunflower() {
-    let count = PARAMS.sunflower.count
+    const count = PARAMS.sunflower.count
 
     for (let i = 0; i < count; i++) {
-        let percent = i / count
-        let size = PARAMS.sunflower.maxSize * percent
-        let radius = PARAMS.sunflower.maxRadius * percent
-        let t = i * Math.PI * 2 * PHI
-        let x = Math.cos(t) * radius
-        let y = Math.sin(t) * radius
+        const percent = i / count
+        const size = PARAMS.sunflower.maxSize * percent
+        const radius = PARAMS.sunflower.maxRadius * percent
+        const t = i * Math.PI * 2 * PHI
+        const x = Math.cos(t) * radius
+        const y = Math.sin(t) * radius
 
         ctx.beginPath()
         ctx.arc(x, y, size, 0, Math.PI * 2)
@@ -168,15 +121,19 @@ function sunflower() {
     }
 }
 
-setMode()
+makeGui()
 
 function draw() {
-    PARAMS.mode === 'spiral' ? spiral() : sunflower()
-}
+    ctx.save()
+    ctx.translate(width / 2, height / 2)
+    ctx.clearRect(-width / 2, -height / 2, width, height)
 
-ctx.translate(width / 2, height / 2)
-ctx.strokeStyle = '#fff'
-ctx.fillStyle = '#fff'
-ctx.lineWidth = 0.5
+    ctx.strokeStyle = '#fff'
+    ctx.fillStyle = '#fff'
+    ctx.lineWidth = 0.5
+
+    PARAMS.mode === 'spiral' ? spiral() : sunflower()
+    ctx.restore()
+}
 
 draw()
