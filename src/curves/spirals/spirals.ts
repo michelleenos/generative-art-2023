@@ -80,7 +80,7 @@ const defaults: { [key: string]: { [key: string]: number } } = {
     hyperbolic: { a: 1000, cycles: 30 },
     fermat: { a: 20, cycles: 20 },
     lituus: { a: 500, cycles: 20 },
-    logarithmic: { a: 0.5, k: 0.05, cycles: 10 },
+    logarithmic: { a: 0.5, k: 0.1, cycles: 10 },
     golden: { cycles: 3 },
 }
 

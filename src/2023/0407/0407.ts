@@ -1,21 +1,19 @@
-import '../../style.css'
+import { Petal } from '~/2023/0404/petal'
 import createCanvas from '~/helpers/create-canvas'
-import { createPetal, type Petal } from '~/2023/0404/petal'
 import loop from '~/helpers/loop'
-// import map from '~/helpers/map'
-// import random from '~/helpers/random'
 import { map, random } from '~/helpers/utils'
-import makeImages from '~/helpers/canvas-images'
+import '../../style.css'
+import { Pane } from 'tweakpane'
+import * as InfodumpPlugin from 'tweakpane-plugin-infodump'
 
-let btn = document.createElement('button')
-btn.innerText = 'make zip'
-document.getElementById('btns')?.appendChild(btn)
+// let btn = document.createElement('button')
+// btn.innerText = 'make zip'
+// document.getElementById('btns')?.appendChild(btn)
 
 let width = 800
 let height = 800
 let { ctx, canvas } = createCanvas(width, height, true)
 let min = Math.min(width, height)
-let { getImage, downloadZip } = makeImages(canvas)
 
 // // petalCp1: {x: -43.017437647830086, y: -29.451991656886598}
 // petalCp2:  {x: 47.68586229675711, y: -176.1898287514942}
@@ -31,84 +29,157 @@ let { getImage, downloadZip } = makeImages(canvas)
 
 const PARAMS = {
     numPetals: 7,
-    controlVarX: 0.1,
-    controlVarY: 0.02,
-    controlRangeX: [0.01, 0.01],
-    endRangeX: [-0.1, 0.1],
-    pace: 0.0005,
+    cpAmpX: 80,
+    cpAmpY: 16,
+    cpX: 9,
+    endX: 80,
     rotation: 0,
+    scaleSpeed: 10,
+    skewSpeed: 13,
+    scaleX: { min: 0.9, max: 2 },
+    skewY: { min: 0.5, max: 3 },
     cp1Mult: { x: 2.2, y: 0.5 },
     cp2Mult: { x: 0.5, y: 0.7 },
+    rotateStep: 0.0003,
+    lineSpace: 0.5,
+    drawsPerFrame: 2,
+    linesToDraw: 3000,
+}
+
+interface MorphPetalParams {
+    numPetals?: number
+    petalLen?: number
+    scaleSpeed?: number
+    skewSpeed?: number
+    scaleX?: { min: number; max: number }
+    skewY?: { min: number; max: number }
+    rotateStep?: number
 }
 
 class MorphPetal {
     petal: Petal
-    scaleX: number = 0
-    skewY: number = 0
+    scaleSpeed: number
+    skewSpeed: number
     numPetals: number
     ctx: CanvasRenderingContext2D = createCanvas(min, min, true, false).ctx
-    scaleXVar: [number, number]
-    skewYVar: [number, number]
+    // scaleXVar: [number, number]
+    // skewYVar: [number, number]
+    scaleX: { min: number; max: number }
+    skewY: { min: number; max: number }
+
     rotateStart: number = random(0, Math.PI)
-    rotateEach: number = 0.0003
+    rotateEach: number
     rotateCurrent: number = this.rotateStart
     count: number = 0
+    done = false
 
-    constructor(numPetals = 5, petalLen = min * 0.5) {
+    constructor({
+        numPetals = 5,
+        petalLen = min * 0.4,
+        scaleSpeed = 10,
+        skewSpeed = 13,
+        scaleX = { min: 0.8, max: 2 },
+        skewY = { min: 0, max: 2 },
+        rotateStep = 0.0003,
+    }: MorphPetalParams) {
         this.numPetals = numPetals
-        this.petal = createPetal(this.ctx, {
+        this.petal = new Petal({
             x: min / 2,
             y: min / 2,
-            endRangeX: [min * PARAMS.endRangeX[0], min * PARAMS.endRangeX[1]],
-            endRangeY: [petalLen, petalLen],
-            controlRangeX: [min * PARAMS.controlRangeX[0], min * PARAMS.controlRangeX[1]],
-            controlVarX: min * PARAMS.controlVarX,
-            controlVarY: min * PARAMS.controlVarY,
+            endY: { min: petalLen, max: petalLen },
+            endX: PARAMS.endX,
+            cpX: { min: PARAMS.cpX, max: PARAMS.cpX },
+            cpAmpX: PARAMS.cpAmpX,
+            cpAmpY: PARAMS.cpAmpY,
             rotation: 0,
-            cp1Mult: PARAMS.cp1Mult,
-            cp2Mult: PARAMS.cp2Mult,
+            cp1Mult: { ...PARAMS.cp1Mult },
+            cp2Mult: { ...PARAMS.cp2Mult },
+            lineSpace: PARAMS.lineSpace,
+            throttleFps: false,
         })
+        this.rotateEach = rotateStep
 
+        this.scaleSpeed = scaleSpeed
+        this.skewSpeed = skewSpeed
         this.ctx.strokeStyle = 'rgba(255,255,255,0.1)'
         this.ctx.lineWidth = 0.5
-        this.scaleXVar = [random(0.8, 1), random(1.4, 2)]
-        if (random() < 0.5)
-            [this.scaleXVar[0], this.scaleXVar[1]] = [this.scaleXVar[1], this.scaleXVar[0]]
-        this.skewYVar = [-0.3, 0.3]
+        this.scaleX = scaleX
+        this.skewY = skewY
+        // this.scaleXVar = [random(0.8, 1), random(1.4, 2)]
+        // if (random() < 0.5)
+        //     [this.scaleXVar[0], this.scaleXVar[1]] = [this.scaleXVar[1], this.scaleXVar[0]]
+        // this.skewYVar = [-0.3, 0.3]
 
         console.log({
-            scaleXVar: this.scaleXVar,
-            skewYVar: this.skewYVar,
             petalEnd: this.petal.end,
             petalCp1: this.petal.cp1,
             petalCp2: this.petal.cp2,
         })
     }
 
-    drawOffscreen(t: number) {
-        // this.ctx.clearRect(0, 0, min, min)
-        this.petal.draw(t)
+    updateParams = () => {
+        this.petal.cpAmpX = PARAMS.cpAmpX
+        this.petal.cpAmpY = PARAMS.cpAmpY
+        this.petal.cp1Mult = { ...PARAMS.cp1Mult }
+        this.petal.cp2Mult = { ...PARAMS.cp2Mult }
+        this.petal.lineSpace = PARAMS.lineSpace
+        this.scaleSpeed = PARAMS.scaleSpeed
+        this.skewSpeed = PARAMS.skewSpeed
+        this.skewY = { ...PARAMS.skewY }
+        this.scaleX = { ...PARAMS.scaleX }
+        this.rotateEach = PARAMS.rotateStep
     }
 
-    draw(t: number) {
-        t *= PARAMS.pace
+    draw(time: number, delta: number) {
+        if (this.done) return
+        let t = time - delta
+        let deltaStep = delta / PARAMS.drawsPerFrame
+        let i = 0
+        while (i < PARAMS.drawsPerFrame) {
+            t += deltaStep
+            this.drawOffscreen(t)
+            i++
+        }
+
+        this.drawToScreen()
+        if (this.done) return true
+        return false
+    }
+
+    drawOffscreen(t: number) {
         this.count++
+
+        this.petal.draw(t, this.ctx)
+
+        if (this.count >= PARAMS.linesToDraw) {
+            this.done = true
+        }
+    }
+
+    drawToScreen() {
+        // if (this.done) return
         this.rotateCurrent += this.rotateEach
-        this.drawOffscreen(t)
+        ctx.clearRect(0, 0, width, height)
+        ctx.fillStyle = '#0e0d0d'
+        ctx.fillRect(0, 0, width, height)
 
         let scaleX = map(
-            Math.sin(-this.rotateCurrent * 10),
+            Math.sin(-this.rotateCurrent * this.scaleSpeed),
             -1,
             1,
-            this.scaleXVar[0],
-            this.scaleXVar[1]
+            this.scaleX.min,
+            this.scaleX.max,
+            // this.scaleXVar[0],
+            // this.scaleXVar[1],
         )
         let skewY = map(
-            Math.cos(-this.rotateCurrent * 13),
+            Math.cos(-this.rotateCurrent * this.skewSpeed),
             -1,
             1,
-            this.skewYVar[0],
-            this.skewYVar[1]
+            this.skewY.min,
+            this.skewY.max,
+            // this.skewYVar[0],
+            // this.skewYVar[1],
         )
 
         for (let i = 0; i < this.numPetals; i++) {
@@ -129,68 +200,76 @@ class MorphPetal {
                 0,
                 0,
                 min,
-                min
+                min,
             )
             ctx.restore()
         }
     }
 }
 
-// function angleDistFromRotation(angle, rotation) {
-//     let dist = Math.abs(angle - rotation)
-//     return dist > Math.PI ? Math.PI * 2 - dist : dist
-// }
+let lastTime = 0
+let timeStep = 1000 / 60
+let morphPetal: MorphPetal | null = null
+let petalLoop: ReturnType<typeof loop>
 
-let t = 0
-function draw() {
-    t++
-    ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = '#171717'
-    ctx.fillRect(0, 0, width, height)
-
-    petals.forEach((petal) => {
-        petal.draw(t * 10)
+function newAnimation() {
+    if (petalLoop) petalLoop.stop()
+    morphPetal = new MorphPetal({
+        numPetals: PARAMS.numPetals,
+        petalLen: min * 0.4,
+        scaleSpeed: PARAMS.scaleSpeed,
+        skewSpeed: PARAMS.skewSpeed,
+        scaleX: { ...PARAMS.scaleX },
+        skewY: { ...PARAMS.skewY },
+        rotateStep: PARAMS.rotateStep,
     })
+    lastTime = performance.now()
+
+    petalLoop = loop(draw)
 }
 
-// const mouseAngle = (mouse) =>
-//     Math.atan2(-mouse.y + height / 2, -mouse.x + width / 2) + Math.PI
-
-let petals: MorphPetal[] = []
-for (let i = 0; i < 1; i++) {
-    petals.push(new MorphPetal(PARAMS.numPetals, min * 0.35))
-}
-
-function framesLoop() {
-    let t = 0
-
-    const animate = (t: number) => {
-        // draw(t * 10)
-        draw()
-        getImage().then(() => {
-            t++
-            console.log(t)
-            if (t === 1000) {
-                downloadZip()
-            } else {
-                animate(t)
-            }
-        })
+function draw(time: number) {
+    let timeLeft = time - lastTime
+    while (timeLeft >= timeStep) {
+        timeLeft -= timeStep
+        lastTime += timeStep
+        morphPetal?.draw(lastTime, timeStep)
     }
-
-    animate(t)
 }
 
-// framesLoop()
-let drawLoop = loop(draw)
+newAnimation()
 
-btn.addEventListener('click', () => {
-    drawLoop.stop()
+const pane = new Pane()
+pane.registerPlugin(InfodumpPlugin)
+const f = pane.addFolder({ title: 'params' })
 
-    petals.forEach((petal) => {
-        petal.ctx.clearRect(0, 0, petal.ctx.canvas.width, petal.ctx.canvas.height)
-        petal.rotateCurrent = petal.rotateStart
-    })
+const updates = [
+    f.addBinding(PARAMS, 'cpAmpX', { min: -200, max: 200, step: 1 }),
+    f.addBinding(PARAMS, 'cpAmpY', { min: 0, max: 200, step: 1 }),
+    f.addBinding(PARAMS, 'cp1Mult', { min: -5, max: 5, step: 0.1 }),
+    f.addBinding(PARAMS, 'cp2Mult', { min: -5, max: 5, step: 0.1 }),
+    f.addBinding(PARAMS, 'lineSpace', { min: 0, max: 5, step: 0.01 }),
+    f.addBinding(PARAMS, 'scaleSpeed', { min: -50, max: 50, step: 1 }),
+    f.addBinding(PARAMS, 'skewSpeed', { min: -50, max: 50, step: 1 }),
+    f.addBinding(PARAMS.skewY, 'min', { min: 0, max: 5, step: 0.1, label: 'skewY.min' }),
+    f.addBinding(PARAMS.skewY, 'max', { min: 0, max: 5, step: 0.1, label: 'skewY.max' }),
+    f.addBinding(PARAMS.scaleX, 'min', { min: 0, max: 4, step: 0.1, label: 'scaleX.min' }),
+    f.addBinding(PARAMS.scaleX, 'max', { min: 0, max: 4, step: 0.1, label: 'scaleX.max' }),
+    f.addBinding(PARAMS, 'rotateStep', { min: 0, max: 0.1, step: 0.0001 }),
+]
+updates.forEach((b) => b.on('change', () => morphPetal?.updateParams()))
+f.addBinding(PARAMS, 'drawsPerFrame', { min: 1, max: 20, step: 1 })
 
-    framesLoop()
-})
+const f2 = pane.addFolder({ title: 'params (restart required)' })
+
+// f.addBlade({ view: 'separator' })
+// f.addBlade({
+//     view: 'infodump',
+//     content: 'the below items require restart to see changes',
+//     markdown: false,
+// })
+f2.addBinding(PARAMS, 'endX', { min: 0, max: 150, step: 1 })
+f2.addBinding(PARAMS, 'numPetals', { min: 1, max: 40, step: 1 })
+f2.addBinding(PARAMS, 'cpX', { min: 0, max: 100, step: 1 })
+f2.addBinding(PARAMS, 'linesToDraw', { min: 10, max: 10000, step: 1 })
+pane.addButton({ title: 'restart' }).on('click', newAnimation)

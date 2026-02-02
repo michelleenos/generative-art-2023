@@ -11,7 +11,7 @@
         "tsc": "tsc"
     },
     "devDependencies": {
-        "@tweakpane/core": "^1.1.6",
+        "@tweakpane/core": "^2.0.5",
         "@types/stats.js": "^0.17.3",
         "typescript": "^5.8.3",
         "vite": "^4.2.1"
@@ -33,9 +33,9 @@
         "pure-rand": "^6.0.4",
         "simplex-noise": "^4.0.1",
         "stats.js": "^0.17.0",
-        "tone": "^14.7.77",
         "tseep": "^1.2.1",
-        "tweakpane": "^3.1.7",
+        "tweakpane": "^4.0.5",
+        "tweakpane-plugin-infodump": "^4.0.2",
         "voronoi": "^1.0.0"
     },
     "pnpm": {

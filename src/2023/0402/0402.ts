@@ -31,15 +31,15 @@ const PARAMS: params = {
 
 const pane = new Pane()
 function setPane() {
-    pane.addInput(PARAMS, 'easing', { options: easeOpts, label: 'lines ease' })
-    pane.addInput(PARAMS, 'showPoints')
-    pane.addInput(PARAMS, 'showOrigin')
-    pane.addInput(PARAMS, 'lines', { min: 1, max: 25, step: 1 })
-    pane.addInput(PARAMS, 'scaleMin', { min: 0, max: 1, step: 0.01 })
-    pane.addInput(PARAMS, 'pointsReflection')
+    pane.addBinding(PARAMS, 'easing', { options: easeOpts, label: 'lines ease' })
+    pane.addBinding(PARAMS, 'showPoints')
+    pane.addBinding(PARAMS, 'showOrigin')
+    pane.addBinding(PARAMS, 'lines', { min: 1, max: 25, step: 1 })
+    pane.addBinding(PARAMS, 'scaleMin', { min: 0, max: 1, step: 0.01 })
+    pane.addBinding(PARAMS, 'pointsReflection')
 
     let folderPoints = pane.addFolder({ title: 'points' })
-    let pointsInput = folderPoints.addInput(PARAMS, 'pointsN', {
+    let pointsInput = folderPoints.addBinding(PARAMS, 'pointsN', {
         min: 3,
         max: 25,
         step: 1,

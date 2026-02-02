@@ -70,7 +70,7 @@ class Grid {
                 color,
                 size: this.cells,
                 maxPoints: C.maxPoints,
-            })
+            }),
         )
         this.colorIndex = (this.colorIndex + 1) % this.palette.length
         this.stepsLastAdd = this.stepsCount
@@ -129,7 +129,7 @@ class Grid {
                             this.cells - x1 - 1,
                             this.cells - y1 - 1,
                             this.cells - x - 1,
-                            this.cells - y - 1
+                            this.cells - y - 1,
                         )
                     } else {
                         this.line(p, x1, y1, x, y)
@@ -140,7 +140,7 @@ class Grid {
                             this.cells - x1 - 1,
                             this.cells - y1 - 1,
                             this.cells - x - 1,
-                            this.cells - y - 1
+                            this.cells - y - 1,
                         )
                     }
                 })
@@ -199,56 +199,62 @@ class Grid {
     // }
 }
 
-new p5((p: p5) => {
-    let m: number
-    let grids: Grid[] = []
+new p5(
+    (p: p5) => {
+        let m: number
+        let grids: Grid[] = []
 
-    function setup() {
-        m = p.min(p.width, p.height) * 0.9
-        let grid = p.floor(m / C.count)
-        let palette = paletteHex.map((c) => p.color(c))
+        function setup() {
+            m = p.min(p.width, p.height) * 0.9
+            let grid = p.floor(m / C.count)
+            let palette = paletteHex.map((c) => p.color(c))
 
-        grids = []
-        for (let x = -(C.count / 2); x < C.count / 2; x++) {
-            for (let y = -(C.count / 2); y < C.count / 2; y++) {
-                grids.push(
-                    new Grid({
-                        pos: p.createVector((x + 0.5) * grid, (y + 0.5) * grid),
-                        sizeOuter: grid * 0.9,
-                        cells: C.countInner,
-                        walkersCount: C.walkers,
-                        palette: p.shuffle(palette),
-                        symmetry: C.symmetry as 'reflection' | 'rotation',
-                        style: C.style as 'lines' | 'rects',
-                    })
-                )
+            grids = []
+            for (let x = -(C.count / 2); x < C.count / 2; x++) {
+                for (let y = -(C.count / 2); y < C.count / 2; y++) {
+                    grids.push(
+                        new Grid({
+                            pos: p.createVector((x + 0.5) * grid, (y + 0.5) * grid),
+                            sizeOuter: grid * 0.9,
+                            cells: C.countInner,
+                            walkersCount: C.walkers,
+                            palette: p.shuffle(palette),
+                            symmetry: C.symmetry as 'reflection' | 'rotation',
+                            style: C.style as 'lines' | 'rects',
+                        }),
+                    )
+                }
             }
         }
-    }
 
-    pane.addInput(C, 'count', { min: 1, max: 10, step: 1 }).on('change', setup)
-    pane.addInput(C, 'countInner', { min: 1, max: 30, step: 1 }).on('change', setup)
-    pane.addInput(C, 'walkers', { min: 1, max: 10, step: 1 }).on('change', setup)
-    pane.addInput(C, 'maxPoints', { min: 1, max: 30, step: 1 }).on('change', setup)
-    pane.addInput(C, 'symmetry', {
-        options: { reflection: 'reflection', rotation: 'rotation' },
-    }).on('change', (e) => {
-        grids.forEach((g) => (g.symmetry = e.value as 'reflection' | 'rotation'))
-    })
-    pane.addInput(C, 'style', { options: { lines: 'lines', rects: 'rects' } }).on('change', (e) => {
-        grids.forEach((g) => (g.style = e.value as 'lines' | 'rects'))
-    })
+        pane.addBinding(C, 'count', { min: 1, max: 10, step: 1 }).on('change', setup)
+        pane.addBinding(C, 'countInner', { min: 1, max: 30, step: 1 }).on('change', setup)
+        pane.addBinding(C, 'walkers', { min: 1, max: 10, step: 1 }).on('change', setup)
+        pane.addBinding(C, 'maxPoints', { min: 1, max: 30, step: 1 }).on('change', setup)
+        pane.addBinding(C, 'symmetry', {
+            options: { reflection: 'reflection', rotation: 'rotation' },
+        }).on('change', (e) => {
+            grids.forEach((g) => (g.symmetry = e.value as 'reflection' | 'rotation'))
+        })
+        pane.addBinding(C, 'style', { options: { lines: 'lines', rects: 'rects' } }).on(
+            'change',
+            (e) => {
+                grids.forEach((g) => (g.style = e.value as 'lines' | 'rects'))
+            },
+        )
 
-    p.setup = function () {
-        p.createCanvas(window.innerWidth, window.innerHeight)
-        setup()
-        p.frameRate(10)
-        p.rectMode(p.CENTER)
-    }
+        p.setup = function () {
+            p.createCanvas(window.innerWidth, window.innerHeight)
+            setup()
+            p.frameRate(10)
+            p.rectMode(p.CENTER)
+        }
 
-    p.draw = function () {
-        p.background(250)
-        p.translate(p.width / 2, p.height / 2)
-        grids.forEach((g) => g.draw(p))
-    }
-}, document.getElementById('sketch') ?? undefined)
+        p.draw = function () {
+            p.background(250)
+            p.translate(p.width / 2, p.height / 2)
+            grids.forEach((g) => g.draw(p))
+        }
+    },
+    document.getElementById('sketch') ?? undefined,
+)

@@ -1,17 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Generative Art</title>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generative Art</title>
-</head>
+        <style>
+            #canvas-container.petals-canvas-container {
+                padding-inline: max(50vw - 400px, 50px);
+                padding-block: max(50vh - 400px, 50px);
+                width: auto;
+                overflow: auto;
+            }
 
-<body>
-    <script src="./0404.ts" type="module"></script>
-    <div id="btns" class="absolute-container">
-        <a href="/">back</a>
-    </div>
-</body>
+            canvas {
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+        </style>
+    </head>
 
+    <body>
+        <div class="petals-canvas-container" id="canvas-container"></div>
+        <script src="./0404.ts" type="module"></script>
+        <div id="btns" class="absolute-container">
+            <a href="/">back</a>
+        </div>
+    </body>
 </html>

@@ -79,26 +79,29 @@ const getParams = () => {
 params = getParams()
 
 const setPane = () => {
-    let easeOpts = Object.keys(easings).reduce((obj, current) => {
-        obj[current] = current
-        return obj
-    }, {} as Record<string, string>)
+    let easeOpts = Object.keys(easings).reduce(
+        (obj, current) => {
+            obj[current] = current
+            return obj
+        },
+        {} as Record<string, string>,
+    )
 
     pane = new Pane({ title: 'settings' })
-    pane.addInput(params, 'ease_r', { options: easeOpts })
-    pane.addInput(params, 'ease_arc', { options: easeOpts })
-    pane.addInput(params, 'n', { min: 1, max: 100, step: 1 })
-    pane.addInput(params, 'r_max_mult', { min: 0, max: 1 })
-    pane.addInput(params, 'r_min_mult', { min: 0, max: 1 })
-    pane.addInput(params, 'arc_dist', { min: 0, max: 360 })
-    pane.addInput(params, 'arc_start', { min: -180, max: 180 })
-    pane.addInput(params, 'arc_calc', {
+    pane.addBinding(params, 'ease_r', { options: easeOpts })
+    pane.addBinding(params, 'ease_arc', { options: easeOpts })
+    pane.addBinding(params, 'n', { min: 1, max: 100, step: 1 })
+    pane.addBinding(params, 'r_max_mult', { min: 0, max: 1 })
+    pane.addBinding(params, 'r_min_mult', { min: 0, max: 1 })
+    pane.addBinding(params, 'arc_dist', { min: 0, max: 360 })
+    pane.addBinding(params, 'arc_start', { min: -180, max: 180 })
+    pane.addBinding(params, 'arc_calc', {
         options: { '1 - i/n': '1 - i/n', 'i/n': 'i/n', opposite: 'opposite' },
     })
-    pane.addInput(params, 'sides', { options: { same: 'same', opposite: 'opposite' } })
-    let inputAnim = pane.addInput(params, 'animation')
-    let rotateAnim = pane.addInput(params, 'rotate', { hidden: !params.animation })
-    let inputPhase = pane.addInput(params, 'phase', {
+    pane.addBinding(params, 'sides', { options: { same: 'same', opposite: 'opposite' } })
+    let inputAnim = pane.addBinding(params, 'animation')
+    let rotateAnim = pane.addBinding(params, 'rotate', { hidden: !params.animation })
+    let inputPhase = pane.addBinding(params, 'phase', {
         min: 1,
         max: 3,
         step: 1,

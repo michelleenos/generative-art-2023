@@ -1,48 +1,49 @@
 import '../../style.css'
 import createCanvas from '~/helpers/create-canvas'
-import { Pane } from 'tweakpane'
+import { Pane, SliderBladeApi } from 'tweakpane'
 import loop from '~/helpers/loop'
-import canvasToVideo from '~/helpers/canvas-to-video'
 import { shuffle } from '~/helpers/utils'
-import { Petal, createPetal } from './petal'
+import { Petal } from './petal'
 
-let width = window.innerWidth
-let height = window.innerHeight
+let width = 800
+let height = 800
 let { ctx, canvas } = createCanvas(width, height)
 
 const PARAMS = {
     numPetals: 10,
     numLines: 450,
+    cpAmpX: 80,
+    cpAmpY: 20,
+    endXVar: 50,
+    // endX: { min: -100, max: 100 },
+    endY: { min: 320, max: 350 },
+    cpX: { min: 40, max: 120 },
+    cp1Mult: { x: 1.5, y: 0.8 },
+    cp2Mult: { x: 2.5, y: 1 },
     drawAtOnce: 5,
-    cpVarX: 0.1,
-    cpVarY: 0.02,
-    speed: 0.0005,
+    lineSpace: 1,
+    drawPerFrame: 2,
     addRecordOption: false,
 }
 
 let pane = new Pane()
-let flower = pane.addFolder({ title: 'flower' })
-flower.addInput(PARAMS, 'numPetals', { min: 1, max: 40, step: 2 })
-flower.addInput(PARAMS, 'numLines', { min: 10, max: 1000, step: 1 })
-flower.addInput(PARAMS, 'drawAtOnce', { min: 1, max: 10, step: 1 })
-flower.addInput(PARAMS, 'cpVarX', {
-    label: 'cp x var (thickness)',
-    min: 0,
-    max: 1,
-    step: 0.01,
-})
-flower.addInput(PARAMS, 'cpVarY', {
-    min: 0,
-    max: 0.5,
-    step: 0.01,
-    label: 'cp y var (wiggliness)',
-})
-flower.addInput(PARAMS, 'speed', { min: 0.0001, max: 0.01, step: 0.0001 })
-if (PARAMS.addRecordOption) {
-    flower.addButton({ title: 'restart & record' }).on('click', () => petalStart(true))
-}
+let f = pane.addFolder({ title: 'flower' })
+f.addBinding(PARAMS, 'numPetals', { min: 1, max: 40, step: 2 })
+f.addBinding(PARAMS, 'numLines', { min: 10, max: 1000, step: 1 })
+f.addBinding(PARAMS, 'drawAtOnce', { min: 1, max: 10, step: 1 })
+f.addBinding(PARAMS, 'cpAmpX', { min: 1, max: 300, step: 1 })
+f.addBinding(PARAMS, 'cpAmpY', { min: 1, max: 300, step: 1 })
+f.addBinding(PARAMS, 'endXVar', { min: 0, max: 200, step: 1 })
+f.addBinding(PARAMS.endY, 'min', { min: 0, max: 500, step: 1, label: 'endY.min' })
+f.addBinding(PARAMS.endY, 'max', { min: 0, max: 500, step: 1, label: 'endY.max' })
+f.addBinding(PARAMS.cpX, 'min', { min: 0, max: 500, step: 1, label: 'cpX.min' })
+f.addBinding(PARAMS.cpX, 'max', { min: 0, max: 500, step: 1, label: 'cpX.max' })
+f.addBinding(PARAMS, 'cp1Mult', { min: -10, max: 10, step: 0.1 })
+f.addBinding(PARAMS, 'cp2Mult', { min: -10, max: 10, step: 0.1 })
+f.addBinding(PARAMS, 'lineSpace', { min: 0, max: 10, step: 0.01 })
 
-flower.addButton({ title: 'restart' }).on('click', () => petalStart())
+f.addBinding(PARAMS, 'drawPerFrame', { min: 1, max: 25, step: 1 })
+f.addButton({ title: 'restart' }).on('click', () => petalStart())
 
 type PetalDrawOpts = {
     numLines?: number
@@ -71,16 +72,17 @@ class PetalDrawer {
         this.positions = positions
         this.startAt = startAt
         this.color = color
-        this.petal = makePetal(width, height, this.positions[this.currentPetal])
+        this.petal = this.makePetal(width, height, this.positions[this.currentPetal])
     }
 
-    draw = (t: DOMHighResTimeStamp, elapsed: number) => {
+    draw = (t: number, elapsed: number) => {
         if (this.done) return
+
         if (elapsed < this.startAt) return
         if (this.currentLine < this.numLines) {
             this.currentLine++
             ctx.strokeStyle = this.color
-            this.petal?.draw(t * PARAMS.speed)
+            this.petal?.draw(t, ctx)
         } else {
             if (this.currentPetal >= this.positions.length - 1) {
                 this.done = true
@@ -88,52 +90,69 @@ class PetalDrawer {
             }
             this.currentLine = 0
             this.currentPetal++
-            this.petal = makePetal(width, height, this.positions[this.currentPetal])
+            this.petal = this.makePetal(width, height, this.positions[this.currentPetal])
         }
+    }
+
+    makePetal(width: number, height: number, rotation: number) {
+        return new Petal({
+            x: width * 0.5,
+            y: height * 0.5,
+            cp1Mult: PARAMS.cp1Mult,
+            cp2Mult: PARAMS.cp2Mult,
+            endX: { min: -PARAMS.endXVar, max: PARAMS.endXVar },
+            endY: PARAMS.endY,
+            cpAmpX: PARAMS.cpAmpX,
+            cpAmpY: PARAMS.cpAmpY,
+            cpX: PARAMS.cpX,
+            lineSpace: PARAMS.lineSpace,
+            rotation,
+            throttleFps: false,
+        })
     }
 }
 
-let recorder: ReturnType<typeof canvasToVideo> | null
 let count = 0
 let petalLoop: ReturnType<typeof loop>
 let drawers: PetalDrawer[] = []
-let rotationStep
+let timeStep = 1000 / 60
+let lastTime = 0
 
-ctx.lineWidth = 0.5
-ctx.strokeStyle = 'rgba(255,255,255,0.1)'
-ctx.fillStyle = 'rgba(255,255,255,0.1)'
-
-function draw(t: DOMHighResTimeStamp) {
-    count++
-
-    if (drawers.every((drawer) => drawer.done)) {
-        petalLoop.stop()
-        if (recorder) recorder.stop()
-        return
+function timedDraw(time: number) {
+    let timeLeft = time - lastTime
+    while (timeLeft >= timeStep) {
+        timeLeft -= timeStep
+        lastTime += timeStep
+        draw(lastTime, timeStep)
     }
-
-    drawers.forEach((drawer) => drawer.draw(t, count))
 }
 
-function makePetal(width: number, height: number, rotation: number) {
-    let min = Math.min(width, height)
-    return createPetal(ctx, {
-        x: width * 0.5,
-        y: height * 0.5,
-        controlRangeX: [min * 0.05, min * 0.15],
-        endRangeY: [min * 0.4, min * 0.45],
-        endRangeX: [min * -0.05, min * 0.05],
-        controlVarX: min * PARAMS.cpVarX,
-        controlVarY: min * PARAMS.cpVarY,
-        rotation,
-    })
+function draw(time: number, delta: number) {
+    let t = time - delta
+    let deltaStep = delta / PARAMS.drawPerFrame
+    let i = 0
+    while (i < PARAMS.drawPerFrame) {
+        count++
+        t += deltaStep
+        if (drawers.every((drawer) => drawer.done)) {
+            petalLoop.stop()
+            return
+        }
+
+        drawers.forEach((drawer) => drawer.draw(t, count))
+        i++
+    }
 }
 
-function petalStart(record = false) {
+function petalStart() {
     if (petalLoop) petalLoop.stop()
+    lastTime = performance.now()
+    drawers = []
     ctx.clearRect(0, 0, width, height)
+    ctx.fillStyle = '#0e0d0d'
+    ctx.fillRect(0, 0, width, height)
     count = 0
-    rotationStep = (Math.PI * 2) / PARAMS.numPetals
+    const rotationStep = (Math.PI * 2) / PARAMS.numPetals
 
     let positions: number[] = []
     for (let i = 0; i < PARAMS.numPetals; i++) {
@@ -154,17 +173,14 @@ function petalStart(record = false) {
                 numLines: PARAMS.numLines,
                 positions: pos,
                 startAt,
-            })
+            }),
         )
     }
 
-    if (record) {
-        recorder = canvasToVideo(canvas)
-    } else {
-        recorder = null
-    }
+    ctx.lineWidth = 0.5
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'
 
-    petalLoop = loop(draw)
+    petalLoop = loop(timedDraw)
 }
 
 petalStart()

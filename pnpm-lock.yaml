@@ -60,22 +60,22 @@ importers:
       stats.js:
         specifier: ^0.17.0
         version: 0.17.0
-      tone:
-        specifier: ^14.7.77
-        version: 14.9.17
       tseep:
         specifier: ^1.2.1
         version: 1.3.1
       tweakpane:
-        specifier: ^3.1.7
-        version: 3.1.10
+        specifier: ^4.0.5
+        version: 4.0.5
+      tweakpane-plugin-infodump:
+        specifier: ^4.0.2
+        version: 4.0.2(tweakpane@4.0.5)
       voronoi:
         specifier: ^1.0.0
         version: 1.0.0
     devDependencies:
       '@tweakpane/core':
-        specifier: ^1.1.6
-        version: 1.1.9
+        specifier: ^2.0.5
+        version: 2.0.5
       '@types/stats.js':
         specifier: ^0.17.3
         version: 0.17.3
@@ -87,10 +87,6 @@ importers:
         version: 4.5.13(@types/node@18.19.86)
 
 packages:
-
-  '@babel/runtime@7.27.0':
-    resolution: {integrity: sha512-VtPOkrdPHZsKc/clNqyi9WUA8TINkZ4cGk63UUE3u4pmB2k+ZMQRDuIOagv8UVd6j7k0T3+RRIb7beKTebNbcw==}
-    engines: {node: '>=6.9.0'}
 
   '@esbuild/android-arm64@0.18.20':
     resolution: {integrity: sha512-Nz4rJcchGDtENV0eMKUNa6L12zz2zBDXuhj/Vjh18zGqB44Bi7MBMSXjgunJgjRhCmKOjnPuZp4Mb6OKqtMHLQ==}
@@ -245,8 +241,8 @@ packages:
       rollup:
         optional: true
 
-  '@tweakpane/core@1.1.9':
-    resolution: {integrity: sha512-9tq+KAhaqPiOgsFyLPAz1IMXkVfhRqxGzAgy1ps3As6o3W7XjnU7sev6OlD/Z+Pzw8uZVMukkSHf2e0uCU6u0A==}
+  '@tweakpane/core@2.0.5':
+    resolution: {integrity: sha512-punBgD5rKCF5vcNo6BsSOXiDR/NSs9VM7SG65QSLJIxfRaGgj54ree9zQW6bO3pNFf3AogiGgaNODUVQRk9YqQ==}
 
   '@tweenjs/tween.js@25.0.0':
     resolution: {integrity: sha512-XKLA6syeBUaPzx4j3qwMqzzq+V4uo72BnlbOjmuljLrRqdsd3qnzvZZoxvMHZ23ndsRS4aufU6JOZYpCbU6T1A==}
@@ -268,10 +264,6 @@ packages:
 
   alea@1.0.1:
     resolution: {integrity: sha512-QU+wv+ziDXaMxRdsQg/aH7sVfWdhKps5YP97IIwFkHCsbDZA3k87JXoZ5/iuemf4ntytzIWeScrRpae8+lDrXA==}
-
-  automation-events@7.1.9:
-    resolution: {integrity: sha512-nIcJo3WeNtB16TSIK2D5Ldy/5eErzmXSuOlK979sYtIQQT++iFfj/1PMjFH1XEvtqCO0+KNUEEIJ+O0l4BtncQ==}
-    engines: {node: '>=18.2.0'}
 
   chroma-js@2.6.0:
     resolution: {integrity: sha512-BLHvCB9s8Z1EV4ethr6xnkl/P2YRFOGqfgvuMG/MyCbZPrTA+NeiByY6XvgF0zP4/2deU2CXnWyMa3zu1LqQ3A==}
@@ -348,9 +340,6 @@ packages:
   readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
 
-  regenerator-runtime@0.14.1:
-    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
-
   rollup@3.29.5:
     resolution: {integrity: sha512-GVsDdsbJzzy4S/v3dqWPJ7EfvZJfCHiDqe80IyrF59LYuP+e6U1LJoUqeuqRbwAWoMNoXivMNeNAOf5E22VA1w==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
@@ -365,12 +354,13 @@ packages:
   simplex-noise@4.0.3:
     resolution: {integrity: sha512-qSE2I4AngLQG7BXqoZj51jokT4WUXe8mOBrvfOXpci8+6Yu44+/dD5zqDpOx3Ux792eamTd2lLcI8jqFntk/lg==}
 
+  slimdown-js@1.1.3:
+    resolution: {integrity: sha512-HztbQWhgqa+ENrOusZd7AQbpwIFcYmzNG63cXndalT7+JFfDGCXS8JIXreiqyw+N8UXuWqefdtW/TavNt9Qjwg==}
+    engines: {node: '>=16'}
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
-
-  standardized-audio-context@25.3.77:
-    resolution: {integrity: sha512-Ki9zNz6pKcC5Pi+QPjPyVsD9GwJIJWgryji0XL9cAJXMGyn+dPOf6Qik1AHei0+UNVcc4BOCa0hWLBzlwqsW/A==}
 
   stats.js@0.17.0:
     resolution: {integrity: sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==}
@@ -378,17 +368,16 @@ packages:
   string_decoder@1.1.1:
     resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==}
 
-  tone@14.9.17:
-    resolution: {integrity: sha512-+Qb7M4NMua+tb5Z52+MEVmjye0fjJuIFBePx423pqr9E6/lHDqZAG+fUAvo+Ujm48q0s9bVLRAyT1ETJJglNtg==}
-
   tseep@1.3.1:
     resolution: {integrity: sha512-ZPtfk1tQnZVyr7BPtbJ93qaAh2lZuIOpTMjhrYa4XctT8xe7t4SAW9LIxrySDuYMsfNNayE51E/WNGrNVgVicQ==}
 
-  tslib@2.8.1:
-    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+  tweakpane-plugin-infodump@4.0.2:
+    resolution: {integrity: sha512-zJOFZ1JVMNgsOdY+1+pGDgNYAWY/Zdmr1rRFVwFfVqqmDMYmhDriCnU7zWKP6SI5cTE+7iFjJrg2tAjfiRZiLw==}
+    peerDependencies:
+      tweakpane: ^4.0.0
 
-  tweakpane@3.1.10:
-    resolution: {integrity: sha512-rqwnl/pUa7+inhI2E9ayGTqqP0EPOOn/wVvSWjZsRbZUItzNShny7pzwL3hVlaN4m9t/aZhsP0aFQ9U5VVR2VQ==}
+  tweakpane@4.0.5:
+    resolution: {integrity: sha512-rxEXdSI+ArlG1RyO6FghC4ZUX8JkEfz8F3v1JuteXSV0pEtHJzyo07fcDG+NsJfN5L39kSbCYbB9cBGHyuI/tQ==}
 
   typescript@5.8.3:
     resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
@@ -433,10 +422,6 @@ packages:
     resolution: {integrity: sha512-fukJpK8gyTJRJx0yLvtEE9h4B0VxUNZ4OpRimIjYmHd+YTiMTE2IiKYaXADNrviMkNgkEHghQ7OtMBDP+X64ng==}
 
 snapshots:
-
-  '@babel/runtime@7.27.0':
-    dependencies:
-      regenerator-runtime: 0.14.1
 
   '@esbuild/android-arm64@0.18.20':
     optional: true
@@ -522,7 +507,7 @@ snapshots:
     optionalDependencies:
       rollup: 3.29.5
 
-  '@tweakpane/core@1.1.9': {}
+  '@tweakpane/core@2.0.5': {}
 
   '@tweenjs/tween.js@25.0.0': {}
 
@@ -539,11 +524,6 @@ snapshots:
   '@types/stats.js@0.17.3': {}
 
   alea@1.0.1: {}
-
-  automation-events@7.1.9:
-    dependencies:
-      '@babel/runtime': 7.27.0
-      tslib: 2.8.1
 
   chroma-js@2.6.0: {}
 
@@ -634,8 +614,6 @@ snapshots:
       string_decoder: 1.1.1
       util-deprecate: 1.0.2
 
-  regenerator-runtime@0.14.1: {}
-
   rollup@3.29.5:
     optionalDependencies:
       fsevents: 2.3.3
@@ -646,13 +624,9 @@ snapshots:
 
   simplex-noise@4.0.3: {}
 
-  source-map-js@1.2.1: {}
+  slimdown-js@1.1.3: {}
 
-  standardized-audio-context@25.3.77:
-    dependencies:
-      '@babel/runtime': 7.27.0
-      automation-events: 7.1.9
-      tslib: 2.8.1
+  source-map-js@1.2.1: {}
 
   stats.js@0.17.0: {}
 
@@ -660,16 +634,14 @@ snapshots:
     dependencies:
       safe-buffer: 5.1.2
 
-  tone@14.9.17:
-    dependencies:
-      standardized-audio-context: 25.3.77
-      tslib: 2.8.1
-
   tseep@1.3.1: {}
 
-  tslib@2.8.1: {}
+  tweakpane-plugin-infodump@4.0.2(tweakpane@4.0.5):
+    dependencies:
+      slimdown-js: 1.1.3
+      tweakpane: 4.0.5
 
-  tweakpane@3.1.10: {}
+  tweakpane@4.0.5: {}
 
   typescript@5.8.3: {}
 

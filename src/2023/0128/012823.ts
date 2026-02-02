@@ -7,12 +7,13 @@ import GUI from 'lil-gui'
 const P = {
     sidesMin: 3,
     sidesMax: 6,
-    rectSize: 0.2,
+    len: 0.2,
     showNotCheckered: true,
     showCheckered: true,
-    speedSize: 0.8,
+    // speedSize: 0.8,
     speedSides: 0.1,
-    paused: false,
+    pausedSides: false,
+    pausedCenters: false,
     stepSides: false,
     showCenters: false,
     multX: 3,
@@ -21,14 +22,17 @@ const P = {
 
 const makeGUI = () => {
     let gui = new GUI()
-    gui.add(P, 'rectSize', 0, 1, 0.01)
+    gui.add(P, 'len', 0, 1, 0.01)
     gui.add(P, 'showCheckered')
     gui.add(P, 'showNotCheckered')
     gui.add(P, 'showCenters')
+    gui.add(P, 'pausedSides')
+    gui.add(P, 'pausedCenters')
+    gui.add(P, 'multX', 0, 5, 0.01)
 
     let sides = gui.addFolder('Sides')
-    sides.add(P, 'sidesMin', 3, 10)
-    sides.add(P, 'sidesMax', 3, 10)
+    sides.add(P, 'sidesMin', 3, 16)
+    sides.add(P, 'sidesMax', 3, 16)
     sides.add(P, 'speedSides', 0, 1, 0.001)
     sides.add(P, 'stepSides')
 }
@@ -48,19 +52,31 @@ new p5((p: p5) => {
         p.noFill()
 
         let sides
-        let sidesProgress = p.fract(p.millis() * 0.001 * P.speedSides)
-        let centersProgress = p.fract(p.millis() * 0.001 * P.speedSides * 2)
+        let centersProgress, sidesProgress
+        // let sidesProgress = p.fract(p.millis() * 0.001 * P.speedSides)
+        // let centersProgress = p.fract(p.millis() * 0.001 * P.speedSides * 2)
+        // let centersProgress = 1
 
-        if (P.paused) {
-            sides = P.sidesMin
-        } else if (P.stepSides) {
+        if (P.pausedSides) {
+            sidesProgress = 1
+        } else {
+            sidesProgress = p.fract(p.millis() * 0.001 * P.speedSides)
+        }
+
+        if (P.stepSides) {
             sides = p.floor(sidesProgress * (P.sidesMax - P.sidesMin + 1) + P.sidesMin)
         } else {
             let sidesCycProgress = easings.inCubic(p.sin(sidesProgress * 180))
             sides = p.map(sidesCycProgress, 0, 1, P.sidesMin, P.sidesMax)
         }
 
-        let rectLen = p.width * P.rectSize
+        if (P.pausedCenters) {
+            centersProgress = 1
+        } else {
+            centersProgress = p.fract(p.millis() * 0.001 * P.speedSides * 2)
+        }
+
+        let rectLen = p.width * P.len
         let rectWid = 0
 
         let angle = 360 / sides

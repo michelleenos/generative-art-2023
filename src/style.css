@@ -1,6 +1,6 @@
 :root {
-    --primary: #e5eafd; /* Cool gray for primary text */
-    --secondary: #c9d7ea; /* Light steel blue for secondary text or accents */
+    --primary: #e5eafd;
+    --secondary: #c9d7ea;
     --bg: #151414;
     --accent: #ffb25f;
     --hover: #ff5f1a;

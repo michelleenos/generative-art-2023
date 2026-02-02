@@ -22,17 +22,17 @@ const PARAMS = {
 
 const pane = new Pane()
 const rc = new RefreshContainer(pane)
-pane.addInput(PARAMS, 'size', { min: 10, max: min * 0.8, step: 1 })
-pane.addInput(PARAMS, 'numerator', { min: 1, max: 100, step: 1 })
-pane.addInput(PARAMS, 'denominator', { min: 1, max: 100, step: 1 })
-let inpRes = pane.addInput(PARAMS, 'res', { min: 0.001, max: 0.1, step: 0.001 })
-let inpStep = pane.addInput(PARAMS, 'step', { min: 1, max: 360, step: 1 })
-let inpIterations = pane.addInput(PARAMS, 'iterations', {
+pane.addBinding(PARAMS, 'size', { min: 10, max: min * 0.8, step: 1 })
+pane.addBinding(PARAMS, 'numerator', { min: 1, max: 100, step: 1 })
+pane.addBinding(PARAMS, 'denominator', { min: 1, max: 100, step: 1 })
+let inpRes = pane.addBinding(PARAMS, 'res', { min: 0.001, max: 0.1, step: 0.001 })
+let inpStep = pane.addBinding(PARAMS, 'step', { min: 1, max: 360, step: 1 })
+let inpIterations = pane.addBinding(PARAMS, 'iterations', {
     min: 100,
     max: 1000,
     step: 1,
 })
-pane.addInput(PARAMS, 'special', {
+pane.addBinding(PARAMS, 'special', {
     options: {
         'limaçon trisectrix (1:3)': 'trisectrix',
         'dürer folium (1:2)': 'durer',
@@ -46,7 +46,7 @@ pane.addInput(PARAMS, 'special', {
     rc.refresh()
 })
 
-pane.addInput(PARAMS, 'mode', {
+pane.addBinding(PARAMS, 'mode', {
     options: {
         normal: 'normal',
         maurer: 'maurer',
@@ -113,7 +113,7 @@ function draw() {
             PARAMS.numerator,
             PARAMS.denominator,
             PARAMS.step,
-            PARAMS.iterations
+            PARAMS.iterations,
         )
     } else {
         rose(0, 0, PARAMS.size, PARAMS.numerator, PARAMS.denominator, PARAMS.res)
@@ -143,7 +143,7 @@ function maurer(
     nNum: number,
     nDenom: number,
     step = 49,
-    iterations = 360
+    iterations = 360,
 ) {
     ctx.beginPath()
     for (let i = 0; i < iterations; i++) {
