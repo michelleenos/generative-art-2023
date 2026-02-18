@@ -4,7 +4,7 @@ import loop from '~/helpers/loop'
 import { map, random } from '~/helpers/utils'
 import '../../style.css'
 import { Pane } from 'tweakpane'
-import * as InfodumpPlugin from 'tweakpane-plugin-infodump'
+import { saveCanvasImage } from '~/helpers/canvas-save-image'
 
 // let btn = document.createElement('button')
 // btn.innerText = 'make zip'
@@ -44,6 +44,10 @@ const PARAMS = {
     lineSpace: 0.5,
     drawsPerFrame: 2,
     linesToDraw: 3000,
+    opacity: 0.1,
+    save() {
+        saveCanvasImage(canvas, 'flower', 'png')
+    },
 }
 
 interface MorphPetalParams {
@@ -54,6 +58,7 @@ interface MorphPetalParams {
     scaleX?: { min: number; max: number }
     skewY?: { min: number; max: number }
     rotateStep?: number
+    opacity?: number
 }
 
 class MorphPetal {
@@ -62,6 +67,7 @@ class MorphPetal {
     skewSpeed: number
     numPetals: number
     ctx: CanvasRenderingContext2D = createCanvas(min, min, true, false).ctx
+    opacity: number
     // scaleXVar: [number, number]
     // skewYVar: [number, number]
     scaleX: { min: number; max: number }
@@ -81,6 +87,7 @@ class MorphPetal {
         scaleX = { min: 0.8, max: 2 },
         skewY = { min: 0, max: 2 },
         rotateStep = 0.0003,
+        opacity = 0.1,
     }: MorphPetalParams) {
         this.numPetals = numPetals
         this.petal = new Petal({
@@ -98,23 +105,16 @@ class MorphPetal {
             throttleFps: false,
         })
         this.rotateEach = rotateStep
-
+        this.opacity = opacity
         this.scaleSpeed = scaleSpeed
         this.skewSpeed = skewSpeed
-        this.ctx.strokeStyle = 'rgba(255,255,255,0.1)'
-        this.ctx.lineWidth = 0.5
         this.scaleX = scaleX
         this.skewY = skewY
+
         // this.scaleXVar = [random(0.8, 1), random(1.4, 2)]
         // if (random() < 0.5)
         //     [this.scaleXVar[0], this.scaleXVar[1]] = [this.scaleXVar[1], this.scaleXVar[0]]
         // this.skewYVar = [-0.3, 0.3]
-
-        console.log({
-            petalEnd: this.petal.end,
-            petalCp1: this.petal.cp1,
-            petalCp2: this.petal.cp2,
-        })
     }
 
     updateParams = () => {
@@ -128,6 +128,7 @@ class MorphPetal {
         this.skewY = { ...PARAMS.skewY }
         this.scaleX = { ...PARAMS.scaleX }
         this.rotateEach = PARAMS.rotateStep
+        this.opacity = PARAMS.opacity
     }
 
     draw(time: number, delta: number) {
@@ -149,6 +150,11 @@ class MorphPetal {
     drawOffscreen(t: number) {
         this.count++
 
+        // this.ctx.clearRect(0, 0, min, min)
+
+        this.ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`
+        this.ctx.lineWidth = 0.5
+
         this.petal.draw(t, this.ctx)
 
         if (this.count >= PARAMS.linesToDraw) {
@@ -169,8 +175,6 @@ class MorphPetal {
             1,
             this.scaleX.min,
             this.scaleX.max,
-            // this.scaleXVar[0],
-            // this.scaleXVar[1],
         )
         let skewY = map(
             Math.cos(-this.rotateCurrent * this.skewSpeed),
@@ -178,8 +182,6 @@ class MorphPetal {
             1,
             this.skewY.min,
             this.skewY.max,
-            // this.skewYVar[0],
-            // this.skewYVar[1],
         )
 
         for (let i = 0; i < this.numPetals; i++) {
@@ -240,7 +242,6 @@ function draw(time: number) {
 newAnimation()
 
 const pane = new Pane()
-pane.registerPlugin(InfodumpPlugin)
 const f = pane.addFolder({ title: 'params' })
 
 const updates = [
@@ -256,6 +257,7 @@ const updates = [
     f.addBinding(PARAMS.scaleX, 'min', { min: 0, max: 4, step: 0.1, label: 'scaleX.min' }),
     f.addBinding(PARAMS.scaleX, 'max', { min: 0, max: 4, step: 0.1, label: 'scaleX.max' }),
     f.addBinding(PARAMS, 'rotateStep', { min: 0, max: 0.1, step: 0.0001 }),
+    f.addBinding(PARAMS, 'opacity', { min: 0, max: 1, step: 0.01 }),
 ]
 updates.forEach((b) => b.on('change', () => morphPetal?.updateParams()))
 f.addBinding(PARAMS, 'drawsPerFrame', { min: 1, max: 20, step: 1 })
@@ -273,3 +275,4 @@ f2.addBinding(PARAMS, 'numPetals', { min: 1, max: 40, step: 1 })
 f2.addBinding(PARAMS, 'cpX', { min: 0, max: 100, step: 1 })
 f2.addBinding(PARAMS, 'linesToDraw', { min: 10, max: 10000, step: 1 })
 pane.addButton({ title: 'restart' }).on('click', newAnimation)
+pane.addButton({ title: 'save' }).on('click', PARAMS.save)

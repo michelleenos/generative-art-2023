@@ -1,17 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Generative Art</title>
+        <style>
+            body {
+                padding-left: min(100px, 10vw);
+                padding-top: min(100px, 10vh);
+            }
+            #canvas-container.shapes-container {
+                width: fit-content;
+            }
+        </style>
+    </head>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generative Art</title>
-</head>
-
-<body>
-    <script src="./0411.ts" type="module"></script>
-    <div id="btns" class="absolute-container">
-        <a href="/">back</a>
-    </div>
-</body>
-
+    <body>
+        <div class="shapes-container" id="canvas-container"></div>
+        <script src="./0411.ts" type="module"></script>
+        <div id="btns" class="absolute-container">
+            <a href="/">back</a>
+        </div>
+    </body>
 </html>

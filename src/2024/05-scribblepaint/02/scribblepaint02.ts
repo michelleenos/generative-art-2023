@@ -352,130 +352,133 @@ const six = (lines: Lines) => {
     lines.tries.linePoint = 10
 }
 
-new p5((p: p5) => {
-    let theShader: p5.Shader
-    let g: p5.Graphics
-    let lines: Lines
-    let uTime = 0
-    let rSize: number
-    let gSize: number
-    let timeCircle = 0
-    // let bg: HTMLImageElement
+new p5(
+    (p: p5) => {
+        let theShader: p5.Shader
+        let g: p5.Graphics
+        let lines: Lines
+        let uTime = 0
+        let rSize: number
+        let gSize: number
+        let timeCircle = 0
+        // let bg: HTMLImageElement
 
-    function makeBg() {
-        p.camera()
-        p.push()
-        p.resetShader()
-        p.noStroke()
-        let bgGraphic = p.createGraphics(p.width, p.height)
-        let bgCanvas = noisyLines(rSize, '#fcf5ff')
-        bgGraphic.drawingContext.drawImage(bgCanvas, 0, 0, p.width, p.height)
-        p.image(bgGraphic, -p.width / 2, -p.height / 2, p.width, p.height)
-        p.pop()
-    }
-
-    function reset() {
-        lines.reset()
-        uTime = 0
-        timeCircle = 0
-        p.clear()
-        // p.background(255)
-        makeBg()
-    }
-
-    p.setup = function () {
-        let min = Math.min(window.innerWidth, window.innerHeight)
-        let canvas = p.createCanvas(min, min, p.WEBGL)
-        rSize = Math.min(p.width, p.height) * 0.9
-        gSize = Math.floor(rSize * 0.7)
-        g = p.createGraphics(gSize, gSize)
-        // // camera = p.createCamera()
-
-        lines = new Lines(g, { palette, pd: p.pixelDensity() })
-
-        theShader = p.createShader(vert, frag)
-        theShader.setUniform('uTime', 0)
-        theShader.setUniform('uTex', g)
-        theShader.setUniform('uPixelSize', [1 / g.width, 1 / g.height])
-        theShader.setUniform('uNoiseFreq1', [50, 234])
-        theShader.setUniform('uAngleMult', 1.9)
-
-        const debg = {
-            uNoiseFreq1: [50, 234],
-            uAngleMult: 1.9,
-        }
-        const u = gui.addFolder('shader')
-        u.add(debg.uNoiseFreq1, '0', 0, 1).name('uNoiseFreq1.x')
-        u.add(debg.uNoiseFreq1, '1', 0, 1).name('uNoiseFreq1.y')
-        u.add(debg, 'uAngleMult', 0, 10, 0.1)
-        u.onChange(() => {
-            theShader.setUniform('uNoiseFreq1', debg.uNoiseFreq1)
-            theShader.setUniform('uAngleMult', debg.uAngleMult)
-        })
-
-        new Recorder({
-            canvas: canvas.elt,
-            fns: {
-                drawRecord: drawRecord,
-                draw: draw,
-                reset: reset,
-            },
-            gui,
-        })
-
-        makeBg()
-
-        gui.add(lines, 'palette', palettes)
-        gui.add(params, 'camShiftZ', -500, 500)
-        gui.add(params, 'camShiftY', -500, 500)
-        gui.add(params, 'upShiftX', -1, 1)
-        // gui.add(theShader)
-        five(lines)
-        lines.reset()
-        linesDebug(lines, gui, dataView, reset)
-    }
-
-    function drawRecord(_: number) {
-        return draw(20)
-    }
-
-    function draw(delta: number) {
-        // circTimer.progress = Math.min(1, circTimer.progress + delta / circTimer.duration)
-        if (!lines.done) {
-            lines.update(delta)
+        function makeBg() {
+            p.camera()
+            p.push()
+            p.resetShader()
+            p.noStroke()
+            let bgGraphic = p.createGraphics(p.width, p.height)
+            let bgCanvas = noisyLines(rSize, '#fcf5ff')
+            bgGraphic.drawingContext.drawImage(bgCanvas, 0, 0, p.width, p.height)
+            p.image(bgGraphic, -p.width / 2, -p.height / 2, p.width, p.height)
+            p.pop()
         }
 
-        let allDone = timeCircle >= 1 && lines.done
-        if (!allDone) {
-            timeCircle += delta / 10000
-            uTime += delta
+        function reset() {
+            lines.reset()
+            uTime = 0
+            timeCircle = 0
+            p.clear()
+            // p.background(255)
+            makeBg()
         }
 
-        // if (!lines.done || timeCircle < 1) {
-        //     uTime += delta
-        // }
-        theShader.setUniform('uTime', uTime / 1000)
-        theShader.setUniform('uTex', g)
-        theShader.setUniform('uDistortion', timeCircle)
-        theShader.setUniform('uPixelSize', [1 / g.width, 1 / g.height])
+        p.setup = function () {
+            let min = Math.min(window.innerWidth, window.innerHeight)
+            let canvas = p.createCanvas(min, min, p.WEBGL)
+            rSize = Math.min(p.width, p.height) * 0.9
+            gSize = Math.floor(rSize * 0.7)
+            g = p.createGraphics(gSize, gSize)
+            // // camera = p.createCamera()
 
-        p.noStroke()
-        p.shader(theShader)
-        p.circle(0, 0, rSize)
+            lines = new Lines(g, { palette, pd: p.pixelDensity() })
 
-        let cx = easing.outSine(Math.min(timeCircle, 1))
-        let camZ = 850 + cx * params.camShiftZ
-        let camY = 0 + cx * params.camShiftY
-        let upX = cx * params.upShiftX
+            theShader = p.createShader(vert, frag)
+            theShader.setUniform('uTime', 0)
+            theShader.setUniform('uTex', g)
+            theShader.setUniform('uPixelSize', [1 / g.width, 1 / g.height])
+            theShader.setUniform('uNoiseFreq1', [50, 234])
+            theShader.setUniform('uAngleMult', 1.9)
 
-        p.camera(0, camY, camZ, 0, 0, 0, upX, 1, 0)
-        dataView.update()
+            const debg = {
+                uNoiseFreq1: [50, 234],
+                uAngleMult: 1.9,
+            }
+            const u = gui.addFolder('shader')
+            u.add(debg.uNoiseFreq1, 0, 0, 1).name('uNoiseFreq1.x')
+            u.add(debg.uNoiseFreq1, 1, 0, 1).name('uNoiseFreq1.y')
+            u.add(debg, 'uAngleMult', 0, 10, 0.1)
+            u.onChange(() => {
+                theShader.setUniform('uNoiseFreq1', debg.uNoiseFreq1)
+                theShader.setUniform('uAngleMult', debg.uAngleMult)
+            })
 
-        if (lines.done && timeCircle >= 1) {
-            return true
+            new Recorder({
+                canvas: canvas.elt,
+                fns: {
+                    drawRecord: drawRecord,
+                    draw: draw,
+                    reset: reset,
+                },
+                gui,
+            })
+
+            makeBg()
+
+            gui.add(lines, 'palette', palettes)
+            gui.add(params, 'camShiftZ', -500, 500)
+            gui.add(params, 'camShiftY', -500, 500)
+            gui.add(params, 'upShiftX', -1, 1)
+            // gui.add(theShader)
+            five(lines)
+            lines.reset()
+            linesDebug(lines, gui, dataView, reset)
         }
-        return false
-    }
 
-    p.draw = function () {}
-}, document.getElementById('sketch') ?? undefined)
+        function drawRecord(_: number) {
+            return draw(20)
+        }
+
+        function draw(delta: number) {
+            // circTimer.progress = Math.min(1, circTimer.progress + delta / circTimer.duration)
+            if (!lines.done) {
+                lines.update(delta)
+            }
+
+            let allDone = timeCircle >= 1 && lines.done
+            if (!allDone) {
+                timeCircle += delta / 10000
+                uTime += delta
+            }
+
+            // if (!lines.done || timeCircle < 1) {
+            //     uTime += delta
+            // }
+            theShader.setUniform('uTime', uTime / 1000)
+            theShader.setUniform('uTex', g)
+            theShader.setUniform('uDistortion', timeCircle)
+            theShader.setUniform('uPixelSize', [1 / g.width, 1 / g.height])
+
+            p.noStroke()
+            p.shader(theShader)
+            p.circle(0, 0, rSize)
+
+            let cx = easing.outSine(Math.min(timeCircle, 1))
+            let camZ = 850 + cx * params.camShiftZ
+            let camY = 0 + cx * params.camShiftY
+            let upX = cx * params.upShiftX
+
+            p.camera(0, camY, camZ, 0, 0, 0, upX, 1, 0)
+            dataView.update()
+
+            if (lines.done && timeCircle >= 1) {
+                return true
+            }
+            return false
+        }
+
+        p.draw = function () {}
+    },
+    document.getElementById('sketch') ?? undefined,
+)

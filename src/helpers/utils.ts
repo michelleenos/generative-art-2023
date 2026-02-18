@@ -6,19 +6,20 @@ const map = (num: number, inMin: number, inMax: number, outMin: number, outMax: 
 function random(): number
 function random(max: number): number
 function random(minOrMax: number, max: number): number
-function random<T>(array: T[]): T
-
-function random<T>(numOrArray?: number | T[], max?: number) {
-    if (Array.isArray(numOrArray)) {
-        return numOrArray[Math.floor(Math.random() * numOrArray.length)]
-    }
-    if (numOrArray === undefined) {
+function random<T>(array: readonly T[]): T
+function random<T>(numOrArray?: number | readonly T[], max?: number) {
+    if (typeof numOrArray === 'undefined') {
         return Math.random()
     }
-    if (max === undefined) {
-        return Math.random() * numOrArray
+
+    if (typeof numOrArray === 'number') {
+        if (typeof max === 'undefined') {
+            return Math.random() * numOrArray
+        }
+        return Math.random() * (max - numOrArray) + numOrArray
     }
-    return Math.random() * (max - numOrArray) + numOrArray
+
+    return numOrArray[Math.floor(Math.random() * numOrArray.length)]
 }
 
 function step(edge: number, value: number) {

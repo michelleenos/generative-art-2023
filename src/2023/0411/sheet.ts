@@ -1,40 +1,44 @@
 import p5 from 'p5'
 
-export type SheetOpts = {
-    x: number
-    y: number
-    w: number
-    h: number
-    nx?: number
-    ny?: number
-    style?: 'arcs' | 'squares' | 'grid' | 'arcs-tilt'
-    border?: number
-}
-
-type Sheet = {
+export interface SheetOpts {
     x: number
     y: number
     w: number
     h: number
     nx: number
     ny: number
-    gridx: number
-    gridy: number
-    diagonal: number
-    edge: number
-    innerw: number
-    innerh: number
+    border?: number
+    offset?: boolean
 }
 
-const createSheet = (p: p5, { x, y, w, h, nx = 5, ny = 5, border = 0.03 }: SheetOpts): Sheet => {
-    let diagonal = Math.sqrt(w * w + h * h)
-    let edge = p.min(w, h) * border
-    let innerw = w - edge * 2
-    let innerh = h - edge * 2
-    let gridx = innerw / nx
-    let gridy = innerh / ny
+interface SheetOpts2d extends SheetOpts {
+    sizeX: number
+    sizeY: number
+}
+interface SheetOptsSize extends SheetOpts {
+    size: number
+}
 
-    return { x, y, w, h, nx, ny, gridx, gridy, diagonal, edge, innerw, innerh }
+interface RectsSheetOpts extends SheetOpts2d {}
+interface RoundedSheetOpts extends SheetOpts2d {}
+interface ArcsSheetOpts extends SheetOptsSize {
+    ratio: number
+}
+interface CircleSheetOpts extends SheetOpts {
+    diameter: number
+}
+interface PlusSheetOpts extends SheetOptsSize {
+    thickness: number
+}
+interface ZigZagSheetOpts extends SheetOptsSize {}
+
+function getSheetVals(opts: SheetOpts) {
+    const { w, h, nx, ny, border = 0.03 } = opts
+    const hypot = Math.sqrt(w * w + h * h)
+    const edge = Math.min(w, h) * border
+    const gridx = (w - edge * 2) / nx
+    const gridy = (h - edge * 2) / ny
+    return { hypot, edge, gridx, gridy }
 }
 
 function drawOuter(w: number, h: number, p: p5, defineShape = false) {
@@ -46,39 +50,39 @@ function drawOuter(w: number, h: number, p: p5, defineShape = false) {
     if (defineShape) p.endShape()
 }
 
-function cleanEdges(sheet: Sheet, p: p5) {
+function cleanEdges({ w, h }: { w: number; h: number }, p: p5) {
     p.push()
     let ctx = p.drawingContext
     ctx.globalCompositeOperation = 'destination-in'
     p.beginShape()
-    drawOuter(sheet.w, sheet.h, p)
+    drawOuter(w, h, p)
     p.endShape()
     ctx.globalCompositeOperation = 'source-over'
     p.pop()
 }
 
-function drawEdge(sheet: Sheet, p: p5) {
+function drawEdge({ w, h, edge }: { w: number; h: number; edge: number }, p: p5) {
     p.beginShape()
-    drawOuter(sheet.w, sheet.h, p)
+    drawOuter(w, h, p)
     p.beginContour()
-    p.vertex(sheet.w - sheet.edge, sheet.edge)
-    p.vertex(sheet.edge, sheet.edge)
-    p.vertex(sheet.edge, sheet.h - sheet.edge)
-    p.vertex(sheet.w - sheet.edge, sheet.h - sheet.edge)
+    p.vertex(w - edge, edge)
+    p.vertex(edge, edge)
+    p.vertex(edge, h - edge)
+    p.vertex(w - edge, h - edge)
     p.endContour()
     p.endShape()
 }
 
-function drawRects(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.9, offset = false } = {}) {
-    let { gridx, gridy, nx, ny, edge } = sheet
+function rects(opts: RectsSheetOpts, p: p5) {
+    let { nx, ny, sizeX = 0.9, sizeY = 0.9, offset = false } = opts
+    const { gridx, gridy, edge } = getSheetVals(opts)
     p.beginShape()
-    drawOuter(sheet.w, sheet.h, p)
+    drawOuter(opts.w, opts.h, p)
 
-    let w = gridx * size
-    let h = gridy * size2
+    let w = gridx * sizeX
+    let h = gridy * sizeY
     for (let xi = 0; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
-            // let dx = edge + (xi + 0.5) * gridx
             let dx = (offset && yi % 2 === 0 ? xi * gridx : (xi + 0.5) * gridx) + edge
             let dy = edge + (yi + 0.5) * gridy
 
@@ -93,109 +97,130 @@ function drawRects(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.9, offset = fals
 
     p.endShape()
 
-    drawEdge(sheet, p)
+    drawEdge({ w: opts.w, h: opts.h, edge }, p)
 }
 
-function drawArcs2(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.9 } = {}) {
-    let { nx, ny, edge, gridx, gridy } = sheet
-
+function arcs(opts: ArcsSheetOpts, p: p5) {
+    const { gridx, gridy, edge } = getSheetVals(opts)
+    const { nx, ny, offset = true, size = 0.9, ratio = 1 } = opts
     let w = gridx * size
-    let h = gridy * size2
-    let diag = Math.sqrt(w * w + h * h)
+    let h = w * ratio
 
-    drawOuter(sheet.w, sheet.h, p, true)
-
+    drawOuter(opts.w, opts.h, p, true)
     p.push()
     p.erase()
-    for (let xi = -1; xi <= nx; xi++) {
-        for (let yi = -1; yi <= ny; yi++) {
-            let dx = xi * gridx + edge
-            let dy = yi * gridy + edge
-
-            p.arc(dx + gridx / 2, dy + gridy / 2, diag, diag, Math.PI * -0.25, Math.PI * 0.75)
-        }
-    }
-
-    p.pop()
-
-    drawEdge(sheet, p)
-}
-
-function drawArcs(sheet: Sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {}) {
-    const { gridx, gridy, nx, ny, edge } = sheet
-    let w = gridx * size
-    let h = gridy * size2
-
-    p.beginShape()
-    drawOuter(sheet.w, sheet.h, p)
 
     for (let xi = -1; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
-            let dx = (offset && yi % 2 === 0 ? (xi + 0.5) * gridx : xi * gridx) + edge
+            let dx = gridx * (offset && yi % 2 === 0 ? xi + 0.5 : xi) + edge
 
             dx += (gridx - w) / 2
             let dy = yi * gridy + edge
             dy += (gridy - h) / 2
 
-            p.beginContour()
-            p.vertex(dx + w, dy + h)
-            p.bezierVertex(dx + w, dy + h * 0.5, dx + w * 0.75, dy, dx + w / 2, dy)
-            p.bezierVertex(dx + w * 0.25, dy, dx, dy + h * 0.5, dx, dy + h)
-            p.endContour()
+            p.beginShape()
+            p.arc(dx + w * 0.5, dy + h * 0.75, w, h, -Math.PI, 0)
+            // p.vertex(dx + w, dy + h)
+            // p.bezierVertex(dx + w, dy + h * 0.5, dx + w * 0.75, dy, dx + w / 2, dy)
+            // p.bezierVertex(dx + w * 0.25, dy, dx, dy + h * 0.5, dx, dy + h)
+            p.endShape()
         }
     }
 
-    p.endShape()
-
-    drawEdge(sheet, p)
-    cleanEdges(sheet, p)
-}
-
-function drawArcsTilted(sheet: Sheet, p: p5, { offset = true, size = 0.9, size2 = 0.7 } = {}) {
-    p.push()
-    p.rotate(-Math.PI / 4)
-    p.translate(-sheet.diagonal / 2, 0)
-    let diagSheet = createSheet(p, {
-        x: 0,
-        y: 0,
-        w: sheet.diagonal,
-        h: sheet.diagonal,
-        ny: sheet.ny,
-        nx: sheet.nx,
-    })
-
-    drawArcs(diagSheet, p, { offset, size, size2 })
     p.pop()
-
-    drawEdge(sheet, p)
-    cleanEdges(sheet, p)
+    drawEdge({ w: opts.w, h: opts.h, edge }, p)
 }
 
-function drawCircles(sheet: Sheet, p: p5, { size = 0.9, offset = false } = {}) {
-    const { gridx, gridy, nx, ny, edge } = sheet
-    let circumference = p.min(gridx, gridy) * size
+// function drawArcs2(opts: SheetOpts, p: p5) {
+//     const { edge, gridx, gridy } = getSheetVals(opts)
+//     let { nx, ny, size1 = 0.9 } = opts
 
-    drawOuter(sheet.w, sheet.h, p, true)
+//     let w = gridx * size1
+//     let h = gridy * size1
+//     // let diag = Math.sqrt(w * w + h * h)
+//     let diax = gridx * size1
+//     let diay = gridy * size1
+
+//     drawOuter(opts.w, opts.h, p, true)
+
+//     p.push()
+//     p.erase()
+//     for (let xi = -1; xi <= nx; xi++) {
+//         for (let yi = -1; yi <= ny; yi++) {
+//             let dx = xi * gridx + edge
+//             let dy = yi * gridy + edge
+
+//             p.arc(dx + gridx / 2, dy + gridy / 2, diax, diay, Math.PI * -0.25, Math.PI * 0.75)
+//         }
+//     }
+
+//     p.pop()
+
+//     drawEdge({ edge, w: opts.w, h: opts.h }, p)
+// }
+
+// function drawArcsTilted(opts: SheetOpts, p: p5) {
+//     const { offset = true, size1 = 0.9, size2 = 0.7, w, h } = opts
+//     const { hypot, edge } = getSheetVals(opts)
+//     p.push()
+//     p.rotate(-Math.PI / 4)
+//     p.translate(-hypot / 2, 0)
+//     // let diagSheet = createSheet(p, {
+//     //     x: 0,
+//     //     y: 0,
+//     //     w: sheet.diagonal,
+//     //     h: sheet.diagonal,
+//     //     ny: sheet.ny,
+//     //     nx: sheet.nx,
+//     //     border: 0.03,
+//     // })
+
+//     const newOpts: SheetOpts = {
+//         x: 0,
+//         y: 0,
+//         w: hypot,
+//         h: hypot,
+//         nx: opts.nx,
+//         ny: opts.ny,
+//         offset,
+//         size1,
+//         size2,
+//     }
+
+//     drawArcs(newOpts, p)
+//     p.pop()
+
+//     drawEdge({ w: opts.w, h: opts.h, edge }, p)
+//     // cleanEdges(sheet, p)
+// }
+
+function circles(opts: CircleSheetOpts, p: p5) {
+    const { gridx, gridy, edge } = getSheetVals(opts)
+
+    const { nx, ny, diameter = 0.9, offset = false, w, h } = opts
+    let dia = Math.min(gridx, gridy) * diameter
+
+    drawOuter(w, h, p, true)
 
     p.push()
     p.erase()
     for (let xi = 0; xi <= nx; xi++) {
         for (let yi = 0; yi < ny; yi++) {
-            // let dx = edge + (xi + 0.5) * gridx
             let dx = (offset && yi % 2 === 0 ? xi * gridx : (xi + 0.5) * gridx) + edge
             let dy = edge + (yi + 0.5) * gridy
-            p.ellipse(dx, dy, circumference, circumference)
+            p.ellipse(dx, dy, dia, dia)
         }
     }
 
     p.pop()
 
-    drawEdge(sheet, p)
+    drawEdge({ edge, w, h }, p)
 }
 
-function drawPluses(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.35, offset = false } = {}) {
+function pluses(opts: PlusSheetOpts, p: p5) {
+    const { gridx, gridy, edge } = getSheetVals(opts)
+    const { nx, ny, w, h, size = 0.9, thickness = 0.35, offset = false } = opts
     // size2 = thickness
-    const { gridx, gridy, nx, ny, edge } = sheet
 
     let off = (1 - size) / 2
     let x1 = gridx * off
@@ -203,11 +228,11 @@ function drawPluses(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.35, offset = fa
     let y1 = gridy * off
     let y2 = gridy * (1 - off)
 
-    drawOuter(sheet.w, sheet.h, p, true)
+    drawOuter(w, h, p, true)
 
     p.push()
     p.erase()
-    p.strokeWeight(gridx * size2 * 0.5)
+    p.strokeWeight(gridx * thickness * 0.5)
     p.stroke(0)
     p.strokeCap(p.SQUARE)
     for (let xi = 0; xi <= nx; xi++) {
@@ -221,18 +246,20 @@ function drawPluses(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.35, offset = fa
     }
 
     p.pop()
-    drawEdge(sheet, p)
+    drawEdge({ w, h, edge }, p)
 }
 
-function drawRounded(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.7, offset = false } = {}) {
-    const { gridx, gridy, nx, ny, edge } = sheet
-    let w = gridx * size
-    let h = gridy * size2
+function rounded(opts: RoundedSheetOpts, p: p5) {
+    const { nx, ny, sizeX = 0.9, sizeY = 0.7, offset = false } = opts
+    // const { gridx, gridy, nx, ny, edge } = sheet
+    const { gridx, gridy, edge } = getSheetVals(opts)
+    let w = gridx * sizeX
+    let h = gridy * sizeY
     let offx = (gridx - w) / 2
     let offy = (gridy - h) / 2
     let br = p.min(w, h) * 0.5
 
-    drawOuter(sheet.w, sheet.h, p, true)
+    drawOuter(opts.w, opts.h, p, true)
 
     p.push()
     p.erase()
@@ -245,12 +272,13 @@ function drawRounded(sheet: Sheet, p: p5, { size = 0.9, size2 = 0.7, offset = fa
     }
     p.pop()
 
-    drawEdge(sheet, p)
+    drawEdge({ w: opts.w, h: opts.h, edge }, p)
 }
 
-function drawZigZag(sheet: Sheet, p: p5, { size = 0.9 } = {}) {
-    const { gridx, gridy, nx, ny, edge } = sheet
-    let thickness = gridx * size * 0.5
+function zigzag(opts: ZigZagSheetOpts, p: p5) {
+    const { gridx, gridy, edge } = getSheetVals(opts)
+    const { nx, ny, size = 0.9 } = opts
+    let thickness = Math.min(gridx, gridy) * size * 0.5
 
     // let ratio = ny / nx
     // let yoff = thickness * 0.6
@@ -258,7 +286,7 @@ function drawZigZag(sheet: Sheet, p: p5, { size = 0.9 } = {}) {
     // if (ratio < 0.6) yoff = thickness * 1
 
     p.beginShape()
-    drawOuter(sheet.w, sheet.h, p)
+    drawOuter(opts.w, opts.h, p)
     p.endShape()
 
     p.push()
@@ -270,7 +298,7 @@ function drawZigZag(sheet: Sheet, p: p5, { size = 0.9 } = {}) {
     p.strokeCap(p.PROJECT)
     for (let yi = -1; yi <= ny; yi++) {
         p.beginShape()
-        for (let xi = 0; xi <= nx; xi++) {
+        for (let xi = -1; xi <= nx + 1; xi++) {
             let dx = xi * gridx + edge
             let dy = (yi - 0.5) * gridy + edge
 
@@ -284,17 +312,16 @@ function drawZigZag(sheet: Sheet, p: p5, { size = 0.9 } = {}) {
     }
     p.pop()
 
-    drawEdge(sheet, p)
+    drawEdge({ w: opts.w, h: opts.h, edge }, p)
 }
 
-export {
-    drawArcs,
-    drawArcsTilted,
-    drawCircles,
-    drawPluses,
-    drawRounded,
-    drawRects,
-    drawZigZag,
-    createSheet,
-    drawArcs2,
+export const sheetTypes = ['arcs', 'circles', 'pluses', 'rounded', 'rects', 'zigzag'] as const
+export type SheetType = (typeof sheetTypes)[number]
+export const drawings: Record<SheetType, (opts: any, p: p5) => void> = {
+    arcs,
+    circles,
+    pluses,
+    rounded,
+    rects,
+    zigzag,
 }

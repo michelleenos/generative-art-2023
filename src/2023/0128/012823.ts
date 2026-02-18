@@ -53,9 +53,6 @@ new p5((p: p5) => {
 
         let sides
         let centersProgress, sidesProgress
-        // let sidesProgress = p.fract(p.millis() * 0.001 * P.speedSides)
-        // let centersProgress = p.fract(p.millis() * 0.001 * P.speedSides * 2)
-        // let centersProgress = 1
 
         if (P.pausedSides) {
             sidesProgress = 1
@@ -82,7 +79,6 @@ new p5((p: p5) => {
         let angle = 360 / sides
         let ySpace = p.round(p.abs(p.sin(angle) * rectLen), 2)
         let xSpace = p.round(p.abs(p.cos(angle) * rectLen), 2)
-
         let xCount = Math.floor(p.width / (xSpace + rectLen)) + 1
         let yCount = Math.floor(p.height / ySpace) + 1
 

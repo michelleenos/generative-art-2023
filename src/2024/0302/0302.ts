@@ -153,50 +153,53 @@ class Drawing {
     }
 }
 
-new p5((p: p5) => {
-    let pane = new Pane()
-    let drawing: Drawing
-    let PAUSED = false
+new p5(
+    (p: p5) => {
+        let pane = new Pane()
+        let drawing: Drawing
+        let PAUSED = false
 
-    function doSetup() {
-        let m = p.min(p.width, p.height) * 0.9
-        drawing = new Drawing(m, 4)
+        function doSetup() {
+            let m = p.min(p.width, p.height) * 0.9
+            drawing = new Drawing(m, 4)
 
-        setupPane()
-    }
+            setupPane()
+        }
 
-    p.setup = function () {
-        p.createCanvas(window.innerWidth, window.innerHeight)
-        p.strokeCap(p.ROUND)
-        p.strokeJoin(p.ROUND)
-        p.rectMode(p.CENTER)
+        p.setup = function () {
+            p.createCanvas(window.innerWidth, window.innerHeight)
+            p.strokeCap(p.ROUND)
+            p.strokeJoin(p.ROUND)
+            p.rectMode(p.CENTER)
 
-        doSetup()
-        // @ts-ignore
-        window.drawing = drawing
-    }
+            doSetup()
+            // @ts-ignore
+            window.drawing = drawing
+        }
 
-    p.draw = function () {
-        if (PAUSED) return
-        let time = p.millis()
-        drawing.show(time, p)
-    }
+        p.draw = function () {
+            if (PAUSED) return
+            let time = p.millis()
+            drawing.show(time, p)
+        }
 
-    p.windowResized = function () {
-        p.resizeCanvas(window.innerWidth, window.innerHeight)
-        let m = p.min(p.width, p.height) * 0.9
-        drawing.size = m
-    }
+        p.windowResized = function () {
+            p.resizeCanvas(window.innerWidth, window.innerHeight)
+            let m = p.min(p.width, p.height) * 0.9
+            drawing.size = m
+        }
 
-    function setupPane() {
-        let f = pane.addFolder({ title: 'settings' })
-        f.addInput(drawing, 'symmetry', {
-            options: { reflect: 'reflect', rotate: 'rotate', none: 'none' },
-        })
-        f.addInput(drawing, 'weights')
-        f.addInput(drawing, 'speed', { min: 1, max: 10, step: 0.1 })
-        f.addInput(drawing, 'maxPointsPerLine', { min: 3, max: 20, step: 1 })
-        f.addInput(drawing, 'background', { input: 'color' })
-        f.addInput(drawing, 'showGravity')
-    }
-}, document.getElementById('sketch') ?? undefined)
+        function setupPane() {
+            let f = pane.addFolder({ title: 'settings' })
+            f.addBinding(drawing, 'symmetry', {
+                options: { reflect: 'reflect', rotate: 'rotate', none: 'none' },
+            })
+            f.addBinding(drawing, 'weights')
+            f.addBinding(drawing, 'speed', { min: 1, max: 10, step: 0.1 })
+            f.addBinding(drawing, 'maxPointsPerLine', { min: 3, max: 20, step: 1 })
+            f.addBinding(drawing, 'background', { input: 'color' })
+            f.addBinding(drawing, 'showGravity')
+        }
+    },
+    document.getElementById('sketch') ?? undefined,
+)

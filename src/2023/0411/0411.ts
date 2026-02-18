@@ -1,271 +1,254 @@
 import p5 from 'p5'
-import '../../style.css'
 import { Pane } from 'tweakpane'
-import RefreshContainer from '~/helpers/refresh-container'
-import {
-    createSheet,
-    drawArcs,
-    drawArcsTilted,
-    drawCircles,
-    drawPluses,
-    drawRounded,
-    drawRects,
-    drawZigZag,
-    drawArcs2,
-    SheetOpts,
-} from './sheet'
+import { random, round, shuffle } from '~/helpers/utils'
+import '../../style.css'
+import { drawings, SheetOpts, SheetType, sheetTypes } from './sheet'
 
-let palette = [
-    [1, 60, 50],
-    [250, 60, 50],
-    [200, 60, 50],
-    [145, 70, 45],
-    [40, 90, 55],
-]
-
-let opts = {
-    rects: 'rects',
-    arcs: 'arcs',
-    pluses: 'pluses',
-    circles: 'circles',
-    rounded: 'rounded',
-    zigzag: 'zigzag',
-    arcs2: 'arcs2',
+const palette = {
+    red: 'hsl(1,60%,50%)',
+    purple: 'hsl(250, 60%, 50%)',
+    blue: 'hsl(200, 60%, 50%)',
+    green: 'hsl(145, 70%, 45%)',
+    yellow: 'hsl(40, 90%, 55%)',
 }
 
-type Pattern = {
-    drawing: (typeof opts)[keyof typeof opts]
-    color: p5.Color | string
-    nx: number
-    ny: number
-    size1: number
-    size2: number
+const paletteArr = Object.values(palette)
+
+const optsMap = sheetTypes.reduce(
+    (acc, cur) => {
+        return { ...acc, [cur]: cur }
+    },
+    {} as { [key: string]: string },
+)
+
+interface Pattern extends Omit<SheetOpts, 'x' | 'y' | 'w' | 'h'> {
+    drawing: SheetType
+    color: string
     show: boolean
-    offset: boolean
+    opts: SheetTypeOpts
 }
 
-new p5((pmain: p5) => {
-    // let btns = document.querySelector('#btns')
-    let size: number
-    let colors: string[] = pmain.shuffle(palette).map((c) => pmain.color(c).toString())
+const optsDefaults = {
+    rects: { sizeX: 0.9, sizeY: 0.9 },
+    arcs: { size: 1, ratio: 1 },
+    rounded: { sizeX: 0.9, sizeY: 0.9 },
+    pluses: { size: 0.7, thickness: 0.3 },
+    zigzag: { size: 0.9 },
+    circles: { diameter: 0.9 },
+} satisfies Record<SheetType, { [key: string]: number }>
+type SheetTypeOpts = typeof optsDefaults
 
-    pmain.setup = function () {
-        pmain.createCanvas(window.innerWidth, window.innerHeight)
-        pmain.noLoop()
-        pmain.colorMode(pmain.HSL)
-        size = pmain.min(pmain.width, pmain.height) * 0.6
-
-        genPatterns()
-    }
-
-    let ONE: Pattern = {
+const patterns: Pattern[] = [
+    {
         drawing: 'rects',
-        color: pmain.random(colors).toString(),
+        color: palette.red,
         nx: 1,
         ny: 1,
-        size1: 0.9,
-        size2: 0.9,
+        show: true,
+        offset: false,
+        border: 0.03,
+        opts: { ...optsDefaults },
+    },
+    {
+        drawing: 'rects',
+        color: palette.blue,
+        nx: 5,
+        ny: 5,
+        show: true,
+        offset: false,
+        border: 0.03,
+        opts: { ...optsDefaults },
+    },
+    {
+        drawing: 'circles',
+        color: palette.green,
+        nx: 5,
+        ny: 5,
         show: false,
         offset: false,
+        border: 0.03,
+        opts: { ...optsDefaults },
+    },
+]
+
+function createPane(parent: Pane, params: Pattern, title: string) {
+    const f = parent.addFolder({ title })
+    const drawingCtrl = f.addBinding(params, 'drawing', { options: optsMap, label: 'drawing' })
+    f.addBinding(params, 'nx', { min: 1, max: 12, step: 1 })
+    f.addBinding(params, 'ny', { min: 1, max: 12, step: 1 })
+
+    f.addBinding(params, 'show')
+    f.addBinding(params, 'offset')
+    f.addBlade({ view: 'separator' })
+    const rectCtrls = [
+        f.addBinding(params.opts.rects, 'sizeX', { min: 0, max: 1.5, step: 0.05 }),
+        f.addBinding(params.opts.rects, 'sizeY', { min: 0, max: 1.5, step: 0.05 }),
+    ]
+    const arcsCtrls = [
+        f.addBinding(params.opts.arcs, 'size', { min: 0, max: 2, step: 0.05 }),
+        f.addBinding(params.opts.arcs, 'ratio', { min: 0, max: 3, step: 0.05 }),
+    ]
+    const roundedCtrls = [
+        f.addBinding(params.opts.rounded, 'sizeX', { min: 0, max: 1.5, step: 0.05 }),
+        f.addBinding(params.opts.rounded, 'sizeY', { min: 0, max: 1.5, step: 0.05 }),
+    ]
+    const plusesCtrls = [
+        f.addBinding(params.opts.pluses, 'size', { min: 0, max: 1.5, step: 0.05 }),
+        f.addBinding(params.opts.pluses, 'thickness', { min: 0, max: 1, step: 0.05 }),
+    ]
+    const zigzagCtrls = [f.addBinding(params.opts.zigzag, 'size', { min: 0, max: 1.5, step: 0.05 })]
+    const circleCtrls = [
+        f.addBinding(params.opts.circles, 'diameter', { min: 0, max: 1.5, step: 0.05 }),
+    ]
+
+    const onDrawingChange = () => {
+        rectCtrls.forEach((c) => (c.hidden = params.drawing !== 'rects'))
+        arcsCtrls.forEach((c) => (c.hidden = params.drawing !== 'arcs'))
+        roundedCtrls.forEach((c) => (c.hidden = params.drawing !== 'rounded'))
+        plusesCtrls.forEach((c) => (c.hidden = params.drawing !== 'pluses'))
+        zigzagCtrls.forEach((c) => (c.hidden = params.drawing !== 'zigzag'))
+        circleCtrls.forEach((c) => (c.hidden = params.drawing !== 'circles'))
     }
-    let TWO: Pattern = {
-        drawing: 'rects',
-        color: pmain.random(colors).toString(),
-        nx: 5,
-        ny: 5,
-        size1: 0.75,
-        size2: 0.75,
-        show: true,
-        offset: false,
-    }
-    let THREE: Pattern = {
-        drawing: 'arcs2',
-        color: pmain.random(colors).toString(),
-        nx: 5,
-        ny: 5,
-        size1: 0.9,
-        size2: 0.9,
-        show: true,
-        offset: false,
-    }
+    drawingCtrl.on('change', onDrawingChange)
+    onDrawingChange()
 
-    let pane = new Pane()
-    let rc = new RefreshContainer(pane)
-    let shapeOne = pane.addFolder({ title: 'shapeOne' })
-    shapeOne.addInput(ONE, 'drawing', { options: opts, label: 'drawing' })
-    shapeOne.addInput(ONE, 'nx', { min: 1, max: 12, step: 1 })
-    shapeOne.addInput(ONE, 'ny', { min: 1, max: 12, step: 1 })
-    shapeOne.addInput(ONE, 'size1', { min: 0, max: 1.5, step: 0.05 })
-    shapeOne.addInput(ONE, 'size2', { min: 0, max: 1.5, step: 0.05 })
-    shapeOne.addInput(ONE, 'color', { view: 'color' })
-    shapeOne.addInput(ONE, 'show')
-    shapeOne.addInput(ONE, 'offset')
+    return f
+}
 
-    let shapeTwo = pane.addFolder({ title: 'shapeTwo' })
-    shapeTwo.addInput(TWO, 'drawing', { options: opts, label: 'drawing' })
-    shapeTwo.addInput(TWO, 'nx', { min: 1, max: 12, step: 1 })
-    shapeTwo.addInput(TWO, 'ny', { min: 1, max: 12, step: 1 })
-    shapeTwo.addInput(TWO, 'size1', { min: 0, max: 1.5, step: 0.05 })
-    shapeTwo.addInput(TWO, 'size2', { min: 0, max: 1.5, step: 0.05 })
-    shapeTwo.addInput(TWO, 'color', { view: 'color' })
-    shapeTwo.addInput(TWO, 'show')
-    shapeTwo.addInput(TWO, 'offset')
+const pane = new Pane()
+patterns.forEach((p, i) => createPane(pane, p, `shape ${i}`))
 
-    let shapeThree = pane.addFolder({ title: 'shapeThree' })
-    shapeThree.addInput(THREE, 'drawing', { options: opts, label: 'drawing' })
-    shapeThree.addInput(THREE, 'nx', { min: 1, max: 12, step: 1 })
-    shapeThree.addInput(THREE, 'ny', { min: 1, max: 12, step: 1 })
-    shapeThree.addInput(THREE, 'size1', { min: 0, max: 1.5, step: 0.05 })
-    shapeThree.addInput(THREE, 'size2', { min: 0, max: 1.5, step: 0.05 })
-    shapeThree.addInput(THREE, 'color', { view: 'color' })
-    shapeThree.addInput(THREE, 'show')
-    shapeThree.addInput(THREE, 'offset')
+new p5(
+    (pmain: p5) => {
+        let size = Math.max(Math.min(window.innerWidth, window.innerHeight) * 0.6, 600)
 
-    let btnRandom = pane.addButton({ title: 'generate random' })
-    btnRandom.on('click', () => {
-        genPatterns()
-        draw()
-    })
+        pmain.setup = function () {
+            pmain.createCanvas(size, size)
+            pmain.noLoop()
+            pmain.colorMode(pmain.HSL)
 
-    let btnSave = pane.addButton({ title: 'save' })
-    btnSave.on('click', () => pmain.saveCanvas('pattern', 'png'))
-
-    pane.on('change', () => {
-        if (!rc.refreshing) draw()
-    })
-
-    function setParam(PARAM: Pattern, color: p5.Color | string, drawOpts = Object.keys(opts)) {
-        let drawing = pmain.random(drawOpts)
-        PARAM['size1'] = pmain.round(pmain.random(0.6, 0.9), 2)
-        PARAM['size2'] = pmain.round(pmain.random(0.6, 0.9), 2)
-
-        if (drawing === 'arcs') {
-            PARAM['nx'] = pmain.random([5, 6, 7, 8])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, 0, 1])
-        } else if (drawing === 'zigzag') {
-            PARAM['nx'] = pmain.random([3, 4, 5, 6, 7, 8, 9])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, 0, 1])
-        } else if (drawing === 'pluses') {
-            PARAM['nx'] = pmain.random([3, 4, 5, 6, 7, 8, 9])
-            PARAM['ny'] = PARAM['nx']
-        } else if (drawing === 'circles') {
-            PARAM['nx'] = pmain.random([4, 5, 6, 7, 8, 9])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, -2, 0, 1, 2])
-        } else if (drawing === 'rounded') {
-            PARAM['nx'] = pmain.random([1, 2, 3])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([3, 4, 5, 6, 7])
-        } else if (drawing === 'arcs2') {
-            PARAM['nx'] = pmain.random([5, 6, 7, 8, 9])
-            PARAM['ny'] = PARAM['nx']
-            PARAM['size1'] = pmain.random(0.7, 0.92)
-            PARAM['size2'] = PARAM['size1']
-        } else {
-            PARAM['nx'] = pmain.random([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            PARAM['ny'] = pmain.random([1, 2, 3, 4, 5, 6, 7, 8, 9])
+            generateRandom()
         }
-        PARAM['color'] = color
-        PARAM['drawing'] = drawing
-    }
 
-    function setParamTop(PARAM: Pattern, color: p5.Color | string, drawOpts = Object.keys(opts)) {
-        let drawing = pmain.random(drawOpts)
-
-        PARAM['size1'] = pmain.round(pmain.random(0.7, 0.9), 2)
-        PARAM['size2'] = pmain.round(pmain.random(0.7, 0.9), 2)
-        if (drawing === 'arcsTilted') {
-            PARAM['nx'] = pmain.random([5, 6, 7, 8])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, 0, 1])
-        } else if (drawing === 'arcs') {
-            PARAM['nx'] = pmain.random([5, 6, 7, 8])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, 0, 1])
-        } else if (drawing === 'zigzag') {
-            PARAM['nx'] = pmain.random([3, 4, 5, 6, 7, 8, 9])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, 0, 1])
-        } else if (drawing === 'pluses') {
-            PARAM['nx'] = pmain.random([3, 4, 5])
-            PARAM['ny'] = PARAM['nx']
-        } else if (drawing === 'circles') {
-            PARAM['nx'] = pmain.random([3, 4, 5])
-            PARAM['ny'] = PARAM['nx'] + pmain.random([-1, 0, 1])
-            PARAM['size1'] = pmain.round(pmain.random(0.8, 0.95), 2)
-            PARAM['size2'] = pmain.round(pmain.random(0.8, 0.95), 2)
-        } else {
-            PARAM['nx'] = pmain.random([1, 2, 3, 4])
-            PARAM['ny'] = pmain.random([1, 2, 3, 4])
-        }
-        PARAM['color'] = color
-        PARAM['drawing'] = drawing
-    }
-
-    function genPatterns() {
-        let colors = pmain.shuffle(palette).map((c) => pmain.color(c).toString())
-
-        setParam(TWO, colors[0])
-        setParam(ONE, colors[1])
-        setParamTop(THREE, colors[2], ['circles', 'rects', 'pluses', 'rounded'])
-
-        rc.refresh()
-    }
-
-    function drawPattern(pattern: Pattern, sheetOpts: SheetOpts) {
-        if (!pattern.show) return
-        let p = pmain.createGraphics(sheetOpts.w, sheetOpts.h)
-        p.colorMode(p.HSL)
-
-        let sheet = createSheet(p, {
-            ...sheetOpts,
-            nx: pattern.nx,
-            ny: pattern.ny,
+        let btnRandom = pane.addButton({ title: 'generate random' })
+        btnRandom.on('click', () => {
+            generateRandom()
+            draw()
         })
 
-        let opts = {
-            size: pattern.size1,
-            size2: pattern.size2,
-            offset: pattern.offset,
+        let btnSave = pane.addButton({ title: 'save' })
+        btnSave.on('click', () => pmain.saveCanvas('pattern', 'png'))
+
+        pane.on('change', draw)
+
+        function generateRandom() {
+            const colors = shuffle(paletteArr)
+            patterns.forEach((pattern, i) => {
+                let drawing = random(sheetTypes)
+                pattern.drawing = drawing
+                pattern.offset = random() < 0.5
+
+                if (drawing === 'arcs') {
+                    if (random() > 0.5) {
+                        pattern.nx = random([2, 3])
+                        pattern.ny = pattern.nx * 2
+                        pattern.opts.arcs.size = random(0.6, 0.9)
+                        pattern.opts.arcs.ratio = 1
+                    } else {
+                        pattern.nx = random([2, 3, 4, 5])
+                        pattern.ny = pattern.nx
+                        pattern.opts.arcs.size = random(0.5, 0.9)
+                        pattern.opts.arcs.ratio = random(1, 2)
+                    }
+                } else if (drawing === 'zigzag') {
+                    pattern.nx = random([3, 4, 5, 6, 7, 8, 9])
+                    pattern.ny = pattern.nx + random([-1, 0, 1])
+                    pattern.opts.zigzag.size = round(random(0.5, 0.9), 2)
+                } else if (drawing === 'pluses') {
+                    pattern.nx = random([3, 4, 5])
+                    pattern.ny = pattern.nx
+                    pattern.opts.pluses.size = round(random(0.5, 0.9), 2)
+                    pattern.opts.pluses.thickness = round(
+                        random(0.1, pattern.opts.pluses.size * 0.7),
+                        2,
+                    )
+                } else if (drawing === 'circles') {
+                    let nx = random([3, 4, 5, 6])
+                    let ny: number
+                    if (random() < 0.5) {
+                        let opts = [-1, 1]
+                        if (nx > 5) opts.push(-2, 2)
+                        ny = nx + random(opts)
+                    } else {
+                        ny = nx
+                    }
+                    pattern.nx = nx
+                    pattern.ny = ny
+                    pattern.opts.circles.diameter = round(random(0.7, 0.95), 2)
+                } else if (drawing === 'rounded') {
+                    let n1 = random([1, 2, 3])
+                    let n2 = random([1, 2, 3, 4, 5, 6])
+                    let s1 = random(0.8, 0.95)
+                    let s2 = random(0.5, 0.9)
+                    if (random() < 0.5) {
+                        pattern.nx = n1
+                        pattern.ny = n2
+                        pattern.opts.rounded.sizeX = s1
+                        pattern.opts.rounded.sizeY = s2
+                    } else {
+                        pattern.nx = n2
+                        pattern.ny = n1
+                        pattern.opts.rounded.sizeX = s2
+                        pattern.opts.rounded.sizeY = s1
+                    }
+                }
+                pattern.offset = random() < 0.5
+                pattern.color = colors[i % colors.length]
+            })
+            pane.refresh()
         }
 
-        p.fill(pattern.color as p5.Color)
-        p.noStroke()
-        if (pattern.drawing === 'rects') {
-            drawRects(sheet, p, opts)
-        } else if (pattern.drawing === 'arcs') {
-            drawArcs(sheet, p, opts)
-        } else if (pattern.drawing === 'arcsTilted') {
-            drawArcsTilted(sheet, p, opts)
-        } else if (pattern.drawing === 'pluses') {
-            drawPluses(sheet, p, opts)
-        } else if (pattern.drawing === 'circles') {
-            drawCircles(sheet, p, opts)
-        } else if (pattern.drawing === 'rounded') {
-            drawRounded(sheet, p, opts)
-        } else if (pattern.drawing === 'zigzag') {
-            drawZigZag(sheet, p, opts)
-        } else if (pattern.drawing === 'arcs2') {
-            drawArcs2(sheet, p, opts)
+        function drawPattern(pattern: Pattern) {
+            if (!pattern.show) return
+            const opts: SheetOpts = {
+                ...pattern,
+                w: pmain.width,
+                h: pmain.height,
+                x: 0,
+                y: 0,
+            }
+            let p = pmain.createGraphics(opts.w, opts.h)
+            p.colorMode(p.HSL)
+
+            p.fill(pattern.color)
+            p.noStroke()
+
+            if (pattern.drawing === 'rects') {
+                drawings.rects({ ...opts, ...pattern.opts.rects }, p)
+            } else if (pattern.drawing === 'arcs') {
+                drawings.arcs({ ...opts, ...pattern.opts.arcs }, p)
+            } else if (pattern.drawing === 'pluses') {
+                drawings.pluses({ ...opts, ...pattern.opts.pluses }, p)
+            } else if (pattern.drawing === 'circles') {
+                drawings.circles({ ...opts, ...pattern.opts.circles }, p)
+            } else if (pattern.drawing === 'rounded') {
+                drawings.rounded({ ...opts, ...pattern.opts.rounded }, p)
+            } else if (pattern.drawing === 'zigzag') {
+                drawings.zigzag({ ...opts, ...pattern.opts.zigzag }, p)
+            }
+
+            pmain.image(p, opts.x, opts.y)
         }
 
-        pmain.image(p, sheetOpts.x, sheetOpts.y)
-    }
-
-    pmain.draw = function () {
-        draw()
-    }
-
-    function draw() {
-        pmain.clear(0, 0, pmain.width, pmain.height)
-        pmain.noStroke()
-
-        let sheetOpts = {
-            x: (pmain.width - size) * 0.1,
-            y: (pmain.height - size) * 0.5,
-            w: size,
-            h: size,
+        pmain.draw = function () {
+            draw()
         }
 
-        console.log('drawing')
-
-        drawPattern(ONE, sheetOpts)
-        drawPattern(TWO, sheetOpts)
-        drawPattern(THREE, sheetOpts)
-    }
-})
+        function draw() {
+            pmain.clear(0, 0, pmain.width, pmain.height)
+            pmain.noStroke()
+            patterns.forEach((p) => drawPattern(p))
+        }
+    },
+    document.getElementById('canvas-container') ?? undefined,
+)

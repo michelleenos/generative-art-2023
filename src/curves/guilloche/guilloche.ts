@@ -21,7 +21,7 @@ function guilloche(
     nodes: number,
     div: number,
     cx: number = 0,
-    cy: number = 0
+    cy: number = 0,
 ) {
     ctx.beginPath()
     for (let t = 0; t < Math.PI * 2 * div; t += 0.01) {
@@ -78,39 +78,39 @@ const stepDiv = 0.1
 
 const pane = new Pane()
 let fa = pane.addFolder({ title: 'ring a' })
-fa.addInput(PARAMS.a, 'radius', { min: 1, max: width, step: 1 })
-fa.addInput(PARAMS.a, 'nodes', { min: 1, max: 100, step: 1 })
-fa.addInput(PARAMS.a, 'var', { min: 1, max: 100, step: 1 })
+fa.addBinding(PARAMS.a, 'radius', { min: 1, max: width, step: 1 })
+fa.addBinding(PARAMS.a, 'nodes', { min: 1, max: 100, step: 1 })
+fa.addBinding(PARAMS.a, 'var', { min: 1, max: 100, step: 1 })
 
 let fab = pane.addFolder({ title: 'A > B' })
-fab.addInput(PARAMS, 'nodesAB', { min: 1, max: 200, step: stepNodes })
-fab.addInput(PARAMS, 'divAB', { min: 1, max: 200, step: stepDiv })
-fab.addInput(PARAMS, 'drawAB')
+fab.addBinding(PARAMS, 'nodesAB', { min: 1, max: 200, step: stepNodes })
+fab.addBinding(PARAMS, 'divAB', { min: 1, max: 200, step: stepDiv })
+fab.addBinding(PARAMS, 'drawAB')
 
 let fb = pane.addFolder({ title: 'ring b' })
-fb.addInput(PARAMS.b, 'radius', { min: 1, max: width, step: 1 })
-fb.addInput(PARAMS.b, 'nodes', { min: 1, max: 100, step: 1 })
-fb.addInput(PARAMS.b, 'var', { min: 1, max: 100, step: 1 })
+fb.addBinding(PARAMS.b, 'radius', { min: 1, max: width, step: 1 })
+fb.addBinding(PARAMS.b, 'nodes', { min: 1, max: 100, step: 1 })
+fb.addBinding(PARAMS.b, 'var', { min: 1, max: 100, step: 1 })
 
 let fbc = pane.addFolder({ title: 'B > C' })
-fbc.addInput(PARAMS, 'nodesBC', { min: 1, max: 200, step: stepNodes })
-fbc.addInput(PARAMS, 'divBC', { min: 1, max: 200, step: stepDiv })
-fbc.addInput(PARAMS, 'drawBC')
+fbc.addBinding(PARAMS, 'nodesBC', { min: 1, max: 200, step: stepNodes })
+fbc.addBinding(PARAMS, 'divBC', { min: 1, max: 200, step: stepDiv })
+fbc.addBinding(PARAMS, 'drawBC')
 
 let fc = pane.addFolder({ title: 'ring c' })
-fc.addInput(PARAMS.c, 'radius', { min: 1, max: width, step: 1 })
-fc.addInput(PARAMS.c, 'nodes', { min: 1, max: 100, step: 1 })
-fc.addInput(PARAMS.c, 'var', { min: 1, max: 100, step: 1 })
+fc.addBinding(PARAMS.c, 'radius', { min: 1, max: width, step: 1 })
+fc.addBinding(PARAMS.c, 'nodes', { min: 1, max: 100, step: 1 })
+fc.addBinding(PARAMS.c, 'var', { min: 1, max: 100, step: 1 })
 
 let fcd = pane.addFolder({ title: 'C > D' })
-fcd.addInput(PARAMS, 'nodesCD', { min: 1, max: 200, step: stepNodes })
-fcd.addInput(PARAMS, 'divCD', { min: 1, max: 200, step: stepDiv })
-fcd.addInput(PARAMS, 'drawCD')
+fcd.addBinding(PARAMS, 'nodesCD', { min: 1, max: 200, step: stepNodes })
+fcd.addBinding(PARAMS, 'divCD', { min: 1, max: 200, step: stepDiv })
+fcd.addBinding(PARAMS, 'drawCD')
 
 let fd = pane.addFolder({ title: 'ring d' })
-fd.addInput(PARAMS.d, 'radius', { min: 1, max: width, step: 1 })
-fd.addInput(PARAMS.d, 'nodes', { min: 1, max: 100, step: 1 })
-fd.addInput(PARAMS.d, 'var', { min: 1, max: 100, step: 1 })
+fd.addBinding(PARAMS.d, 'radius', { min: 1, max: width, step: 1 })
+fd.addBinding(PARAMS.d, 'nodes', { min: 1, max: 100, step: 1 })
+fd.addBinding(PARAMS.d, 'var', { min: 1, max: 100, step: 1 })
 
 function draw() {
     ctx.strokeStyle = '#fff'

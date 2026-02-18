@@ -256,10 +256,10 @@ const normalizeTime = (cur: number, start: number, dur: number) => {
 function setupPane() {
     const pane = new Pane()
     let folder = pane.addFolder({ title: 'controls' })
-    folder.addInput(params, 'animate')
-    folder.addInput(params, 'subdiv', { min: 2, max: 10, step: 1 }).on('change', setup)
-    folder.addInput(params, 'layers', { min: 1, max: 10, step: 1 }).on('change', setup)
-    folder.addInput(params, 'n', { min: 2, max: 10, step: 1 }).on('change', setup)
+    folder.addBinding(params, 'animate')
+    folder.addBinding(params, 'subdiv', { min: 2, max: 10, step: 1 }).on('change', setup)
+    folder.addBinding(params, 'layers', { min: 1, max: 10, step: 1 }).on('change', setup)
+    folder.addBinding(params, 'n', { min: 2, max: 10, step: 1 }).on('change', setup)
 }
 
 window.addEventListener('resize', () => {

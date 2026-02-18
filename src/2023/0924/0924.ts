@@ -39,8 +39,8 @@ let colors = [...random(palettes.darks), ...random(palettes.lights)]
 function setPane() {
     let pane = new Pane()
     let folder = pane.addFolder({ title: 'settings' })
-    folder.addInput(props, 'iterations', { min: 1, max: 15, step: 1 })
-    folder.addInput(props, 'divisions', {
+    folder.addBinding(props, 'iterations', { min: 1, max: 15, step: 1 })
+    folder.addBinding(props, 'divisions', {
         options: {
             '2s': '2s',
             '2s-3s': '2s-3s',
@@ -48,7 +48,7 @@ function setPane() {
         },
     })
 
-    folder.addInput(props, 'minSize', { min: -1, max: 300, step: 1 })
+    folder.addBinding(props, 'minSize', { min: -1, max: 300, step: 1 })
     folder.addButton({ title: 'new palette+redraw' }).on('click', () => {
         colors = [...random(palettes.darks), ...random(palettes.lights)]
         draw()

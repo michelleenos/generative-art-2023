@@ -19,9 +19,9 @@ export default defineConfig({
             sourceMap: false,
         }),
     ],
-    // optimizeDeps: {
-    //     include: ['p5', 'p5/lib/addons/p5.sound.js'],
-    // },
+    optimizeDeps: {
+        include: ['p5', 'p5/lib/addons/p5.sound.js'],
+    },
 
     build: {
         outDir: '../dist',

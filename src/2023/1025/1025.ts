@@ -84,7 +84,7 @@ function draw(_time: number = 0) {
                 burstFlames(
                     cellSize * random(params.flameSizeMax, params.flameSizeMax),
                     steps,
-                    color
+                    color,
                 )
 
                 ctx.globalAlpha -= 0.2
@@ -93,7 +93,7 @@ function draw(_time: number = 0) {
                     burstFlames(
                         cellSize * random(params.flameSizeMin, params.flameSizeMax),
                         steps,
-                        color
+                        color,
                     )
                 }
                 ctx.globalCompositeOperation = random(['lighten', 'screen'])
@@ -222,7 +222,7 @@ function dots(
     steps: number,
     dotRadius = size * 0.02,
     dotPos = size * 0.35,
-    fill = true
+    fill = true,
 ) {
     for (let i = 0; i < steps; i++) {
         let angle = (i / steps) * Math.PI * 2 + Math.PI / steps
@@ -290,20 +290,20 @@ function burst(params: BurstParams) {
 function setupPane() {
     const pane = new Pane()
     let folder = pane.addFolder({ title: 'controls' })
-    folder.addInput(params, 'countX', { min: 1, max: 10, step: 1 })
-    folder.addInput(params, 'countY', { min: 1, max: 10, step: 1 })
-    folder.addInput(params, 'dotRadiusMin', { min: 0, max: 0.1 })
-    folder.addInput(params, 'dotRadiusMax', { min: 0, max: 0.1 })
-    folder.addInput(params, 'dotPosMin', { min: 0, max: 1 })
-    folder.addInput(params, 'dotPosMax', { min: 0, max: 1 })
-    folder.addInput(params, 'flameSizeMin', { min: 0, max: 2 })
-    folder.addInput(params, 'flameSizeMax', { min: 0, max: 2 })
-    folder.addInput(params, 'circRadMin', { min: 0, max: 0.5 })
-    folder.addInput(params, 'circRadMax', { min: 0, max: 0.5 })
-    folder.addInput(params, 'circStrokeMin', { min: 0, max: 0.5 })
-    folder.addInput(params, 'circStrokeMax', { min: 0, max: 0.5 })
-    folder.addInput(params, 'florCenterMin', { min: 0, max: 0.5 })
-    folder.addInput(params, 'florCenterMax', { min: 0, max: 0.5 })
+    folder.addBinding(params, 'countX', { min: 1, max: 10, step: 1 })
+    folder.addBinding(params, 'countY', { min: 1, max: 10, step: 1 })
+    folder.addBinding(params, 'dotRadiusMin', { min: 0, max: 0.1 })
+    folder.addBinding(params, 'dotRadiusMax', { min: 0, max: 0.1 })
+    folder.addBinding(params, 'dotPosMin', { min: 0, max: 1 })
+    folder.addBinding(params, 'dotPosMax', { min: 0, max: 1 })
+    folder.addBinding(params, 'flameSizeMin', { min: 0, max: 2 })
+    folder.addBinding(params, 'flameSizeMax', { min: 0, max: 2 })
+    folder.addBinding(params, 'circRadMin', { min: 0, max: 0.5 })
+    folder.addBinding(params, 'circRadMax', { min: 0, max: 0.5 })
+    folder.addBinding(params, 'circStrokeMin', { min: 0, max: 0.5 })
+    folder.addBinding(params, 'circStrokeMax', { min: 0, max: 0.5 })
+    folder.addBinding(params, 'florCenterMin', { min: 0, max: 0.5 })
+    folder.addBinding(params, 'florCenterMax', { min: 0, max: 0.5 })
 
     pane.on('change', () => {
         draw()
