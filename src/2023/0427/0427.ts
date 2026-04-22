@@ -19,7 +19,7 @@ let pcles: Particle[] = []
 const PARAMS = {
     mmin: 1.5,
     mmax: 4,
-    mouseRadius: 125,
+    mouseRadius: 130,
     bubbleRadius: 190,
     bubblesMult: 0.15,
     mouseMass: 130,

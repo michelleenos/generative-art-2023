@@ -2,9 +2,9 @@ import p5 from 'p5'
 import '../../style.css'
 import GUI from 'lil-gui'
 import { random } from '~/helpers/utils'
-import { getPaletteContexts, PaletteWithContext } from 'mish-bainrow'
+import { getPaletteVariants, PaletteVariant } from 'mish-bainrow'
 
-const pals = getPaletteContexts({
+const pals = getPaletteVariants({
     minColors: 3,
     isolateColors: true,
     useStroke: true,
@@ -18,7 +18,7 @@ const pals = getPaletteContexts({
 //     'https://coolors.co/d7263d-f46036-2e294e',
 // ]
 
-let palette: PaletteWithContext
+let palette: PaletteVariant
 
 const Z = {
     setting: 'noisy',

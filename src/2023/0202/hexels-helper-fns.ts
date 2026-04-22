@@ -1,38 +1,5 @@
 import p5 from 'p5'
-
-export const colorUtils = (p: p5, palette: string[]) => ({
-    fillOrStroke: (index: number = -1, weight = 2) => {
-        let color = index > -1 ? palette[index] : p.random(palette)
-        if (p.random() < 0.5) {
-            p.noFill()
-            p.stroke(color)
-            p.strokeWeight(weight)
-        } else {
-            p.noStroke()
-            p.fill(color)
-        }
-        return this
-    },
-    stroke: (index: number = -1, weight = 2) => {
-        p.noFill()
-        p.stroke(index > -1 ? palette[index] : p.random(palette))
-        p.strokeWeight(weight)
-        return this
-    },
-    fill: (index: number = -1) => {
-        p.noStroke()
-        p.fill(index > -1 ? palette[index] : p.random(palette))
-        return this
-    },
-    strokeFill: (iStroke: number = -1, iFill: number = -1, weight = 2) => {
-        if (iStroke === -1) iStroke = p.floor(p.random(palette.length))
-        p.stroke(palette[iStroke])
-        if (iFill === -1) iFill = (iStroke + 1) % palette.length
-        p.fill(palette[iFill])
-        p.strokeWeight(weight)
-        return this
-    },
-})
+import { random } from '~/helpers/utils'
 
 type NumOrMinMax = number | [min: number, max: number]
 
@@ -69,38 +36,97 @@ export interface LinesOpts {
     num?: number
 }
 
-export const shapeUtils = (p: p5) => ({
-    midpoint: (a: p5.Vector, b: p5.Vector) => p.createVector((a.x + b.x) / 2, (a.y + b.y) / 2),
+const midpoint = (a: p5.Vector, b: p5.Vector) => new p5.Vector((a.x + b.x) / 2, (a.y + b.y) / 2)
 
-    moveCenter: (pts: p5.Vector[], { moveToIndex, dist = [0.2, 0.8] }: MoveOpts = {}) => {
-        let move = (typeof moveToIndex === 'number' ? pts[moveToIndex] : p.random(pts))
+export class HexelsUtils {
+    p: p5
+    pts: p5.Vector[]
+    palette: string[]
+    constructor(p: p5, pts: p5.Vector[], palette: string[]) {
+        this.p = p
+        this.pts = pts
+        this.palette = palette
+    }
+
+    colorFromIndex(index: number) {
+        return this.palette[index % this.palette.length]
+    }
+
+    fillOrStroke(index = -1, weight = 2) {
+        const col = index > -1 ? this.colorFromIndex(index) : random(this.palette)
+        if (random() < 0.5) {
+            this.p.noFill()
+            this.p.stroke(col)
+            this.p.strokeWeight(weight)
+        } else {
+            this.p.noStroke()
+            this.p.fill(col)
+        }
+        return this
+    }
+
+    stroke(index: number = -1, weight = 2) {
+        this.p.noFill()
+        this.p.stroke(index > -1 ? this.colorFromIndex(index) : random(this.palette))
+        this.p.strokeWeight(weight)
+        return this
+    }
+
+    fill(index: number = -1) {
+        this.p.noStroke()
+        this.p.fill(index > -1 ? this.colorFromIndex(index) : random(this.palette))
+        return this
+    }
+
+    strokeFill(iStroke: number = -1, iFill: number = -1, weight = 2) {
+        if (iStroke === -1) iStroke = Math.floor(random(this.palette.length))
+        this.p.stroke(this.palette[iStroke])
+        if (iFill === -1) iFill = (iStroke + 1) % this.palette.length
+        this.p.fill(this.palette[iFill])
+        this.p.strokeWeight(weight)
+        return this
+    }
+
+    moveCenter({ moveToIndex, dist = [0.2, 0.8] }: MoveOpts = {}) {
+        const move = (typeof moveToIndex === 'number' ? this.pts[moveToIndex] : random(this.pts))
             .copy()
-            .mult(typeof dist === 'number' ? dist : p.random(...dist))
-        p.translate(move.x, move.y)
-    },
+            .mult(typeof dist === 'number' ? dist : random(...dist))
+        this.p.translate(move.x, move.y)
+    }
 
-    shape: function (
-        pts: p5.Vector[],
-        { rotate = false, scale }: ShapeOpts = {},
-        moveCenterOpts?: MoveOpts,
-    ) {
-        p.push()
-        if (moveCenterOpts) this.moveCenter(pts, moveCenterOpts)
-        rotate && p.rotate(p.PI / 2)
+    shape(pts: p5.Vector[], shapeOpts?: ShapeOpts, moveCenterOpts?: MoveOpts): void
+    shape(shapeOpts?: ShapeOpts, moveCenterOpts?: MoveOpts): void
+    shape(p1?: p5.Vector[] | ShapeOpts, p2?: ShapeOpts | MoveOpts, p3?: MoveOpts) {
+        let pts: p5.Vector[]
+        let shapeOpts: ShapeOpts
+        let moveCenterOpts: MoveOpts | undefined
+        if (Array.isArray(p1)) {
+            pts = p1
+            shapeOpts = { rotate: false, ...(p2 || {}) }
+            moveCenterOpts = p3
+        } else {
+            pts = this.pts
+            shapeOpts = { rotate: false, ...(p1 || {}) }
+            moveCenterOpts = p3
+        }
+
+        const { rotate, scale } = shapeOpts
+        this.p.push()
+        if (moveCenterOpts) this.moveCenter(moveCenterOpts)
+        rotate && this.p.rotate(Math.PI / 2)
         let shapePts = [...pts]
         if (scale) {
-            let scaleAmt = typeof scale === 'number' ? scale : p.random(...scale)
+            let scaleAmt = typeof scale === 'number' ? scale : random(...scale)
             shapePts = shapePts.map((pt) => pt.copy().mult(scaleAmt))
         }
-        p.beginShape()
-        shapePts.forEach((pt) => p.vertex(pt.x, pt.y))
-        p.vertex(shapePts[0].x, shapePts[0].y)
-        p.endShape()
-        p.pop()
-    },
+        this.p.beginShape()
+        shapePts.forEach((pt) => this.p.vertex(pt.x, pt.y))
+        this.p.vertex(shapePts[0].x, shapePts[0].y)
+        this.p.endShape()
+        this.p.pop()
+    }
 
-    trisRound: function (
-        pts: p5.Vector[],
+    trisRound(
         {
             translate = 0.3,
             num = 3,
@@ -111,29 +137,29 @@ export const shapeUtils = (p: p5) => ({
         }: TrisOpts = {},
         moveOpts?: MoveOpts,
     ) {
-        p.push()
-        if (moveOpts) this.moveCenter(pts, { ...moveOpts })
-        let indexes = pts.map((_, i) => i)
-        p.shuffle(indexes, true)
-        if (!num) num = p.floor(p.random(indexes.length))
+        this.p.push()
+        if (moveOpts) this.moveCenter({ ...moveOpts })
+        let indexes = this.pts.map((_, i) => i)
+        this.p.shuffle(indexes, true)
+        if (!num) num = this.p.floor(this.p.random(indexes.length))
 
         let len = indexes.length
 
         for (let i = 0; i < Math.min(num, len); i++) {
             let ind = indexes[i]
-            let pt1 = pts[ind]
-            let pt2 = pts[(ind + 1) % len]
+            let pt1 = this.pts[ind]
+            let pt2 = this.pts[(ind + 1) % len]
 
             let scale = scaleBase
             if (typeof scaleAlt === 'number' && typeof scaleAltChance === 'number') {
-                scale = p.random() < scaleAltChance ? scaleAlt : scale
+                scale = this.p.random() < scaleAltChance ? scaleAlt : scale
             }
 
-            p.push()
+            this.p.push()
             if (translate) {
-                let tr = typeof translate === 'number' ? translate : p.random(...translate)
-                let trans = this.midpoint(pt1, pt2).mult(tr)
-                p.translate(trans.x, trans.y)
+                let tr = typeof translate === 'number' ? translate : this.p.random(...translate)
+                let trans = midpoint(pt1, pt2).mult(tr)
+                this.p.translate(trans.x, trans.y)
             }
 
             pt1 = pt1.copy().mult(scale)
@@ -141,52 +167,51 @@ export const shapeUtils = (p: p5) => ({
 
             if (colorFn) colorFn()
             this.shape([new p5.Vector(0, 0), pt1, pt2])
-            p.pop()
+            this.p.pop()
         }
 
-        p.pop()
-    },
+        this.p.pop()
+    }
 
-    lines: function (pts: p5.Vector[], { num = 0 }: LinesOpts = {}, moveOpts?: MoveOpts) {
-        p.push()
-        if (moveOpts) this.moveCenter(pts, moveOpts)
-        let ptsCopy = pts.map((pt) => pt)
-        p.shuffle(ptsCopy, true)
-        if (!num) num = p.floor(p.random(ptsCopy.length))
+    lines({ num = 0 }: LinesOpts = {}, moveOpts?: MoveOpts) {
+        this.p.push()
+        if (moveOpts) this.moveCenter(moveOpts)
+        let ptsCopy = this.pts.map((pt) => pt)
+        this.p.shuffle(ptsCopy, true)
+        if (!num) num = Math.floor(random(ptsCopy.length))
 
         for (let i = 0; i < Math.min(num, ptsCopy.length - 1); i++) {
-            p.line(ptsCopy[i].x, ptsCopy[i].y, 0, 0)
+            this.p.line(ptsCopy[i].x, ptsCopy[i].y, 0, 0)
         }
 
-        p.pop()
-    },
+        this.p.pop()
+    }
 
-    circles: function (
-        pts: p5.Vector[],
+    circles(
         { radius = 7, num, translate = 0.5, colorFn = undefined }: CirclesOpts = {},
         moveOpts?: MoveOpts,
     ) {
-        let ptsCopy = pts.map((pt) => pt)
-        p.shuffle(ptsCopy, true)
-        if (!num) num = p.ceil(p.random(ptsCopy.length))
+        let ptsCopy = this.pts.map((pt) => pt)
+        this.p.shuffle(ptsCopy, true)
+        if (!num) num = Math.ceil(random(ptsCopy.length))
 
-        p.push()
-        if (moveOpts) this.moveCenter(pts, moveOpts)
+        this.p.push()
+        if (moveOpts) this.moveCenter(moveOpts)
 
         for (let i = 0; i < Math.min(num, ptsCopy.length); i++) {
             let pt = ptsCopy[i]
-            p.push()
+            this.p.push()
             if (translate) {
                 let trans = pt.copy().mult(translate)
-                p.translate(trans.x, trans.y)
+                this.p.translate(trans.x, trans.y)
             }
             let r = typeof radius === 'function' ? radius() : radius
             if (colorFn) colorFn()
 
-            p.circle(0, 0, r)
-            p.pop()
+            this.p.circle(0, 0, r)
+            this.p.pop()
         }
 
-        p.pop()
-    },
-})
+        this.p.pop()
+    }
+}

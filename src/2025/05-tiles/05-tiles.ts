@@ -2,10 +2,10 @@ import p5 from 'p5'
 import { random, weightedRandom } from '~/helpers/utils'
 import '~/style.css'
 import { Tile, TileLines, TileCircle, TileTris, TileDiag, TileTriSquare } from './tiles'
-import { getPaletteContexts } from 'mish-bainrow'
+import { getPaletteVariants } from 'mish-bainrow'
 import { GUI } from 'lil-gui'
 
-let pals = getPaletteContexts({
+let pals = getPaletteVariants({
     bgShade: { type: 'dark' },
     minContrastBg: 3.8,
     minColors: 3,

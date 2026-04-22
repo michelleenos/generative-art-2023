@@ -1,7 +1,7 @@
 import p5 from 'p5'
 import { Recorder } from 'canvas-frames'
 import { GUI } from 'lil-gui'
-import { getPaletteContexts } from 'mish-bainrow'
+import { getPaletteVariants } from 'mish-bainrow'
 import '~/style.css'
 import { Tile, TileArc, TileLines, TileTris, TileTriSquare } from './tiles'
 
@@ -20,7 +20,7 @@ function weightedRandom<T>(array: T[], weights: number[], p: p5): T {
     return array[array.length - 1]
 }
 
-let pals = getPaletteContexts({
+let pals = getPaletteVariants({
     // bgShade: { type: 'dark', limit: 40 },
     minContrastBg: 3.8,
     minColors: 3,

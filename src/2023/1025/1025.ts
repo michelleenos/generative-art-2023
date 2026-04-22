@@ -79,10 +79,12 @@ function draw(_time: number = 0) {
             {
                 ctx.save()
                 ctx.globalCompositeOperation = random(['lighten', 'screen'])
+                ctx.globalCompositeOperation = 'screen'
                 ctx.globalAlpha = +random(0.65, 0.9).toFixed(2)
                 let color = random([orange, blue, red, yellow])
+                color = orange
                 burstFlames(
-                    cellSize * random(params.flameSizeMax, params.flameSizeMax),
+                    cellSize * random(params.flameSizeMin, params.flameSizeMax),
                     steps,
                     color,
                 )

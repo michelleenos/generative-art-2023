@@ -1,19 +1,19 @@
 import p5 from 'p5'
 import '~/style.css'
 
-import { getPaletteContexts, PaletteWithContext } from 'mish-bainrow'
+import { getPaletteVariants, PaletteVariant } from 'mish-bainrow'
 import { random } from '~/helpers/utils'
 
 type Pt = [number, number]
 
-let pals = getPaletteContexts({
+let pals = getPaletteVariants({
     isolateColors: true,
     minContrastBg: 0.2,
     minColors: 3,
-    bgShade: { type: 'dark', lumEdge: 0.1 },
+    bgShade: { type: 'dark', edge: 0.1 },
 })
 
-let pal: PaletteWithContext
+let pal: PaletteVariant
 
 let sideCount = 0
 let lineCount = 0

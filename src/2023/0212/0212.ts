@@ -40,8 +40,8 @@ new p5((p: p5) => {
             case 1:
                 r_radius = p.random(0.01, 0.09)
                 r_yi = p.random(0.007, 0.01)
-                for (let x = -200; x <= 200; x += 20) {
-                    let ybase = -0.00003 * p.pow(x / 2 + 100, 3)
+                for (let x = -200, xi = 0; x <= 200; x += 20, xi++) {
+                    let ybase = -p.pow(xi / 20, 3) * 240
 
                     for (let yi = -200; yi <= 200; yi += 10) {
                         let y = ybase * p.sin(yi * r_yi)
@@ -87,13 +87,17 @@ new p5((p: p5) => {
             case 3:
                 p.strokeWeight(0.5)
 
+                let ymax = 0
                 r_radius = p.random(0.1, 0.5)
                 r_yi = p.random(0.05, 0.2)
 
-                for (let x = -200; x <= 200; x += 20) {
-                    let ybase = 0.00001 * p.pow(x, 3)
+                for (let x = -200, xi = 0; x <= 200; x += 20, xi++) {
+                    let ybase = 0.00003 * p.pow(x, 3)
+                    // ybase = p.pow((xi - 10) / 20, 3) * 240
+                    ybase = p.pow((xi - 10) / 10, 3) * 240
+                    if (Math.abs(ybase) > ymax) ymax = Math.abs(ybase)
                     for (let yi = 0; yi < 20; yi++) {
-                        let y = ybase * p.cos(yi * r_yi) * 3
+                        let y = ybase * p.cos(yi * r_yi)
                         p.circle(x, y, p.cos(yi * r_radius) * 5 + 5)
                     }
                 }
@@ -103,6 +107,7 @@ new p5((p: p5) => {
                 p.text(`style: ${style}`, p.width / 2 - 10, p.height / 2 - 55)
                 p.text(`r_radius: ${r_radius}`, p.width / 2 - 10, p.height / 2 - 40)
                 p.text(`r_yi: ${r_yi}`, p.width / 2 - 10, p.height / 2 - 25)
+                console.log({ ymax })
 
                 break
             case 4:
@@ -154,10 +159,12 @@ new p5((p: p5) => {
                 r_yi = p.random(0.05, 0.2)
                 r_xi = p.random(80, 220)
 
-                for (let x = -200; x <= 200; x += 20) {
-                    let ybase = 0.00001 * (x - r_xi) * (x + r_xi) * x
+                for (let x = -200, xi = 0; x <= 200; x += 20, xi++) {
+                    let ybase = 0.00003 * (x - r_xi) * (x + r_xi) * x
+                    // let xv = (xi - 10) / 10
+                    // ybase = (xv - r_xi) * (xv + r_xi) * xv * 240
                     for (let yi = 0; yi < 20; yi++) {
-                        let y = ybase * p.cos(yi * r_yi) * 3
+                        let y = ybase * p.cos(yi * r_yi)
                         p.circle(x, y, p.cos(yi * r_radius) * 5 + 5)
                     }
                 }

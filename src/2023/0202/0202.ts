@@ -1,31 +1,23 @@
 // 202302
 
-import p5 from 'p5'
-import { colorUtils, shapeUtils, TrisOpts } from './hexels-helper-fns'
-import '~/style.css'
 import GUI from 'lil-gui'
+import { getPaletteVariants, PaletteVariant } from 'mish-bainrow'
+import p5 from 'p5'
 import { random } from '~/helpers/utils'
-import { getPaletteContexts, PaletteWithContext } from 'mish-bainrow'
+import '~/style.css'
+import { HexelsUtils, TrisOpts } from './hexels-helper-fns'
 
-const pals = getPaletteContexts({
+const pals = getPaletteVariants({
     includePalettes: ['valen', 'glowFish', 'market', 'neopolito', 'mondri'],
-    maxColors: 5,
+    minColors: 4,
     isolateColors: true,
     useStroke: false,
+    minContrastBg: 2,
     bgShade: {
         type: 'edge',
-        lumEdge: 0.2,
-        maxSaturation: 80,
+        edge: 20,
     },
 })
-
-const paletteUrls = [
-    'https://coolors.co/ffedeb-320d6d-ffd447-700353-fc814a',
-    'https://coolors.co/ffffff-9b7ede-fcd581-d52941-540D6E',
-    'https://coolors.co/ffffff-25ced1-2c4251-f17300-B288C0',
-    'https://coolors.co/1e0b16-5f0f40-9a031e-f2832e-D67AB1',
-    'https://coolors.co/080708-3772ff-df2935-fdca40-e6e8e6',
-]
 
 const Z = {
     grid: 3,
@@ -36,15 +28,15 @@ const Z = {
 
 new p5(
     (p: p5) => {
-        let palette: PaletteWithContext
-        let colors: ReturnType<typeof colorUtils>
-        let shapes: ReturnType<typeof shapeUtils> = shapeUtils(p)
+        let palette: PaletteVariant
+        // let shapes: ReturnType<typeof shapeUtils> = shapeUtils(p)
+        let h: HexelsUtils
 
         const gui = new GUI()
         const f = gui.addFolder('params')
         f.add(Z, 'grid', 1, 8, 1)
         f.add(Z, 'sides', 3, 12, 1)
-        const palControl = f.add(Z, 'palette', 0, pals.length, 1)
+        const palControl = f.add(Z, 'palette', 0, pals.length - 1, 1)
         f.add(Z, 'version', [1, 2, 3])
         f.onChange(() => p.redraw())
 
@@ -93,7 +85,6 @@ new p5(
 
         p.draw = function () {
             palette = pals[Z.palette]
-            colors = colorUtils(p, palette.colors)
 
             p.background(palette.bg)
 
@@ -107,6 +98,8 @@ new p5(
                 let angle = (p.TWO_PI / Z.sides) * i
                 pts.push(p.createVector(shapeSize * p.cos(angle), shapeSize * p.sin(angle)))
             }
+
+            h = new HexelsUtils(p, pts, palette.colors)
 
             p.push()
             p.translate((p.width - size) / 2, (p.height - size) / 2)
@@ -151,26 +144,21 @@ new p5(
 
             switch (style) {
                 case 1:
-                    colors.fill(0)
-                    shapes.shape(pts, { scale: [0.8, 1.2] }, { dist: [0, 0.2] })
+                    h.fill(0).shape(pts, { scale: [0.8, 1.2] }, { dist: [0, 0.2] })
 
                     let ind = p.floor(p.random(len))
-                    colors.fill(1)
-                    shapes.shape(
-                        pts,
+                    h.fill(1).shape(
                         { rotate: p.random() > 0.5, scale: [0.4, 0.6] },
                         { moveToIndex: ind, dist: [0.4, 1] },
                     )
 
-                    colors.stroke(2)
-                    shapes.shape(pts, { rotate: true }, { moveToIndex: (ind + 1) % len })
+                    h.stroke(2).shape(pts, { rotate: true }, { moveToIndex: (ind + 1) % len })
 
                     let triScaleBase = p.random(0.3, 0.75)
-                    shapes.trisRound(
-                        pts,
+                    h.trisRound(
                         {
                             scaleBase: triScaleBase,
-                            colorFn: () => (p.random() < 0.5 ? colors.fill(3) : colors.stroke(3)),
+                            colorFn: () => (p.random() < 0.5 ? h.fill(3) : h.stroke(3)),
                         },
                         {
                             moveToIndex: (ind + 3) % len,
@@ -178,25 +166,18 @@ new p5(
                         },
                     )
 
-                    colors.stroke(1, 3)
-                    shapes.lines(pts, { num: 2 })
+                    h.stroke(1, 3).lines({ num: 2 })
                     break
                 case 2:
-                    colors.strokeFill(0, 1, 5)
-                    shapes.trisRound(pts, {
+                    h.strokeFill(0, 1, 5).trisRound({
                         translate: -0.4,
                         scaleBase: 1.5,
                         num: p.random([1, 2]),
                     })
 
-                    colors.stroke(2)
-                    shapes.shape(pts, {
-                        scale: [0.8, 1.2],
-                    })
+                    h.stroke(2).shape({ scale: [0.8, 1.2] })
 
-                    colors.fill(3)
-                    shapes.circles(
-                        pts,
+                    h.fill(3).circles(
                         {
                             translate: p.random(0.6, 1.2),
                             radius: () => p.random(10, 25),
@@ -206,23 +187,19 @@ new p5(
                     )
                     break
                 case 3:
-                    colors.fill(0)
-                    shapes.trisRound(pts, {
+                    h.fill(0).trisRound({
                         num: p.random([4, 5, 6]),
                         translate: 0.3,
                         scaleBase: 0.8,
                     })
 
-                    colors.stroke(1)
-                    shapes.shape(pts, { scale: [0.8, 1.3] }, { dist: [0.3, 0.6] })
+                    h.stroke(1).shape({ scale: [0.8, 1.3] }, { dist: [0.3, 0.6] })
 
                     if (p.random() < 0.8) {
-                        colors.stroke(2, 6)
-                        shapes.lines(pts, {}, { dist: [0.2, 0.8] })
+                        h.stroke(2, 6).lines({}, { dist: [0.2, 0.8] })
                     }
 
-                    colors.stroke(3)
-                    shapes.lines(pts)
+                    h.stroke(3).lines()
                     break
                 default:
                     break
@@ -238,14 +215,10 @@ new p5(
             p.shuffle(indexes, true)
 
             if (steps[0] === 'hex') {
-                colors.fill(1)
-                shapes.shape(pts, { scale: 1 }, { dist: [0, 0.2] })
-
-                colors.fill(0)
-                shapes.shape(pts, { rotate: true, scale: [0.5, 0.8] }, { moveToIndex: indexes[0] })
+                h.fill(1).shape({ scale: 1 }, { dist: [0, 0.2] })
+                h.fill(0).shape({ rotate: true, scale: [0.5, 0.8] }, { moveToIndex: indexes[0] })
             } else if (steps[0] === 'bigTris') {
-                colors.strokeFill(1, 0, 3)
-                shapes.trisRound(pts, {
+                h.strokeFill(1, 0, 3).trisRound({
                     num: p.random([1, 2]),
                     translate: -0.4,
                     scaleBase: 1.5,
@@ -253,8 +226,7 @@ new p5(
                     scaleAltChance: 0.5,
                 })
             } else if (steps[0] === 'tris') {
-                colors.fill(0)
-                shapes.trisRound(pts, {
+                h.fill(0).trisRound({
                     num: p.random([5, 6]),
                     translate: 0.3,
                     scaleBase: 0.8,
@@ -265,20 +237,17 @@ new p5(
 
             if (steps[0] === 'bigTris' || p.random() < 0.5) {
                 steps.push('shapeOutline')
-                colors.stroke(2)
-                shapes.shape(pts, { rotate: true }, { dist: [0.4, 0.7] })
+                h.stroke(2).shape(pts, { rotate: true }, { dist: [0.4, 0.7] })
             }
 
             if (steps.length < 2 || p.random() < 0.5) {
                 steps.push('thickLines')
-                colors.stroke(3, 7)
-                shapes.lines(pts, { num: p.random([3, 4, 5]) }, { dist: [0.2, 0.8] })
+                h.stroke(3, 7).lines({ num: p.random([3, 4, 5]) }, { dist: [0.2, 0.8] })
             }
 
             if (p.random() < 0.5) {
                 steps.push('thinLines')
-                colors.stroke(2)
-                shapes.lines(pts)
+                h.stroke(2).lines()
             }
 
             if (p.random() < 0.5) {
@@ -288,16 +257,16 @@ new p5(
                     num: p.random([1, 2, 3, 4]),
                 }
                 if (steps[0] === 'hex') {
-                    trisOpts.colorFn = () => colors.fillOrStroke(2)
+                    trisOpts.colorFn = () => h.fillOrStroke(2)
                 } else if (steps[0] === 'bigTris') {
-                    colors.fill(1)
+                    h.fill(1)
                     trisOpts.scaleBase = p.random(0.25, 0.6)
                 } else {
-                    colors.fill(1)
+                    h.fill(1)
                     trisOpts.scaleBase = p.random(0.25, 0.35)
                 }
 
-                shapes.trisRound(pts, trisOpts, {
+                h.trisRound(trisOpts, {
                     moveToIndex: indexes[2],
                     dist: [0.4, 1],
                 })
@@ -305,8 +274,7 @@ new p5(
 
             if (steps.length < 5 && p.random() < 0.5) {
                 steps.push('circles')
-                colors.fill(2)
-                shapes.circles(pts, {
+                h.fill(2).circles({
                     radius: p.random(12, 18),
                     num: p.random([2, 3, 4]),
                     translate: p.random(0.7, 1.3),
@@ -315,9 +283,7 @@ new p5(
 
             if (steps.length < 3 || (steps.length === 3 && p.random() < 0.5)) {
                 steps.push('shape')
-                colors.strokeFill(2, 1, 3)
-                shapes.shape(
-                    pts,
+                h.strokeFill(2, 1, 3).shape(
                     {
                         scale: [0.2, 0.6],
                     },
@@ -328,14 +294,14 @@ new p5(
             // p.fill(0).noStroke().text(steps.join('\n '), -100, 0, 100)
         }
 
-        function designTest(pts: p5.Vector[]) {
-            colors.fill(0)
-            shapes.shape(pts)
-            colors.fill(2)
-            shapes.trisRound(pts, { num: 3 })
-            colors.stroke(3)
-            shapes.circles(pts, { radius: Math.floor(random(10, 50)), num: 6 })
-        }
+        // function designTest(pts: p5.Vector[]) {
+        //     colors.fill(0)
+        //     shapes.shape(pts)
+        //     colors.fill(2)
+        //     shapes.trisRound(pts, { num: 3 })
+        //     colors.stroke(3)
+        //     shapes.circles(pts, { radius: Math.floor(random(10, 50)), num: 6 })
+        // }
     },
     document.getElementById('sketch') ?? undefined,
 )

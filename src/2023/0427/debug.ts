@@ -12,9 +12,9 @@ type Params = {
 export function debugBubbles(PARAMS: Params, ctx: CanvasRenderingContext2D) {
     let stored = JSON.parse(window.localStorage.getItem('locparams') ?? '{}')
     let paramNames = Object.keys(PARAMS) as (keyof Params)[]
-    paramNames.forEach((param) => {
-        PARAMS[param] = stored[param] ?? PARAMS[param]
-    })
+    // paramNames.forEach((param) => {
+    //     PARAMS[param] = stored[param] ?? PARAMS[param]
+    // })
 
     const drawParams = () => {
         ctx.fillStyle = '#fff'
