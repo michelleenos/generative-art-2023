@@ -12,9 +12,9 @@ type Points = ([number, number] | false)[]
 type PointsParams = {
     innerGrid: number
     symmetry?: 'horizontal' | 'vertical' | 'rotate' | 'reflect'
-    edgesAttempts: number
+    maxFails: number
     edgesMax: number
-    edgesBreak: number
+    maxSegmentLen: number
     startPoint?: [number, number]
 }
 
@@ -22,9 +22,9 @@ export const getPoints = ({
     innerGrid,
     startPoint = [0, 0],
     symmetry = 'reflect',
-    edgesAttempts,
+    maxFails,
     edgesMax,
-    edgesBreak,
+    maxSegmentLen,
 }: PointsParams) => {
     let [x, y] = startPoint
     let points: Points = [[x, y]]
@@ -44,8 +44,29 @@ export const getPoints = ({
 
     let i = 0
     let pointsCount = 0
-    let needToPushPoint1 = false
-    while (i < edgesAttempts && pointsCount < edgesMax) {
+    let currentSegmentLen = 0
+    let needToPushCurrentPoint = false
+
+    const findNewPoint = (maxAttempts = 10) => {
+        let found = false
+        let attempts = 0
+        let x = Math.floor(Math.random() * (xMax + 1))
+        let y = Math.floor(Math.random() * (yMax + 1))
+        while (!found && attempts < maxAttempts) {
+            x = Math.floor(Math.random() * (xMax + 1))
+            y = Math.floor(Math.random() * (yMax + 1))
+            if (edges[`${x}-${y}`]?.length > 0) {
+                attempts++
+                continue
+            }
+            found = true
+        }
+
+        if (found) return [x, y]
+        return false
+    }
+
+    while (i < maxFails && pointsCount < edgesMax) {
         let visited = getEdges(x, y)
         let options = [...directions].filter(([xd, yd]) => {
             if (x + xd < 0 || x + xd > xMax) return false
@@ -60,12 +81,13 @@ export const getPoints = ({
             i++
             points.push(false)
             points.push([x, y])
+            currentSegmentLen = 0
             continue
         }
 
-        if (needToPushPoint1) {
+        if (needToPushCurrentPoint) {
             points.push([x, y])
-            needToPushPoint1 = false
+            needToPushCurrentPoint = false
             pointsCount++
         }
         let prevX = x
@@ -78,13 +100,14 @@ export const getPoints = ({
         getEdges(x, y).push([prevX, prevY])
         points.push([x, y])
         pointsCount++
-        i++
+        currentSegmentLen++
 
-        if (i % edgesBreak === 0) {
+        if (currentSegmentLen % maxSegmentLen === 0) {
             points.push(false)
             x = Math.floor(Math.random() * (xMax + 1))
             y = Math.floor(Math.random() * (yMax + 1))
-            needToPushPoint1 = true
+            needToPushCurrentPoint = true
+            currentSegmentLen = 0
         }
     }
 
