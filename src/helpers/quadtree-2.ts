@@ -1,18 +1,17 @@
-import { Rectangle, Vec2 } from './trig-shapes'
+import { Rectangle } from './trig-shapes'
 
-export type QuadTreePoint = Vec2 | [number, number]
-
-export class QuadTree<T extends QuadTreePoint> {
+export class QuadTree {
     bounds: Rectangle
     capacity: number
     depth: number
-    children: QuadTree<T>[] = []
-    points: T[] = []
-    parent: QuadTree<T> | null = null
+    children: QuadTree[] = []
+    points: [number, number][] = []
+    parent: QuadTree | null = null
+    isLeaf = true
     _maxDepth: number | null = null
     _count: number | null = null
 
-    constructor(bounds: Rectangle, capacity = 4, depth = 0, parent: QuadTree<T> | null = null) {
+    constructor(bounds: Rectangle, capacity = 4, depth = 0, parent: QuadTree | null = null) {
         this.bounds = bounds
         this.depth = depth
         this.capacity = capacity
@@ -43,20 +42,20 @@ export class QuadTree<T extends QuadTreePoint> {
         return this._maxDepth
     }
 
-    insert(point: T) {
+    insert(point: [number, number]) {
         this._count = null
 
         if (!this.bounds.contains(point)) {
             return false
         }
 
-        if (this.points.length < this.capacity) {
-            this.points.push(point)
-            return true
-        }
-
-        if (this.children.length === 0) {
-            this.subdivide()
+        if (this.isLeaf) {
+            if (this.points.length < this.capacity) {
+                this.points.push(point)
+                return true
+            } else if (this.children.length === 0) {
+                this.subdivide()
+            }
         }
 
         for (let i = 0; i < this.children.length; i++) {
@@ -73,6 +72,7 @@ export class QuadTree<T extends QuadTreePoint> {
         let { x, y, width, height } = this.bounds
         let halfWidth = width / 2
         let halfHeight = height / 2
+        this.isLeaf = false
 
         let ne = new QuadTree(
             new Rectangle(x + halfWidth, y, halfWidth, halfHeight),
@@ -100,10 +100,15 @@ export class QuadTree<T extends QuadTreePoint> {
         )
 
         this.children = [ne, nw, se, sw]
+
+        while (this.points.length > 0) {
+            let point = this.points.pop()!
+            this.insert(point)
+        }
     }
 
     getLeafNodes() {
-        let children: QuadTree<T>[] = []
+        let children: QuadTree[] = []
 
         this.children.forEach((child) => {
             let c = child.getLeafNodes()
@@ -122,7 +127,7 @@ export class QuadTree<T extends QuadTreePoint> {
             return []
         }
 
-        let found: T[] = []
+        let found: [number, number][] = []
         for (let p of this.points) {
             if (range.contains(p)) found.push(p)
         }
@@ -143,7 +148,7 @@ export class QuadTree<T extends QuadTreePoint> {
     // }
 
     getAllPoints() {
-        let points: T[] = [...this.points]
+        let points: [number, number][] = [...this.points]
         this.children.forEach((child) => {
             points.push(...child.getAllPoints())
         })
