@@ -96,10 +96,19 @@ export class Vec2 {
         this.y += (target.y - this.y) * amount
         return this
     }
+
+    distance(target: Vec2) {
+        return this.copy().sub(target).mag()
+    }
 }
 
 export class Rectangle {
-    constructor(public x: number, public y: number, public width: number, public height: number) {}
+    constructor(
+        public x: number,
+        public y: number,
+        public width: number,
+        public height: number,
+    ) {}
 
     contains(x: number, y: number): boolean
     contains(point: Vec2 | [number, number]): boolean
@@ -185,6 +194,11 @@ export class Circle extends Vec2 {
         let dx = xDist - rect.width / 2
         let dy = yDist - rect.height / 2
         return dx * dx + dy * dy <= this.rSquared
+    }
+
+    intersectsCircle(circle: Circle, padding = 0) {
+        let dist = this.distance(circle)
+        return dist <= this._r + circle._r + padding
     }
 
     getRandom() {
