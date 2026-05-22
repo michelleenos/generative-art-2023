@@ -46,7 +46,6 @@ interface GrowCircleOpts {
     maxAttempts?: number
     newRadiusMin?: number
     newRadiusMax?: number
-
     minPadding?: number
 }
 
