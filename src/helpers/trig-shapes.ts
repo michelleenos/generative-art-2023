@@ -1,5 +1,3 @@
-import p5 from 'p5'
-
 export class Vec2 {
     x: number
     y: number
@@ -10,8 +8,8 @@ export class Vec2 {
     }
 
     add(n: number, n2?: number): this
-    add(point: Vec2 | p5.Vector): this
-    add(point: Vec2 | p5.Vector | number, n2?: number) {
+    add(point: Vec2): this
+    add(point: Vec2 | number, n2?: number) {
         if (typeof point === 'number') {
             this.x += point
             this.y += typeof n2 === 'number' ? n2 : point
@@ -23,8 +21,8 @@ export class Vec2 {
     }
 
     sub(n: number, n2?: number): this
-    sub(point: Vec2 | p5.Vector): this
-    sub(point: Vec2 | p5.Vector | number, n2?: number) {
+    sub(point: Vec2): this
+    sub(point: Vec2 | number, n2?: number) {
         if (typeof point === 'number') {
             this.x -= point
             this.y -= typeof n2 === 'number' ? n2 : point
@@ -35,8 +33,8 @@ export class Vec2 {
         return this
     }
 
-    mult(n: number | Vec2 | p5.Vector) {
-        if (n instanceof Vec2 || n instanceof p5.Vector) {
+    mult(n: number | Vec2) {
+        if (n instanceof Vec2) {
             this.x *= n.x
             this.y *= n.y
             return this
@@ -46,8 +44,8 @@ export class Vec2 {
         return this
     }
 
-    div(n: number | Vec2 | p5.Vector) {
-        if (n instanceof Vec2 || n instanceof p5.Vector) {
+    div(n: number | Vec2) {
+        if (n instanceof Vec2) {
             if (n.x === 0 || n.y === 0) return this
             this.x /= n.x
             this.y /= n.y
