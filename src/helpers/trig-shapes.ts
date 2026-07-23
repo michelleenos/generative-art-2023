@@ -82,6 +82,18 @@ export class Vec2 {
         return this
     }
 
+    heading() {
+        return Math.atan2(this.y, this.x)
+    }
+
+    rotate(angle: number) {
+        let h = this.heading() + angle
+        const mag = this.mag()
+        this.x = Math.cos(h) * mag
+        this.y = Math.sin(h) * mag
+        return this
+    }
+
     limit(n: number) {
         let mSq = this.magSq()
         if (mSq > n * n) {
@@ -99,6 +111,10 @@ export class Vec2 {
 
     distance(target: Vec2) {
         return this.copy().sub(target).mag()
+    }
+
+    normal() {
+        return new Vec2(-this.y, this.x)
     }
 }
 
