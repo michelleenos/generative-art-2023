@@ -37,11 +37,5 @@
         "tweakpane": "^4.0.5",
         "tweakpane-plugin-infodump": "^4.0.2",
         "voronoi": "^1.0.0"
-    },
-    "pnpm": {
-        "overrides": {
-            "canvas-frames": "link:../canvas-frames",
-            "mish-bainrow": "link:../bainrow"
-        }
     }
 }
