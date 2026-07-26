@@ -5,7 +5,7 @@ export function makePalettesGui<T extends Pal>(
     gui: GUI,
     current: T,
     options: T[],
-    onUpdate: (pal: T) => void,
+    onUpdate?: (pal: T) => void,
 ) {
     const palsByName = Object.fromEntries(options.map((p) => [p.name, p]))
     const paletteProxy = {
@@ -29,6 +29,6 @@ export function makePalettesGui<T extends Pal>(
     const setPalette = (p: T, idx: number) => {
         paletteProxy.palette = p
         paletteProxy.paletteIndex = idx
-        onUpdate(p)
+        onUpdate?.(p)
     }
 }

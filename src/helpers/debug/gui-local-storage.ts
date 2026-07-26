@@ -3,7 +3,7 @@ import GUI, { type Controller } from 'lil-gui'
 type GuiAddParams = [
     Parameters<typeof GUI.prototype.add>[2]?,
     Parameters<typeof GUI.prototype.add>[3]?,
-    Parameters<typeof GUI.prototype.add>[4]?
+    Parameters<typeof GUI.prototype.add>[4]?,
 ]
 
 export class GuiWithLocalStorage {
@@ -12,6 +12,7 @@ export class GuiWithLocalStorage {
     storageKey: string
     children: GuiWithLocalStorage[] = []
     defaultVals: Record<string, any> = {}
+    _onChange?: (...params: any[]) => void
 
     constructor(storageKey: string, gui?: GUI) {
         this.gui = gui || new GUI()
@@ -29,6 +30,7 @@ export class GuiWithLocalStorage {
                     this.setStorage()
                 }
             }
+            this._onChange?.()
         })
 
         this.setExpandCollapse()
@@ -48,12 +50,16 @@ export class GuiWithLocalStorage {
         })
     }
 
+    onChange(cb: (...params: any[]) => void) {
+        this._onChange = cb
+    }
+
     add = (
         obj: { [key: string]: any },
         key: string,
         params: GuiAddParams = [],
         lsKey: string = key,
-        useStored = true
+        useStored = true,
     ): Controller => {
         if (useStored && this.storedVals.hasOwnProperty(lsKey)) {
             this.defaultVals[key] = obj[key]
@@ -117,6 +123,11 @@ export class GuiWithLocalStorage {
                 }
             }
         })
+    }
+
+    close() {
+        this.gui.close()
+        return this
     }
 
     exportVals = () => {

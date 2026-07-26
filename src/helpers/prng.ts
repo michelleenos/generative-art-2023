@@ -15,11 +15,6 @@ export function mulberry32(a: number = (Math.random() * 2 ** 32) >>> 0) {
 export function makeRng(seed: number) {
     const next = mulberry32(seed)
 
-    // const range = (min: number, max: number) => min + next() * (max - min)
-    // // inclusive of min and max
-    // const int = (min: number, max: number) => min + Math.floor(next() * (max - min + 1))
-    // const pick = <T>(items: readonly T[]): T => items[Math.floor(next() * items.length)]
-
     function random(): number
     function random(max: number): number
     function random(minOrMax: number, max: number): number

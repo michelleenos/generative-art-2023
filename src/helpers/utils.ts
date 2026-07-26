@@ -22,6 +22,17 @@ function random<T>(numOrArray?: number | readonly T[], max?: number) {
     return numOrArray[Math.floor(Math.random() * numOrArray.length)]
 }
 
+/**
+ * @param min - minimum integer value (inclusive)
+ * @param max - maximum integer value (inclusive)
+ * @param rng - number generator returning a float in `[0, 1)` (defaults to `Math.random`)
+ * @returns a random integer between `min` and `max` (inclusive of max)
+ */
+function randomInt(min: number, max: number, rng = Math.random) {
+    let range = max - min
+    return Math.floor(rng() * (range + 1) + min)
+}
+
 function step(edge: number, value: number) {
     return value < edge ? 0 : 1
 }
@@ -46,12 +57,12 @@ function weightedRandom<T>(array: T[], weights: number[]): T {
     return array[array.length - 1]
 }
 
-const shuffle = (array: any[]) => {
+const shuffle = (array: any[], rng = Math.random) => {
     let currentIndex = array.length
     let randomIndex
 
     while (0 !== currentIndex) {
-        randomIndex = Math.floor(Math.random() * currentIndex)
+        randomIndex = Math.floor(rng() * currentIndex)
         currentIndex -= 1
         ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
     }
@@ -121,6 +132,7 @@ export {
     lerp,
     map,
     random,
+    randomInt,
     weightedRandom,
     shuffle,
     constrain,
