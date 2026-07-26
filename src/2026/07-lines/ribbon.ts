@@ -2,8 +2,6 @@ import easing, { Easing } from '~/helpers/easings'
 import { Vec2 } from '~/helpers/trig-shapes'
 import { map } from '~/helpers/utils'
 
-type Pt = { x: number; y: number }
-
 export interface RibbonParams {
     width?: number
     taper?: number
@@ -51,13 +49,6 @@ export function getRibbon(
     let distance = 0
     let last: Vec2 | null = null
 
-    // const getWidth = (distance: number) => {
-    //     if (distance >= taperLen) return width
-    //     let p = distance / taperLen
-    //     p = easing[easeFn](p)
-    //     return map(p, 0, 1, wEnds, width)
-    // }
-
     const progress = (distance: number, max: number) => {
         if (distance >= max) return 1
         let p = distance / max
@@ -87,6 +78,8 @@ export function getRibbon(
             let p1 = map(p, 0, 1, 0.5, 1)
             w1 += n * noiseJitter * p1
             w2 += n2 * noiseJitter * p1
+            // opt-in: uncomment to also wobble the direction (uses noiseRotate).
+            // currently off, so `noiseRotate` / C.overlap.rotate are inert.
             // direction.rotate(n * noiseRotate * p)
         }
         const normal = direction.normal()
@@ -100,11 +93,13 @@ export function getRibbon(
         all[pts.length * 2 - 1 - ind] = e2
     }
 
+    // Two passes with `distance`/`last` reset between them so the taper eases in
+    // from BOTH ends: forward from the start to the middle...
     for (let i = 0; i < Math.floor(len / 2); i++) {
         calculateRibbon(i)
     }
 
-    // go backwards from the end to the middle
+    // ...then backward from the end to the middle.
     last = null
     distance = 0
     for (let i = len - 1; i >= Math.floor(len / 2); i--) {
