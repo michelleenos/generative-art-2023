@@ -30,18 +30,25 @@ const state = {
     // seed: (Math.random() * 2 ** 32) >>> 0,
     // seed: 3145594983,
     // seed: 2658639953,
-    seed: 4208337816,
-    // seed: 974856497,
+    // seed: 464982570,
+    seed: 1551175805,
     steps: 0,
     iw: 0,
     ih: 0,
     linesCount: 0,
     offsetY: 0,
+    tweaked: false,
+    paletteName: '',
 }
 
 const sizes = { width: 950, height: 950 }
-const { ctx, canvas, resizeCanvas } = createCanvas(sizes.width, sizes.height)
-const recorder = new Recorder({ canvas, draw, position: 'bottom-right' })
+const { ctx, canvas } = createCanvas(sizes.width, sizes.height)
+const recorder = new Recorder({
+    canvas,
+    draw,
+    position: 'bottom-right',
+    metadata: () => ({ config: C, state }),
+})
 
 recorder.on('beforeStart', () => (recorder.fileName = `waves-${state.seed}`))
 
@@ -50,6 +57,7 @@ function initRng(newSeed = false) {
     console.log('SEED: ', state.seed)
     rng = makeRng(state.seed)
     noise = createNoise3D(rng)
+    state.tweaked = false
     C = getConfig(rng)
     rebuildLayoutState()
     buildGui()
@@ -94,8 +102,9 @@ function buildGui() {
     if (gui) gui.destroy()
     gui = new GUI()
     gui.add(C, 'style').disable()
-    gui.add(state, 'seed')
+    gui.add(state, 'seed').onChange(() => initRng(false))
     gui.add(state, 'offsetY', 0, 200, 1)
+    gui.add(C.draw.palette, 'name').name('palette').disable()
 
     const fl = gui.addFolder('layout')
     fl.add(layout, 'aspect', 0.2, 3, 0.1)
@@ -112,15 +121,18 @@ function buildGui() {
     fw.add(C.wave, 'freqY', 0, 0.01, 0.0001)
     fw.add(C.wave, 'taper', 0, 1, 0.1)
     fw.add(C.wave, 'ease', Object.keys(easing))
+    fw.onChange(() => (state.tweaked = true))
 
     const fs = gui.addFolder('smoothing').onChange(rebuildLayoutState)
     fs.add(C.smoothing, 'times', 0, 12, 1)
     fs.add(C.smoothing, 'strength', 0, 1, 0.1)
     fs.add(C.smoothing, 'taubin')
     fs.add(C.smoothing, 'taubinAmt', 1, 1.5, 0.01)
+    fs.onChange(() => (state.tweaked = true))
 
     const fd = gui.addFolder('draw')
     fd.add(C.draw, 'lineWidth', 1, 20, 1)
+    fd.onChange(() => (state.tweaked = true))
 
     gui.add({ newSeed: () => initRng(true) }, 'newSeed')
     gui.add({ reset: () => initRng(false) }, 'reset')
