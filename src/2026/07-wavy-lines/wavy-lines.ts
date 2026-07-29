@@ -27,11 +27,7 @@ const layout = {
 }
 
 const state = {
-    // seed: (Math.random() * 2 ** 32) >>> 0,
-    // seed: 3145594983,
-    // seed: 2658639953,
-    // seed: 464982570,
-    seed: 1551175805,
+    seed: (Math.random() * 2 ** 32) >>> 0,
     steps: 0,
     iw: 0,
     ih: 0,
@@ -95,8 +91,6 @@ function rebuildLayoutState() {
     state.linesCount = Math.floor((ih - state.offsetY) / spacing) + 1
     state.ih = state.offsetY + (state.linesCount - 1) * spacing
 }
-
-// 998611812
 
 function buildGui() {
     if (gui) gui.destroy()
@@ -185,7 +179,7 @@ function setBaseDrawing(drawRect = false) {
     ctx.translate(0, offsetY)
 }
 
-function debug(method: 'smooth' | 'flat') {
+function _debug(method: 'smooth' | 'flat') {
     const { amp, ease, taper, xStep, spacing } = C.wave
     const { steps, linesCount } = state
 
@@ -255,11 +249,6 @@ function draw(t: number) {
         const ind = Math.floor(((i * INV_PHI) % 1) * palette.colors.length)
         ctx.strokeStyle = palette.colors[ind]
         smoothDraw(pts)
-
-        // ctx.fillStyle = palette.colors[ind]
-        // ctx.fillText(`${baseY}`, 0, baseY - 10)
-        // const minPt = Math.min(...pts.map(({ y }) => y))
-        // ctx.fillText(`${round(minPt, 0)}`, -20, baseY - 10)
     }
 
     ctx.restore()
