@@ -35,3 +35,5 @@ export function makeRng(seed: number) {
 
     return random
 }
+
+export type Rng = ReturnType<typeof makeRng>

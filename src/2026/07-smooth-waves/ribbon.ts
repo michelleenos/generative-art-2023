@@ -12,7 +12,6 @@ export interface RibbonParams {
     noiseOffset?: number
     noiseScale?: number
     noiseJitter?: number
-    noiseRotate?: number
 }
 
 export interface RibbonData {
@@ -34,7 +33,6 @@ export function getRibbon(
         noiseOffset = 0,
         noiseScale = 0.01,
         noiseJitter = width * taper,
-        noiseRotate = Math.PI * 0.5,
         taperLen,
         noiseFn,
     }: RibbonParams,
@@ -78,9 +76,6 @@ export function getRibbon(
             let p1 = map(p, 0, 1, 0.5, 1)
             w1 += n * noiseJitter * p1
             w2 += n2 * noiseJitter * p1
-            // opt-in: uncomment to also wobble the direction (uses noiseRotate).
-            // currently off, so `noiseRotate` / C.overlap.rotate are inert.
-            // direction.rotate(n * noiseRotate * p)
         }
         const normal = direction.normal()
 

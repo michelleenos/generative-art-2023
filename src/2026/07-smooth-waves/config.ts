@@ -1,11 +1,5 @@
 import type { Easing } from '~/helpers/easings'
 
-/**
- * Single source of truth for every tunable. Grouped by pipeline stage so the
- * GUI folders map 1:1 and so the values that shape the brushy overlap all live
- * in one place (they used to be split between here and hardcoded literals inside
- * the render function).
- */
 export const C = {
     // page geometry — the grid the lines sit on
     layout: {
@@ -20,6 +14,7 @@ export const C = {
         freqX: 0.01,
         freqY: 0.01,
         strokeCount: 20, // was `brushSweeps`
+        easeFn: 'outSine' as Easing,
     },
     // shape of a single ribbon (one stroke). taper*/ends*/easeFn used to be
     // hardcoded in smoothMultipleRibbon.
@@ -36,8 +31,7 @@ export const C = {
         passes: 3, // was `brushOverlaps`
         alpha: 0.2,
         noiseScale: 0.01, // was `overlapNoiseScale`
-        jitter: 2,
-        rotate: Math.PI * 0.25, // currently inert (see ribbon.ts noiseRotate)
+        jitter: 7,
     },
 }
 
