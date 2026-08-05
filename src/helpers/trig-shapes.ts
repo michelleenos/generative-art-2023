@@ -7,6 +7,12 @@ export class Vec2 {
         this.y = y
     }
 
+    set(x: number, y: number) {
+        this.x = x
+        this.y = y
+        return this
+    }
+
     add(n: number, n2?: number): this
     add(point: Vec2): this
     add(point: Vec2 | number, n2?: number) {
@@ -85,11 +91,14 @@ export class Vec2 {
     }
 
     rotate(angle: number) {
-        let h = this.heading() + angle
-        const mag = this.mag()
-        this.x = Math.cos(h) * mag
-        this.y = Math.sin(h) * mag
-        return this
+        const cos = Math.cos(angle)
+        const sin = Math.sin(angle)
+        return this.set(this.x * cos - this.y * sin, this.x * sin + this.y * cos)
+        // let h = this.heading() + angle
+        // const mag = this.mag()
+        // this.x = Math.cos(h) * mag
+        // this.y = Math.sin(h) * mag
+        // return this
     }
 
     limit(n: number) {
@@ -108,7 +117,7 @@ export class Vec2 {
     }
 
     distance(target: Vec2) {
-        return this.copy().sub(target).mag()
+        return Math.sqrt((this.x - target.x) ** 2 + (this.y - target.y) ** 2)
     }
 
     normal() {

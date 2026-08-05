@@ -4,9 +4,12 @@ import { map } from '~/helpers/utils'
 
 export interface RibbonParams {
     width?: number
+    /** ribbon ends will have width of `width * taper`
+     * @default 0.3
+     * */
     taper?: number
-    endsLen?: number
     taperLen?: number
+    noiseTaperLen?: number
     easeFn?: Easing
     noiseFn?: (x: number, y: number) => number
     noiseOffset?: number
@@ -29,13 +32,14 @@ export function getRibbon(
         width = 20,
         taper = 0.3,
         easeFn = 'outSine',
-        endsLen = 100,
+        // endsLen = 100,
+        noiseTaperLen = 100,
         noiseOffset = 0,
         noiseScale = 0.01,
         noiseJitter = width * taper,
-        taperLen,
+        taperLen = 100,
         noiseFn,
-    }: RibbonParams,
+    }: RibbonParams = {},
 ) {
     const edge1: Vec2[] = []
     const edge2: Vec2[] = []
@@ -59,21 +63,21 @@ export function getRibbon(
         if (last !== null) distance += pt.distance(last)
         last = pt
 
-        let p = progress(distance, endsLen)
-        let tp = taperLen !== undefined && taperLen !== endsLen ? progress(distance, taperLen) : p
-        let w = map(tp, 0, 1, wEnds, width) / 2
+        let pTaper = progress(distance, taperLen)
+        let w = map(pTaper, 0, 1, wEnds, width) / 2
         let w1 = w
         let w2 = w
         const a = pts[Math.max(0, ind - 1)]
         const b = pts[Math.min(len - 1, ind + 1)]
         const direction = b.copy().sub(a).normalize()
         if (noiseFn) {
+            let pNoise = progress(distance, noiseTaperLen)
             let n = noiseFn((pt.x + noiseOffset) * noiseScale, (pt.y + noiseOffset) * noiseScale)
             let n2 = noiseFn(
                 (pt.x + noiseOffset * 1.5) * noiseScale,
                 (pt.y + noiseOffset * 1.5) * noiseScale,
             )
-            let p1 = map(p, 0, 1, 0.5, 1)
+            let p1 = map(pNoise, 0, 1, 0.5, 1)
             w1 += n * noiseJitter * p1
             w2 += n2 * noiseJitter * p1
         }

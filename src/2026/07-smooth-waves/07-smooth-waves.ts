@@ -92,7 +92,7 @@ function drawBrushStroke(pts: Vec2[], t = 0) {
         width: C.ribbon.width,
         taper: C.ribbon.taper,
         taperLen: C.ribbon.taperLen,
-        endsLen: C.ribbon.endsLen,
+        noiseTaperLen: C.ribbon.noiseTaperLen,
         easeFn: C.ribbon.easeFn,
     }
 
@@ -218,7 +218,7 @@ function initialize() {
     ribbon.add(C.ribbon, 'width', 1, 100, 1)
     ribbon.add(C.ribbon, 'taper', 0, 1, 0.01)
     ribbon.add(C.ribbon, 'taperLen', 5, 500, 1)
-    ribbon.add(C.ribbon, 'endsLen', 5, 300, 1)
+    ribbon.add(C.ribbon, 'noiseTaperLen', 5, 300, 1)
 
     const overlap = gui.addFolder('overlap')
     overlap.add(C.overlap, 'passes', 1, 40, 1)

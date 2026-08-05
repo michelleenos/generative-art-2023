@@ -22,7 +22,7 @@ export const C = {
         width: 10,
         taper: 0.3,
         taperLen: 200,
-        endsLen: 100,
+        noiseTaperLen: 100,
         easeFn: 'outSine' as Easing,
     },
     // the brushy re-stamping: each ribbon is drawn `passes` extra times with
