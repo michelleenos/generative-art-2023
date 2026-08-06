@@ -20,7 +20,7 @@ type RibbonStep = {
     e2: { x: number; y: number }
 }
 
-type Ribbon = RibbonStep[]
+export type Ribbon = RibbonStep[]
 
 function progress(distance: number, max: number) {
     if (distance >= max) return 1

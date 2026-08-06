@@ -3,7 +3,12 @@ import { WavyBumpsConfig } from './config'
 
 export function buildWavyBumpsGui(
     C: WavyBumpsConfig,
-    { onChange, onNewSeed }: { onChange?: () => void; onNewSeed: () => void },
+    {
+        animated = false,
+        onRestart,
+        onChange,
+        onNewSeed,
+    }: { animated?: boolean; onRestart?: () => void; onChange?: () => void; onNewSeed: () => void },
 ) {
     const gui = new GuiExtra()
     gui.add(C, 'spacing', 5, 300, 1)
@@ -43,5 +48,16 @@ export function buildWavyBumpsGui(
     rf.add(C.strokeRibbon, 'taper', 0, 1, 0.1)
     rf.add(C.strokeRibbon, 'taperLen', 0, 100, 1)
 
-    gui.onChange(() => onChange?.())
+    if (animated) {
+        const af = gui.addFolder('animation').close()
+        af.add(C.animation, 'jitterRatio', 0.1, 7, 0.1)
+        af.add(C.animation, 'clumpAmt', 0, 300, 1)
+        af.add(C.animation, 'clumpScale', 0, 0.2, 0.0001)
+        af.add(C.animation, 'strokesPerFrame', 1, 50, 1)
+        af.add(C.animation, 'direction', ['up', 'down'])
+        af.add(C.animation, 'rowStagger', 0, 1, 0.01)
+        if (onRestart) af.add({ restart: () => onRestart() }, 'restart')
+    }
+
+    if (onChange) gui.onChange(() => onChange())
 }
