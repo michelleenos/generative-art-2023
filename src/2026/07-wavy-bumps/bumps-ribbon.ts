@@ -1,5 +1,4 @@
 import { type NoiseFunction2D } from 'simplex-noise'
-import { Vec2 } from '~/helpers/trig-shapes'
 import { map } from '~/helpers/utils'
 
 interface RibbonParams {
@@ -14,7 +13,14 @@ interface RibbonParams {
     noiseOffsetY?: number
 }
 
-type Vec2Simple = { x: number; y: number }
+type Vec2Like = { x: number; y: number }
+
+type RibbonStep = {
+    e1: { x: number; y: number }
+    e2: { x: number; y: number }
+}
+
+type Ribbon = RibbonStep[]
 
 function progress(distance: number, max: number) {
     if (distance >= max) return 1
@@ -36,9 +42,9 @@ export function getRibbon(
     }: RibbonParams,
 ) {
     const len = pts.length
-    const results: { e1: Vec2Simple; e2: Vec2Simple }[] = []
+    const results: Ribbon = []
     let distance = 0
-    let last: Vec2Simple | null = null
+    let last: { x: number; y: number } | null = null
 
     const calculateRibbon = (i: number) => {
         const pt = pts[i]
@@ -57,8 +63,8 @@ export function getRibbon(
         if (noiseFn) {
             let n1 = noiseFn((pt.x + noiseOffsetX) * noiseScale, (pt.y + noiseOffsetY) * noiseScale)
             let n2 = noiseFn(
-                (pt.x + noiseOffsetX * 24) * noiseScale,
-                (pt.y + noiseOffsetY * 24) * noiseScale,
+                (pt.x + noiseOffsetX * 2.4) * noiseScale,
+                (pt.y + noiseOffsetY * 2.4) * noiseScale,
             )
             w1 *= 1 + Math.abs(n1) * noiseJitter
             w2 *= 1 + Math.abs(n2) * noiseJitter
@@ -75,8 +81,8 @@ export function getRibbon(
         const normalX = -dirY
         const normalY = dirX
 
-        const e1 = new Vec2(pt.x + normalX * w, pt.y + normalY * w)
-        const e2 = new Vec2(pt.x - normalX * w, pt.y - normalY * w)
+        const e1 = { x: pt.x + normalX * w, y: pt.y + normalY * w }
+        const e2 = { x: pt.x - normalX * w, y: pt.y - normalY * w }
 
         results[i] = { e1, e2 }
     }
@@ -96,16 +102,11 @@ export function getRibbon(
     return results
 }
 
-function midpoint(a: Vec2Simple, b: Vec2Simple) {
-    // return a.copy().add(b).div(2)
+function midpoint(a: Vec2Like, b: Vec2Like) {
     return [(a.x + b.x) / 2, (a.y + b.y) / 2] as [number, number]
 }
 
-export function smoothDrawRibbon(
-    ribbon: { e1: Vec2Simple; e2: Vec2Simple }[],
-    ctx: CanvasRenderingContext2D,
-    useCurves = true,
-) {
+export function smoothDrawRibbon(ribbon: Ribbon, ctx: CanvasRenderingContext2D, useCurves = true) {
     const len = ribbon.length
     let mp1 = midpoint(ribbon[0].e1, ribbon[0].e2)
     ctx.moveTo(...mp1)

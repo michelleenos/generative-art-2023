@@ -9,13 +9,13 @@ export const C = {
         peakWidth: 150,
         chaikinTimes: 4,
     },
-
-    strokes: {
+    field: {
         density: { x: 7, y: 10 },
         noiseScale: { x: 0.156, y: 0.076 },
         moveAmtBot: { x: 28, y: 12 },
         moveAmtTop: { x: 0, y: 0 },
-        useNoise: true,
+    },
+    strokePath: {
         steps: 4,
         stepLen: 10,
         blendAngleAmt: 1,
@@ -25,10 +25,10 @@ export const C = {
         width: 10,
         taper: 0.4,
         taperLen: 25,
-        useCurves: true,
     },
     spacing: 100,
     alpha: 0.3,
+    overlap: true,
 }
 
 export type WavyBumpsConfig = typeof C
