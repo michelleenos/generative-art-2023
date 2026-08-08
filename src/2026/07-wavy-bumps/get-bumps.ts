@@ -1,62 +1,10 @@
 import { Rng } from '~/helpers/prng'
 import { WavyBumpsConfig } from './config'
 import { randomInt } from '~/helpers/utils'
+import { chaikinSmooth } from '~/helpers/chaikin-smooth'
+import { randomSample1d } from '~/helpers/random-sample'
 
-export function randomSample1d(count: number, min: number, max: number, n: number, rng: Rng) {
-    const results: number[] = []
-
-    while (results.length < count) {
-        // generate n random candidates between min and max
-
-        let candidates: number[] = []
-        for (let i = 0; i < n; i++) {
-            candidates.push(rng(min, max))
-        }
-        // for each candidate, find the distance between it and existing results
-        // take the closest distance
-        // select the candidate with the largest closest distance and add to results
-        candidates = candidates.sort((a, b) => {
-            let closestA = Infinity
-            let closestB = Infinity
-            results.forEach((r) => {
-                closestA = Math.min(closestA, Math.abs(r - a))
-                closestB = Math.min(closestB, Math.abs(r - b))
-            })
-            return closestB - closestA
-        })
-        results.push(candidates[0])
-    }
-
-    return results
-}
-
-export function chaikinSmooth(pts: { x: number; y: number }[], times: number) {
-    let prev: { x: number; y: number }[] = pts
-
-    for (let t = 0; t < times; t++) {
-        let next: { x: number; y: number }[] = []
-        for (let i = 0; i < prev.length - 1; i++) {
-            const a = prev[i]
-            const b = prev[i + 1]
-
-            next.push(
-                {
-                    x: a.x * 0.75 + b.x * 0.25,
-                    y: a.y * 0.75 + b.y * 0.25,
-                },
-                {
-                    x: a.x * 0.25 + b.x * 0.75,
-                    y: a.y * 0.25 + b.y * 0.75,
-                },
-            )
-        }
-        prev = next
-    }
-
-    return prev
-}
-
-interface GetBumpsPointsParams {
+type GetBumpsPointsArgs = {
     xStart: number
     xEnd: number
     peakXStart: number
@@ -71,7 +19,7 @@ export function getBumpsPoints({
     peakXEnd,
     bumps,
     rng,
-}: GetBumpsPointsParams) {
+}: GetBumpsPointsArgs) {
     const { peakMin, peakMax, highMin, highMax, peakWidth, chaikinTimes, lowMin, lowMax } = bumps
     const peaksCount = randomInt(peakMin, peakMax, rng)
     const peaks = randomSample1d(peaksCount, peakXStart, peakXEnd, 10, rng)
