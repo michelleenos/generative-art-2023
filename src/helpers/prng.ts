@@ -3,13 +3,17 @@
  * @param a Seed - requires 32-bit integer (to produce one use `(Math.random() * 2 ** 32) >>> 0`)
  * @returns
  */
-export function mulberry32(a: number = (Math.random() * 2 ** 32) >>> 0) {
+export function mulberry32(a: number = makeRandomSeed()) {
     return function () {
         let t = (a += 0x6d2b79f5)
         t = Math.imul(t ^ (t >>> 15), t | 1)
         t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296
     }
+}
+
+export function makeRandomSeed(rng: () => number = Math.random) {
+    return (rng() * 2 ** 32) >>> 0
 }
 
 export function makeRng(seed: number) {

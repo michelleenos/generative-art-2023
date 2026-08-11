@@ -1,9 +1,10 @@
 import { clamp, lerp, map } from '~/helpers/utils'
 import { WavyBumpsConfig } from './config'
 import { NoiseFunction2D } from 'simplex-noise'
-import { getRibbon } from './bumps-ribbon'
-import { BumpsCtx, BumpsLayout, BumpsPalette, BumpsStroke } from './types'
-import { getBumpsPoints } from './get-bumps'
+import { getRibbon } from './_wavy-bumps-ribbon'
+import { BumpsCtx, BumpsLayout, BumpsPalette, BumpsScene, BumpsStroke } from './_wavy-bumps-types'
+import { getBumpsPoints } from './_wavy-bumps-wave'
+import { makeRandomSeed, makeRng } from '~/helpers/prng'
 
 export interface LineData {
     x: number
@@ -166,19 +167,23 @@ export function getStrokeRibbon({
     return ribbon
 }
 
-export type GetStrokesArgs = BumpsCtx & {
-    config: WavyBumpsConfig
-    layout: BumpsLayout
-    palette: BumpsPalette
-}
-export function getStrokes({ rng, noise, config, layout, palette }: GetStrokesArgs) {
-    const { spacing, alpha } = config
+export type GetStrokesArgs = BumpsScene & { shuffle?: boolean }
+export function getStrokes({
+    rng,
+    noise,
+    config,
+    layout,
+    palette,
+    shuffle = false,
+}: GetStrokesArgs) {
+    const { alpha } = config.waves
+    const { spacing } = config.bumps
     const { width } = layout.sizes
-    const { bounds, fieldStepX, overlapY, fieldStepY, rowCount } = layout
+    const { bounds, fieldStepX, overlapY, fieldStepY, rowCount, rowsBelow } = layout
 
     const strokes: BumpsStroke[] = []
     for (let yi = rowCount - 1; yi >= 0; yi--) {
-        const rowY = yi * spacing
+        const rowY = (yi - rowsBelow) * spacing
         const color = palette.rowColors[yi].alpha(alpha).css()
         const points = getBumpsPoints({ ...bounds, bumps: config.bumps, rng })
         const lineLookup = getLineLookup(points, { ...bounds })
@@ -203,12 +208,16 @@ export function getStrokes({ rng, noise, config, layout, palette }: GetStrokesAr
         }
     }
 
+    if (shuffle) {
+        return shuffleStrokes(strokes, { rng: makeRng(makeRandomSeed(rng)), noise, config, layout })
+    }
+
     return strokes
 }
 
 export function shuffleStrokes(
     strokes: BumpsStroke[],
-    { rng, noise, config, layout }: GetStrokesArgs,
+    { rng, noise, config, layout }: BumpsCtx & { layout: BumpsLayout },
 ) {
     const { width } = layout.sizes
     const { fieldStepX, overlapY, rowCount } = layout

@@ -1,5 +1,10 @@
 export const C = {
+    waves: {
+        alpha: 0.3,
+        overlap: true,
+    },
     bumps: {
+        spacing: 100,
         highMin: 90,
         highMax: 150,
         lowMin: 30,
@@ -8,6 +13,7 @@ export const C = {
         peakMax: 5,
         peakWidth: 150,
         chaikinTimes: 4,
+        regenerate: true,
     },
     field: {
         density: { x: 7, y: 10 },
@@ -27,6 +33,7 @@ export const C = {
         taperLen: 25,
     },
     animation: {
+        animated: false,
         jitterRatio: 3,
         clumpAmt: 150,
         clumpScale: 0.15,
@@ -34,9 +41,12 @@ export const C = {
         rowStagger: 0.25,
         direction: 'up' as 'up' | 'down',
     },
-    spacing: 100,
-    alpha: 0.3,
-    overlap: true,
+    colors: {
+        hue: 250,
+        addHue: 180,
+        lessSaturated: false,
+        regenerate: true,
+    },
 }
 
 export type WavyBumpsConfig = typeof C
