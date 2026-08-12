@@ -27,8 +27,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       canvas-frames:
-        specifier: link:../canvas-frames
-        version: link:../canvas-frames
+        specifier: ^0.1.1
+        version: 0.1.1
       chroma-js:
         specifier: ^2.4.2
         version: 2.6.0
@@ -39,8 +39,8 @@ importers:
         specifier: ^0.20.0
         version: 0.20.0
       mish-bainrow:
-        specifier: link:../bainrow
-        version: link:../bainrow
+        specifier: ^1.0.33
+        version: 1.0.33
       nanoevents:
         specifier: ^9.0.0
         version: 9.1.0
@@ -261,6 +261,9 @@ packages:
   alea@1.0.1:
     resolution: {integrity: sha512-QU+wv+ziDXaMxRdsQg/aH7sVfWdhKps5YP97IIwFkHCsbDZA3k87JXoZ5/iuemf4ntytzIWeScrRpae8+lDrXA==}
 
+  canvas-frames@0.1.1:
+    resolution: {integrity: sha512-EbH8P+OMA6HYcd3LqVqZS8bh90OY8YbtVt+KPYUVdU4/BavU3qN7LT8BVqYhcxphjfcHsoI8GI6CAT03LUht4Q==}
+
   chroma-js@2.6.0:
     resolution: {integrity: sha512-BLHvCB9s8Z1EV4ethr6xnkl/P2YRFOGqfgvuMG/MyCbZPrTA+NeiByY6XvgF0zP4/2deU2CXnWyMa3zu1LqQ3A==}
 
@@ -300,6 +303,13 @@ packages:
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
+  mish-bainrow@1.0.33:
+    resolution: {integrity: sha512-5e5VUl1nIGjOvWhLzGVHfX93x844X12N4LgHxDofT32aFZAg9baa7GBtmK6LZrLce51niWLd1rYJ1eXyWnyugA==}
+
+  nanoevents@10.0.0:
+    resolution: {integrity: sha512-PmIJ3BNxOzgVgnS1r/Pvyj6eZx/xUV2JCPogh0brD6smDIwjRlr1KBl9yoRX323PlfaNrBDDnfCgC9SL00OjSg==}
+    engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
 
   nanoevents@9.1.0:
     resolution: {integrity: sha512-Jd0fILWG44a9luj8v5kED4WI+zfkkgwKyRQKItTtlPfEsh7Lznfi1kr8/iZ+XAIss4Qq5GqRB0qtWbaz9ceO/A==}
@@ -521,6 +531,11 @@ snapshots:
 
   alea@1.0.1: {}
 
+  canvas-frames@0.1.1:
+    dependencies:
+      jszip: 3.10.1
+      nanoevents: 10.0.0
+
   chroma-js@2.6.0: {}
 
   core-util-is@1.0.3: {}
@@ -577,6 +592,10 @@ snapshots:
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  mish-bainrow@1.0.33: {}
+
+  nanoevents@10.0.0: {}
 
   nanoevents@9.1.0: {}
 

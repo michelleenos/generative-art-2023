@@ -42,10 +42,10 @@ const { ctx, canvas } = createCanvas(sizes.width, sizes.height)
 const recorder = new Recorder({
     canvas,
     draw,
-    position: 'bottom-right',
     metadata: () => ({ config: C, state }),
 })
 
+// recorder.addControls('bottom-right')
 recorder.on('beforeStart', () => (recorder.fileName = `waves-${state.seed}`))
 
 function initRng(newSeed = false) {

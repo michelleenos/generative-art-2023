@@ -1,2 +1,4 @@
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - canvas-frames@0.1.1
