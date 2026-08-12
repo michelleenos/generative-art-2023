@@ -4,7 +4,6 @@ import { makeScene } from './_wavy-bumps-setup'
 import { getStrokes } from './_wavy-bumps-strokes'
 import { BumpsScene, BumpsStroke, Sizes } from './_wavy-bumps-types'
 import { WavyBumpsConfig } from './config'
-import { random } from '~/helpers/utils'
 
 function flipY(ctx: CanvasRenderingContext2D, height: number) {
     ctx.translate(0, height / 2)

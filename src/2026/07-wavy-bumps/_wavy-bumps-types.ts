@@ -40,8 +40,45 @@ export type BumpsLayout = {
         peakXEnd: number
     }
     overlapY: number
-    extraY: number
     fieldStepX: number
     fieldStepY: number
     rowCount: number
+}
+
+export type WavyBumpsStrokes = {
+    density: { x: number; y: number }
+    noiseScale: { x: number; y: number }
+    moveAmtBot: { x: number; y: number }
+    moveAmtTop: { x: number; y: number }
+    steps: number
+    stepLen: number
+    blendAngleAmt: number
+    flattenAngle: number
+    taper: number
+    taperLen: number
+    taperType: 'symmetric' | 'end'
+}
+
+export type WavyBumpsWave = {
+    spacing: number
+    highMin: number
+    highMax: number
+    lowMin: number
+    lowMax: number
+    peakMin: number
+    peakMax: number
+    peakWidth: number
+    chaikinTimes: number
+}
+
+export type WavyBumpsColors = {
+    hue: number
+    addHue: number
+    lessSaturated: boolean
+}
+
+export type WavyBumpsInputs = {
+    colorShift: 1 | 2 | 3 | 'random'
+    bumpsTendency: 'flat' | 'bumpy' | 'random'
+    fieldType: 'scribbly' | 'tight' | 'pointillism' | 'random'
 }

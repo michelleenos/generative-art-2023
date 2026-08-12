@@ -88,8 +88,8 @@ function decideField(inputRng: Rng, config: WavyBumpsConfig['strokes']) {
         } else {
             config.moveAmtTop.x = 50
             config.moveAmtTop.y = 40
-            config.moveAmtBot.x = randomInt(10, 60, rng)
-            config.moveAmtBot.y = randomInt(10, 60, rng)
+            config.moveAmtBot.x = randomInt(20, 60, rng)
+            config.moveAmtBot.y = randomInt(20, 60, rng)
         }
         config.flattenAngle = 0
         config.blendAngleAmt = 0
@@ -163,7 +163,7 @@ export function makePalette(
 
 export function makeLayout(sizes: Sizes, C: WavyBumpsConfig): BumpsLayout {
     const { width, height } = sizes
-    const { peakWidth, lowMin, spacing, highMax } = C.waves
+    const { peakWidth, spacing, highMax } = C.waves
     const { density } = C.strokes
     const { overlap } = C.waves
     const fieldStepY = 100 / density.y
@@ -185,7 +185,6 @@ export function makeLayout(sizes: Sizes, C: WavyBumpsConfig): BumpsLayout {
         // overlapY: overlap ? Math.ceil(spacing + (spacing - lowMin)) : 0,
         // overlapY: overlap ? Math.ceil(spacing * 2) : 0,
         overlapY,
-        extraY: spacing,
         fieldStepX: 100 / density.x,
         fieldStepY,
     }

@@ -162,7 +162,7 @@ export function getStrokeRibbon({
 }: StrokeRibbonArgs) {
     const displaced = displacePoint(x, y, { wavePct, config: config.strokes, noise })
     const strokePts = makeStroke({ ...displaced, wavePct, lineLookup, config: config.strokes })
-    const taperType = config.strokes.taperType
+    const { taperType } = config.strokes
     const ribbon = getRibbon(strokePts, {
         ...config.strokes,
         taperType: taperType === 'symmetric' ? 'symmetric' : rng() < 0.5 ? 'start' : 'end',
@@ -181,7 +181,7 @@ export function getStrokes({
 }: GetStrokesArgs) {
     const { alpha, spacing } = config.waves
     const { width } = layout.sizes
-    const { bounds, fieldStepX, overlapY, extraY, fieldStepY, rowCount, rowsBelow } = layout
+    const { bounds, fieldStepX, overlapY, fieldStepY, rowCount, rowsBelow } = layout
 
     const rng2 = makeRng(makeRandomSeed(rng))
 
@@ -211,43 +211,12 @@ export function getStrokes({
 
                 strokes.push({ x, color, ribbon, rowY, y: y + rowY, rowIndex: yi })
             }
-
-            // for (
-            //     let y = bottom, yDist = 0;
-            //     y > bottom - extraY;
-            //     y -= fieldStepY, yDist += fieldStepY
-            // ) {
-            //     if (rng2() < yDist / extraY) continue
-            //     const ribbon = getStrokeRibbon({
-            //         x,
-            //         y: y + rowY,
-            //         wavePct: 0,
-            //         lineLookup,
-            //         config,
-            //         noise,
-            //         rng: rng2,
-            //     })
-
-            //     strokes.push({ x, color, ribbon, rowY, y: y + rowY, rowIndex: yi })
-            // }
         }
     }
 
     if (shuffle) {
         strokes = shuffleStrokes(strokes, { rng: rng2, noise, config, layout })
     }
-
-    // strokes = strokes.filter((stroke) => {
-    //     if (
-    //         stroke.x < -fieldStepX ||
-    //         stroke.x > layout.sizes.width + fieldStepX ||
-    //         stroke.y < -fieldStepY ||
-    //         stroke.y > layout.sizes.height + fieldStepY
-    //     ) {
-    //         return false
-    //     }
-    //     return true
-    // })
 
     return strokes
 }
