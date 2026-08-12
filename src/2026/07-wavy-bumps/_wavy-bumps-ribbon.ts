@@ -2,15 +2,10 @@ import { type NoiseFunction2D } from 'simplex-noise'
 import { map } from '~/helpers/utils'
 
 interface RibbonParams {
-    width: number
+    strokeWidth: number
     taper: number
     taperType?: 'start' | 'end' | 'symmetric'
     taperLen: number
-    noiseFn?: NoiseFunction2D
-    noiseJitter?: number
-    noiseScale?: number
-    noiseOffsetX?: number
-    noiseOffsetY?: number
 }
 
 type Vec2Like = { x: number; y: number }
@@ -29,17 +24,7 @@ function progress(distance: number, max: number) {
 
 export function getRibbon(
     pts: { x: number; y: number }[],
-    {
-        width,
-        taper,
-        taperLen,
-        taperType = 'symmetric',
-        noiseFn,
-        noiseJitter = 0.5,
-        noiseScale = 0.01,
-        noiseOffsetX = 10,
-        noiseOffsetY = 10,
-    }: RibbonParams,
+    { strokeWidth, taper, taperLen, taperType = 'symmetric' }: RibbonParams,
 ) {
     const len = pts.length
     const results: Ribbon = []
@@ -51,24 +36,12 @@ export function getRibbon(
         if (last !== null) distance += Math.hypot(pt.x - last.x, pt.y - last.y)
         last = pt
 
-        let w = width
+        let w = strokeWidth
         if (taper !== 1) {
             let pTaper = progress(distance, taperLen)
-            w = map(pTaper, 0, 1, width * taper, width)
+            w = map(pTaper, 0, 1, strokeWidth * taper, strokeWidth)
         }
         w /= 2
-        let w1 = w
-        let w2 = w
-
-        if (noiseFn) {
-            let n1 = noiseFn((pt.x + noiseOffsetX) * noiseScale, (pt.y + noiseOffsetY) * noiseScale)
-            let n2 = noiseFn(
-                (pt.x + noiseOffsetX * 2.4) * noiseScale,
-                (pt.y + noiseOffsetY * 2.4) * noiseScale,
-            )
-            w1 *= 1 + Math.abs(n1) * noiseJitter
-            w2 *= 1 + Math.abs(n2) * noiseJitter
-        }
 
         const a = pts[Math.max(0, i - 1)]
         const b = pts[Math.min(len - 1, i + 1)]

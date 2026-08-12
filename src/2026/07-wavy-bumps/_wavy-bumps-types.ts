@@ -40,6 +40,7 @@ export type BumpsLayout = {
         peakXEnd: number
     }
     overlapY: number
+    extraY: number
     fieldStepX: number
     fieldStepY: number
     rowCount: number

@@ -9,7 +9,7 @@ type GetBumpsPointsArgs = {
     xEnd: number
     peakXStart: number
     peakXEnd: number
-    bumps: WavyBumpsConfig['bumps']
+    bumps: WavyBumpsConfig['waves']
     rng: Rng
 }
 export function getBumpsPoints({

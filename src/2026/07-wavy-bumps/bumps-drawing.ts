@@ -4,6 +4,7 @@ import { makeScene } from './_wavy-bumps-setup'
 import { getStrokes } from './_wavy-bumps-strokes'
 import { BumpsScene, BumpsStroke, Sizes } from './_wavy-bumps-types'
 import { WavyBumpsConfig } from './config'
+import { random } from '~/helpers/utils'
 
 function flipY(ctx: CanvasRenderingContext2D, height: number) {
     ctx.translate(0, height / 2)
@@ -45,8 +46,12 @@ export function wavyBumpsDrawing(
     let off: { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement } | null = null
     let nextIndex = 0
 
-    function regenerate(newSeed = false) {
-        if (newSeed) seed = makeRandomSeed()
+    function regenerate(newSeed: boolean | number = false) {
+        if (typeof newSeed === 'number') {
+            seed = newSeed
+        } else if (newSeed === true) {
+            seed = makeRandomSeed()
+        }
         scene = makeScene(config, sizes, seed)
         strokes = getStrokes({ ...scene, shuffle: config.animation.animated })
         nextIndex = 0

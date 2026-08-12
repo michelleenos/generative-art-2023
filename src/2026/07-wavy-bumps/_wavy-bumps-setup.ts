@@ -5,7 +5,10 @@ import { BumpsLayout, BumpsPalette, BumpsScene, Sizes } from './_wavy-bumps-type
 import { createNoise2D } from 'simplex-noise'
 import { randomInt } from '~/helpers/utils'
 
-function decideColorScheme(rng: Rng, config: WavyBumpsConfig['colors']) {
+function decideColors(inputRng: Rng, config: WavyBumpsConfig['colors']) {
+    const rng = makeRng(makeRandomSeed(inputRng))
+    if (!config.regenerate) return
+
     const colorDiff = randomInt(1, 3, rng)
     if (colorDiff === 1) {
         config.hue = rng(180, 320)
@@ -20,31 +23,117 @@ function decideColorScheme(rng: Rng, config: WavyBumpsConfig['colors']) {
     config.lessSaturated = rng() < 0.3
 }
 
-function decideBumps(rng: Rng, config: WavyBumpsConfig['bumps']) {
-    config.spacing = randomInt(5, 300, rng)
-    config.highMax = randomInt(90, 400, rng)
-    config.highMin = randomInt(80, config.highMax, rng)
-    config.lowMin = randomInt(10, Math.floor(config.highMin * 0.7), rng)
-    config.lowMax = randomInt(config.lowMin, Math.floor(config.highMin * 0.9), rng)
-    config.peakMin = randomInt(1, 4, rng)
-    config.peakMax = randomInt(config.peakMin + 1, 10)
-    config.peakWidth = randomInt(100, 300, rng)
-    config.chaikinTimes = randomInt(2, 3)
+function decideBumps(inputRng: Rng, config: WavyBumpsConfig['waves']) {
+    const rng = makeRng(makeRandomSeed(inputRng))
+    if (!config.regenerate) return
+
+    config.spacing = randomInt(50, 300, rng)
+
+    if (rng() < 0.25) {
+        config.highMax = randomInt(85, 110, rng)
+        config.highMin = config.highMax - randomInt(5, 10, rng)
+        config.lowMax = randomInt(50, 70, rng)
+        config.lowMin = config.lowMax - randomInt(10, 25, rng)
+        config.peakMin = 1
+        config.peakMax = randomInt(2, 4, rng)
+    } else {
+        config.highMax = randomInt(90, 300, rng)
+        config.highMin = randomInt(80, config.highMax, rng)
+        config.lowMin = randomInt(10, Math.floor(config.highMin * 0.7), rng)
+        config.lowMax = randomInt(config.lowMin, Math.floor(config.highMin * 0.9), rng)
+        config.peakMin = randomInt(1, 4, rng)
+        config.peakMax = randomInt(config.peakMin + 1, 10, rng)
+    }
+    config.peakWidth = config.highMax > 200 ? randomInt(180, 300, rng) : randomInt(100, 300, rng)
+    config.chaikinTimes = randomInt(2, 3, rng)
+}
+
+function decideField(inputRng: Rng, config: WavyBumpsConfig['strokes']) {
+    const rng = makeRng(makeRandomSeed(inputRng))
+    if (!config.regenerate) return
+
+    let type = rng(['scribbly', 'pointillism', 'tight'])
+    if (type === 'scribbly') {
+        config.moveAmtTop.x = randomInt(30, 70, rng)
+        config.moveAmtTop.y = randomInt(30, 40, rng)
+        config.moveAmtBot.x = config.moveAmtTop.x
+        config.moveAmtBot.y = config.moveAmtTop.y
+        config.stepLen = randomInt(10, 15, rng)
+        config.steps = randomInt(15, 20, rng)
+        config.strokeWidth = randomInt(10, 16, rng)
+        config.taperLen = config.stepLen * config.steps * 0.2
+        config.density.x = randomInt(1, 2, rng)
+        config.flattenAngle = 0
+        config.blendAngleAmt = 1
+
+        const coverageY = rng(0.5, 1)
+        const strokeLen = config.steps * config.stepLen * 2
+        config.density.y = (coverageY * 100) / config.strokeWidth
+        config.density.x = rng(8, 15) / strokeLen ** 0.3
+        config.taperType = 'symmetric'
+    } else if (type === 'pointillism') {
+        config.steps = 3
+        config.stepLen = randomInt(2, 4, rng)
+        const wiggliness = rng()
+        if (wiggliness < 0.25) {
+            config.moveAmtTop.x = 100
+            config.moveAmtTop.y = 100
+            config.moveAmtBot.x = 100
+            config.moveAmtBot.y = 100
+        } else if (wiggliness < 0.6) {
+            config.moveAmtTop.x = 20
+            config.moveAmtTop.y = 20
+            config.moveAmtBot.x = 30
+            config.moveAmtBot.y = 30
+        } else {
+            config.moveAmtTop.x = 50
+            config.moveAmtTop.y = 40
+            config.moveAmtBot.x = randomInt(10, 60, rng)
+            config.moveAmtBot.y = randomInt(10, 60, rng)
+        }
+        config.flattenAngle = 0
+        config.blendAngleAmt = 0
+        config.taper = 0.7
+        config.taperLen = config.stepLen
+        config.taperType = 'symmetric'
+
+        const coverageY = 2
+        const strokeLen = config.steps * config.stepLen * 2
+
+        config.strokeWidth = strokeLen + randomInt(-2, 2, rng)
+        const gapX = strokeLen * 0.3
+        config.density.x = 100 / gapX
+        config.density.y = (coverageY * 100) / config.strokeWidth
+    } else if (type === 'tight') {
+        config.stepLen = 10
+        config.steps = randomInt(2, 5, rng)
+
+        config.moveAmtTop.x = rng(config.steps, config.steps + 5)
+        config.moveAmtTop.y = rng(config.steps, config.steps + 5)
+        config.moveAmtBot.x = rng(15, 35)
+        config.moveAmtBot.y = rng(6, 15)
+        config.flattenAngle = rng(0, 0.5)
+        config.blendAngleAmt = 1
+        config.strokeWidth = randomInt(10, 20, rng)
+        config.taperLen = config.stepLen * 2.5
+        config.taper = 0.4
+        config.taperType = 'end'
+
+        const strokeLen = config.steps * config.stepLen * 2
+        const coverageY = 1.5
+        config.density.y = (coverageY * 100) / config.strokeWidth
+        const gapX = strokeLen * 0.25
+        config.density.x = 100 / gapX
+    }
 }
 
 export function makePalette(
-    rng: Rng,
+    inputRng: Rng,
     count: number,
     config: WavyBumpsConfig['colors'],
 ): BumpsPalette {
-    if (config.regenerate) {
-        decideColorScheme(rng, config)
-    } else {
-        rng()
-    }
+    const rng = makeRng(makeRandomSeed(inputRng))
     const { hue, addHue, lessSaturated } = config
-
-    console.log({ hue, addHue, lessSaturated })
 
     const l1 = 0.35
     const l2 = 0.85
@@ -63,7 +152,7 @@ export function makePalette(
         mixAmt = (mixAmt + rng(0.55, 0.75)) % 1
         return c
     }
-    const bgColor = nextColor().set('oklch.l', '0.7')
+    const bgColor = nextColor()
     const rowColors = Array.from({ length: count }, () => nextColor())
 
     return {
@@ -74,17 +163,17 @@ export function makePalette(
 
 export function makeLayout(sizes: Sizes, C: WavyBumpsConfig): BumpsLayout {
     const { width, height } = sizes
-    const { peakWidth, lowMin, spacing, highMax } = C.bumps
-    const { density } = C.field
+    const { peakWidth, lowMin, spacing, highMax } = C.waves
+    const { density } = C.strokes
     const { overlap } = C.waves
     const fieldStepY = 100 / density.y
 
-    const rowGap = Math.max(0, spacing - lowMin)
-    const margin = Math.max(spacing, fieldStepY * 2)
+    const overlapY = overlap ? Math.ceil(spacing * 2) : 0
 
-    const rowsBelow = Math.ceil(highMax / spacing)
+    const rowsBelow = Math.floor(highMax / spacing)
+    const rowsAbove = Math.floor((height + overlapY) / spacing)
     return {
-        rowCount: Math.ceil(height / spacing) + 1 + rowsBelow,
+        rowCount: rowsBelow + rowsAbove + 1,
         rowsBelow,
         sizes,
         bounds: {
@@ -93,8 +182,10 @@ export function makeLayout(sizes: Sizes, C: WavyBumpsConfig): BumpsLayout {
             peakXStart: Math.trunc(-peakWidth * 0.5),
             peakXEnd: Math.trunc(width + peakWidth * 0.5),
         },
-        overlapY: overlap ? Math.ceil(spacing + (spacing - lowMin)) : 0,
-        // overlapY: overlap ? Math.ceil(rowGap + margin) : 0,
+        // overlapY: overlap ? Math.ceil(spacing + (spacing - lowMin)) : 0,
+        // overlapY: overlap ? Math.ceil(spacing * 2) : 0,
+        overlapY,
+        extraY: spacing,
         fieldStepX: 100 / density.x,
         fieldStepY,
     }
@@ -105,10 +196,12 @@ export function makeScene(config: WavyBumpsConfig, sizes: Sizes, seed: number): 
     const rng = makeRng(seed)
     const noise = createNoise2D(rng)
 
-    if (config.bumps.regenerate) decideBumps(rng, config.bumps)
+    decideBumps(rng, config.waves)
+    decideField(rng, config.strokes)
+    decideColors(rng, config.colors)
 
     const layout = makeLayout(sizes, config)
-    const palette = makePalette(makeRng(makeRandomSeed(rng)), layout.rowCount, config.colors)
+    const palette = makePalette(rng, layout.rowCount, config.colors)
 
     return { config, rng, noise, layout, palette }
 }

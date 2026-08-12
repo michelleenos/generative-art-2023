@@ -9,9 +9,8 @@ import { GuiExtra } from '~/helpers/gui/lilgui-extra'
 const sizes = { width: 900, height: 900 }
 const { ctx } = createCanvas(sizes.width, sizes.height)
 
-// let seed = 2226877644
 C.animation.animated = false
-const { regenerate, draw, animate } = wavyBumpsDrawing(C, ctx, sizes, 1566554013)
+const { regenerate, draw, animate } = wavyBumpsDrawing(C, ctx, sizes)
 const debg = {
     restart: () => {
         regenerate()

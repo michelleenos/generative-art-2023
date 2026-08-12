@@ -1,4 +1,4 @@
-import { clamp, lerp, map } from '~/helpers/utils'
+import { clamp, lerp, map, random } from '~/helpers/utils'
 import { WavyBumpsConfig } from './config'
 import { NoiseFunction2D } from 'simplex-noise'
 import { getRibbon } from './_wavy-bumps-ribbon'
@@ -73,10 +73,11 @@ interface MakeStrokeParams {
     lineLookup: ReturnType<typeof getLineLookup>
     x: number
     y: number
-    config: WavyBumpsConfig['strokePath']
+    wavePct: number
+    config: WavyBumpsConfig['strokes']
 }
 
-export function makeStroke({ lineLookup, x, y, config }: MakeStrokeParams) {
+export function makeStroke({ lineLookup, x, y, wavePct, config }: MakeStrokeParams) {
     const mainData = lineLookup(x)
     const mainHeading = Math.atan2(mainData.dirY, mainData.dirX)
     const { flattenAngle, blendAngleAmt, steps, stepLen } = config
@@ -87,7 +88,7 @@ export function makeStroke({ lineLookup, x, y, config }: MakeStrokeParams) {
     let prev = start
     let prevDirX = mainData.dirX
     let prevDirY = mainData.dirY
-    const dist = y / mainData.y
+    const dist = wavePct
 
     const headingVal = (dist: number, heading: number) => {
         return flattenAngle === 0
@@ -121,14 +122,13 @@ export function makeStroke({ lineLookup, x, y, config }: MakeStrokeParams) {
     return pts
 }
 
-export function displacePoint(
-    x: number,
-    y: number,
-    wavePct: number,
-    fieldConfig: WavyBumpsConfig['field'],
-    noise: NoiseFunction2D,
-) {
-    const { noiseScale, moveAmtTop, moveAmtBot } = fieldConfig
+type DisplacePointArgs = {
+    wavePct: number
+    config: WavyBumpsConfig['strokes']
+    noise: NoiseFunction2D
+}
+export function displacePoint(x: number, y: number, { wavePct, config, noise }: DisplacePointArgs) {
+    const { noiseScale, moveAmtTop, moveAmtBot } = config
     let xVal = x
     let yVal = y
     let noiseAmtX = map(wavePct, 0, 1, moveAmtBot.x, moveAmtTop.x)
@@ -138,6 +138,8 @@ export function displacePoint(
     let angle = Math.atan2(ny, nx)
     let nr = noise(x * noiseScale.x + 245, y * noiseScale.y + 245)
     xVal += Math.cos(angle) * noiseAmtX * nr
+    // const follow = (Math.abs(lineLookup(xVal).y) - Math.abs(lineLookup(x).y)) * wavePct
+    // yVal += follow + Math.sin(angle) * noiseAmtY * nr
     yVal += Math.sin(angle) * noiseAmtY * nr
     return { x: xVal, y: yVal }
 }
@@ -158,11 +160,12 @@ export function getStrokeRibbon({
     noise,
     rng,
 }: StrokeRibbonArgs) {
-    const displaced = displacePoint(x, y, wavePct, config.field, noise)
-    const strokePts = makeStroke({ ...displaced, lineLookup, config: config.strokePath })
+    const displaced = displacePoint(x, y, { wavePct, config: config.strokes, noise })
+    const strokePts = makeStroke({ ...displaced, wavePct, lineLookup, config: config.strokes })
+    const taperType = config.strokes.taperType
     const ribbon = getRibbon(strokePts, {
-        ...config.strokeRibbon,
-        taperType: rng() < 0.5 ? 'start' : 'end',
+        ...config.strokes,
+        taperType: taperType === 'symmetric' ? 'symmetric' : rng() < 0.5 ? 'start' : 'end',
     })
     return ribbon
 }
@@ -176,16 +179,17 @@ export function getStrokes({
     palette,
     shuffle = false,
 }: GetStrokesArgs) {
-    const { alpha } = config.waves
-    const { spacing } = config.bumps
+    const { alpha, spacing } = config.waves
     const { width } = layout.sizes
-    const { bounds, fieldStepX, overlapY, fieldStepY, rowCount, rowsBelow } = layout
+    const { bounds, fieldStepX, overlapY, extraY, fieldStepY, rowCount, rowsBelow } = layout
 
-    const strokes: BumpsStroke[] = []
+    const rng2 = makeRng(makeRandomSeed(rng))
+
+    let strokes: BumpsStroke[] = []
     for (let yi = rowCount - 1; yi >= 0; yi--) {
         const rowY = (yi - rowsBelow) * spacing
         const color = palette.rowColors[yi].alpha(alpha).css()
-        const points = getBumpsPoints({ ...bounds, bumps: config.bumps, rng })
+        const points = getBumpsPoints({ ...bounds, bumps: config.waves, rng })
         const lineLookup = getLineLookup(points, { ...bounds })
         const bottom = -overlapY
 
@@ -194,23 +198,56 @@ export function getStrokes({
 
             for (let y = top; y > bottom; y -= fieldStepY) {
                 const wavePct = top === 0 ? 0 : Math.max(0, y) / top
+                const actualY = y + rowY
                 const ribbon = getStrokeRibbon({
                     x,
-                    y: y + rowY,
+                    y: actualY,
                     wavePct,
                     lineLookup,
                     config,
-                    rng,
                     noise,
+                    rng: rng2,
                 })
+
                 strokes.push({ x, color, ribbon, rowY, y: y + rowY, rowIndex: yi })
             }
+
+            // for (
+            //     let y = bottom, yDist = 0;
+            //     y > bottom - extraY;
+            //     y -= fieldStepY, yDist += fieldStepY
+            // ) {
+            //     if (rng2() < yDist / extraY) continue
+            //     const ribbon = getStrokeRibbon({
+            //         x,
+            //         y: y + rowY,
+            //         wavePct: 0,
+            //         lineLookup,
+            //         config,
+            //         noise,
+            //         rng: rng2,
+            //     })
+
+            //     strokes.push({ x, color, ribbon, rowY, y: y + rowY, rowIndex: yi })
+            // }
         }
     }
 
     if (shuffle) {
-        return shuffleStrokes(strokes, { rng: makeRng(makeRandomSeed(rng)), noise, config, layout })
+        strokes = shuffleStrokes(strokes, { rng: rng2, noise, config, layout })
     }
+
+    // strokes = strokes.filter((stroke) => {
+    //     if (
+    //         stroke.x < -fieldStepX ||
+    //         stroke.x > layout.sizes.width + fieldStepX ||
+    //         stroke.y < -fieldStepY ||
+    //         stroke.y > layout.sizes.height + fieldStepY
+    //     ) {
+    //         return false
+    //     }
+    //     return true
+    // })
 
     return strokes
 }
@@ -226,7 +263,7 @@ export function shuffleStrokes(
     const jitter = fieldStepX * jitterRatio
     const dir = direction === 'up' ? -1 : 1
 
-    const rowKeySpread = width + config.bumps.highMax + overlapY
+    const rowKeySpread = width + config.waves.highMax + overlapY
     const rowKeyStep = rowKeySpread * rowStagger
 
     const strokesOrdered = strokes
