@@ -10,20 +10,24 @@ const sizes = { width: 900, height: 900 }
 const { ctx } = createCanvas(sizes.width, sizes.height)
 
 C.animation.animated = false
-const { regenerate, draw, animate } = wavyBumpsDrawing(C, ctx, sizes)
+const { regenerate, draw, animate, getSeed } = wavyBumpsDrawing(C, ctx, sizes)
 const debg = {
+    seed: getSeed(),
     restart: () => {
-        regenerate()
+        regenerate(debg.seed)
         if (!C.animation.animated) draw()
     },
     newSeed: () => {
         regenerate(true)
+        debg.seed = getSeed()
+        seedCtrl.updateDisplay()
         if (!C.animation.animated) draw()
     },
 }
 
 const gui = new GuiExtra()
 buildWavyBumpsGui(gui, C)
+const seedCtrl = gui.add(debg, 'seed')
 gui.add(debg, 'restart')
 gui.add(debg, 'newSeed')
 gui.onChange(() => debg.restart())

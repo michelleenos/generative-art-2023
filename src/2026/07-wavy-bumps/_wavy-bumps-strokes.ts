@@ -1,10 +1,15 @@
-import { clamp, lerp, map, random } from '~/helpers/utils'
-import { WavyBumpsConfig } from './config'
 import { NoiseFunction2D } from 'simplex-noise'
-import { getRibbon } from './_wavy-bumps-ribbon'
-import { BumpsCtx, BumpsLayout, BumpsPalette, BumpsScene, BumpsStroke } from './_wavy-bumps-types'
-import { getBumpsPoints } from './_wavy-bumps-wave'
 import { makeRandomSeed, makeRng } from '~/helpers/prng'
+import { clamp, lerp, map } from '~/helpers/utils'
+import { getRibbon } from './_wavy-bumps-ribbon'
+import {
+    BumpsCtx,
+    BumpsLayout,
+    BumpsScene,
+    BumpsStroke,
+    WavyBumpsConfig,
+} from './_wavy-bumps-types'
+import { getBumpsPoints } from './_wavy-bumps-wave'
 
 export interface LineData {
     x: number

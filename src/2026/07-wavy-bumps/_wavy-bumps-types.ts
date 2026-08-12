@@ -1,5 +1,4 @@
 import { NoiseFunction2D } from 'simplex-noise'
-import { WavyBumpsConfig } from './config'
 import { Rng } from '~/helpers/prng'
 import { Ribbon } from './_wavy-bumps-ribbon'
 
@@ -54,12 +53,15 @@ export type WavyBumpsStrokes = {
     stepLen: number
     blendAngleAmt: number
     flattenAngle: number
+    strokeWidth: number
     taper: number
     taperLen: number
     taperType: 'symmetric' | 'end'
 }
 
 export type WavyBumpsWave = {
+    alpha: number
+    overlap: boolean
     spacing: number
     highMin: number
     highMax: number
@@ -77,8 +79,38 @@ export type WavyBumpsColors = {
     lessSaturated: boolean
 }
 
+export type WavyBumpsAnimation = {
+    animated: boolean
+    jitterRatio: number
+    clumpAmt: number
+    clumpScale: number
+    strokesPerFrame: number
+    rowStagger: number
+    direction: 'up' | 'down'
+}
+
 export type WavyBumpsInputs = {
     colorShift: 1 | 2 | 3 | 'random'
     bumpsTendency: 'flat' | 'bumpy' | 'random'
     fieldType: 'scribbly' | 'tight' | 'pointillism' | 'random'
+}
+
+/**
+ * per-section "don't regenerate this from the seed" flags.
+ * `animation` is display-only — animation params are never seeded.
+ */
+export type WavyBumpsCustom = {
+    colors: boolean
+    waves: boolean
+    strokes: boolean
+    animation: boolean
+}
+
+export type WavyBumpsConfig = {
+    inputs: WavyBumpsInputs
+    custom: WavyBumpsCustom
+    waves: WavyBumpsWave
+    strokes: WavyBumpsStrokes
+    colors: WavyBumpsColors
+    animation: WavyBumpsAnimation
 }

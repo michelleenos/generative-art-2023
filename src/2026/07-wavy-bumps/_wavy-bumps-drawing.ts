@@ -2,8 +2,7 @@ import { makeRandomSeed } from '~/helpers/prng'
 import { smoothDrawRibbon } from './_wavy-bumps-ribbon'
 import { makeScene } from './_wavy-bumps-setup'
 import { getStrokes } from './_wavy-bumps-strokes'
-import { BumpsScene, BumpsStroke, Sizes } from './_wavy-bumps-types'
-import { WavyBumpsConfig } from './config'
+import { BumpsScene, BumpsStroke, Sizes, WavyBumpsConfig } from './_wavy-bumps-types'
 
 function flipY(ctx: CanvasRenderingContext2D, height: number) {
     ctx.translate(0, height / 2)
@@ -88,5 +87,5 @@ export function wavyBumpsDrawing(
 
     regenerate()
 
-    return { regenerate, draw, animate }
+    return { regenerate, draw, animate, getSeed: () => seed }
 }

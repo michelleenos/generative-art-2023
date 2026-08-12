@@ -1,5 +1,5 @@
 import { Rng } from '~/helpers/prng'
-import { WavyBumpsConfig } from './config'
+import { WavyBumpsConfig } from './_wavy-bumps-types'
 import { randomInt } from '~/helpers/utils'
 import { chaikinSmooth } from '~/helpers/chaikin-smooth'
 import { randomSample1d } from '~/helpers/random-sample'

@@ -1,4 +1,17 @@
-export const C = {
+import { WavyBumpsConfig } from './_wavy-bumps-types'
+
+export const C: WavyBumpsConfig = {
+    inputs: {
+        colorShift: 'random',
+        bumpsTendency: 'random',
+        fieldType: 'random',
+    },
+    custom: {
+        colors: false,
+        waves: false,
+        strokes: false,
+        animation: false,
+    },
     waves: {
         alpha: 0.3,
         overlap: true,
@@ -11,7 +24,6 @@ export const C = {
         peakMax: 5,
         peakWidth: 150,
         chaikinTimes: 3,
-        regenerate: true,
     },
     strokes: {
         density: { x: 7, y: 10 },
@@ -25,8 +37,7 @@ export const C = {
         strokeWidth: 10,
         taper: 0.4,
         taperLen: 25,
-        taperType: 'end' as 'symmetric' | 'end',
-        regenerate: true,
+        taperType: 'end',
     },
     animation: {
         animated: false,
@@ -35,14 +46,11 @@ export const C = {
         clumpScale: 0.15,
         strokesPerFrame: 100,
         rowStagger: 0.5,
-        direction: 'up' as 'up' | 'down',
+        direction: 'up',
     },
     colors: {
         hue: 250,
         addHue: 180,
         lessSaturated: false,
-        regenerate: true,
     },
 }
-
-export type WavyBumpsConfig = typeof C

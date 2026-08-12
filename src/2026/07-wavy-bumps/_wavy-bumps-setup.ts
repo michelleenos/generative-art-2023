@@ -1,15 +1,28 @@
 import chroma from 'chroma-js'
 import { makeRandomSeed, makeRng, Rng } from '~/helpers/prng'
-import { WavyBumpsConfig } from './config'
-import { BumpsLayout, BumpsPalette, BumpsScene, Sizes } from './_wavy-bumps-types'
+import {
+    BumpsLayout,
+    BumpsPalette,
+    BumpsScene,
+    Sizes,
+    WavyBumpsColors,
+    WavyBumpsConfig,
+    WavyBumpsInputs,
+    WavyBumpsStrokes,
+    WavyBumpsWave,
+} from './_wavy-bumps-types'
 import { createNoise2D } from 'simplex-noise'
 import { randomInt } from '~/helpers/utils'
 
-function decideColors(inputRng: Rng, config: WavyBumpsConfig['colors']) {
-    const rng = makeRng(makeRandomSeed(inputRng))
-    if (!config.regenerate) return
+function decideColors(
+    rng: Rng,
+    config: WavyBumpsColors,
+    colorShift: WavyBumpsInputs['colorShift'],
+) {
+    // always re-roll regardless of whether a custom type is chosen (keeps seed state is as consistent as possible)
+    const rolled = randomInt(1, 3, rng)
+    const colorDiff = colorShift === 'random' ? rolled : colorShift
 
-    const colorDiff = randomInt(1, 3, rng)
     if (colorDiff === 1) {
         config.hue = rng(180, 320)
         config.addHue = 80
@@ -23,13 +36,13 @@ function decideColors(inputRng: Rng, config: WavyBumpsConfig['colors']) {
     config.lessSaturated = rng() < 0.3
 }
 
-function decideBumps(inputRng: Rng, config: WavyBumpsConfig['waves']) {
-    const rng = makeRng(makeRandomSeed(inputRng))
-    if (!config.regenerate) return
-
+function decideBumps(rng: Rng, config: WavyBumpsWave, tendency: WavyBumpsInputs['bumpsTendency']) {
     config.spacing = randomInt(50, 300, rng)
 
-    if (rng() < 0.25) {
+    const rolled = rng()
+    const flat = tendency === 'random' ? rolled < 0.25 : tendency === 'flat'
+
+    if (flat) {
         config.highMax = randomInt(85, 110, rng)
         config.highMin = config.highMax - randomInt(5, 10, rng)
         config.lowMax = randomInt(50, 70, rng)
@@ -48,11 +61,11 @@ function decideBumps(inputRng: Rng, config: WavyBumpsConfig['waves']) {
     config.chaikinTimes = randomInt(2, 3, rng)
 }
 
-function decideField(inputRng: Rng, config: WavyBumpsConfig['strokes']) {
-    const rng = makeRng(makeRandomSeed(inputRng))
-    if (!config.regenerate) return
+function decideField(rng: Rng, config: WavyBumpsStrokes, fieldType: WavyBumpsInputs['fieldType']) {
+    // always re-roll regardless of whether a custom type is chosen (keeps seed state is as consistent as possible)
+    const rolled = rng(['scribbly', 'pointillism', 'tight'] as const)
+    const type = fieldType === 'random' ? rolled : fieldType
 
-    let type = rng(['scribbly', 'pointillism', 'tight'])
     if (type === 'scribbly') {
         config.moveAmtTop.x = randomInt(30, 70, rng)
         config.moveAmtTop.y = randomInt(30, 40, rng)
@@ -70,6 +83,7 @@ function decideField(inputRng: Rng, config: WavyBumpsConfig['strokes']) {
         const strokeLen = config.steps * config.stepLen * 2
         config.density.y = (coverageY * 100) / config.strokeWidth
         config.density.x = rng(8, 15) / strokeLen ** 0.3
+        config.taper = 0.4
         config.taperType = 'symmetric'
     } else if (type === 'pointillism') {
         config.steps = 3
@@ -127,12 +141,7 @@ function decideField(inputRng: Rng, config: WavyBumpsConfig['strokes']) {
     }
 }
 
-export function makePalette(
-    inputRng: Rng,
-    count: number,
-    config: WavyBumpsConfig['colors'],
-): BumpsPalette {
-    const rng = makeRng(makeRandomSeed(inputRng))
+export function makePalette(rng: Rng, count: number, config: WavyBumpsColors): BumpsPalette {
     const { hue, addHue, lessSaturated } = config
 
     const l1 = 0.35
@@ -194,13 +203,21 @@ export function makeScene(config: WavyBumpsConfig, sizes: Sizes, seed: number): 
     console.log('SEED: ', seed)
     const rng = makeRng(seed)
     const noise = createNoise2D(rng)
+    const { inputs, custom } = config
 
-    decideBumps(rng, config.waves)
-    decideField(rng, config.strokes)
-    decideColors(rng, config.colors)
+    // fixed order, always drawn: skipping a section must not shift the rest
+    const branch = () => makeRng(makeRandomSeed(rng))
+    const bumpsRng = branch()
+    const fieldRng = branch()
+    const colorsRng = branch()
+    const paletteRng = branch()
+
+    if (!custom.waves) decideBumps(bumpsRng, config.waves, inputs.bumpsTendency)
+    if (!custom.strokes) decideField(fieldRng, config.strokes, inputs.fieldType)
+    if (!custom.colors) decideColors(colorsRng, config.colors, inputs.colorShift)
 
     const layout = makeLayout(sizes, config)
-    const palette = makePalette(rng, layout.rowCount, config.colors)
+    const palette = makePalette(paletteRng, layout.rowCount, config.colors)
 
     return { config, rng, noise, layout, palette }
 }
