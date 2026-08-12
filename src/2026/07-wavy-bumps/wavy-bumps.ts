@@ -1,7 +1,7 @@
 import createCanvas from '~/helpers/create-canvas'
 import '~/style.css'
 import { buildWavyBumpsGui } from './_wavy-bumps-gui'
-import { wavyBumpsDrawing } from './bumps-drawing'
+import { wavyBumpsDrawing } from './_wavy-bumps-drawing'
 import { C } from './config'
 import { FixedFpsLoop } from '~/helpers/loop'
 import { GuiExtra } from '~/helpers/gui/lilgui-extra'
